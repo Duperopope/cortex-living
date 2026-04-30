@@ -78,6 +78,28 @@ Changes:
     - smoke test results
     - generated branch
 - This bypasses generic LLM discussion and provides an actionable verification path.
+- Added a deterministic verification path for follow-up prompts like
+  `prouve moi ca`:
+  - reads `scripts/brain/self_dev_probe.py` directly
+  - reports current file content
+  - reports last commit touching this file
+  - reports current branch
+- Updated wording so failed/self-dev-unavailable runs are reported as
+  non-applied attempts instead of successful proof.
+
+## Pulse Visibility Diagnostics
+
+Files:
+
+- `H:\Code\Paperclip\scripts\brain\dashboard\serve.py`
+- `H:\Code\Paperclip\scripts\brain\dashboard\brain_gpu.html`
+
+Changes:
+
+- Added `POST /api/cortex/pulse_test` endpoint to inject visible pulse events.
+- Added `PULSE` button in the right cognition panel that triggers this endpoint.
+- This gives an immediate operator-side check that pulse propagation is working
+  end-to-end (`cortex_activation` -> jsonl/api -> panel).
 
 ## Playwright Preview
 
