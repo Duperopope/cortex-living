@@ -8,6 +8,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | Module | Rôle |
 |--------|------|
 | `cortex_activation` |  |
+| `cortex_apply_kv_q4` |  |
 | `cortex_brain_history` |  |
 | `cortex_bridge` |  |
 | `cortex_continuous` |  |
