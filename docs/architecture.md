@@ -1,0 +1,40 @@
+# Architecture
+
+Cortex est constitué de modules Python qui s'orchestrent autour d'un serveur
+HTTP unique. Chacun gère une fonction cognitive ou métabolique.
+
+## Modules actifs
+
+| Module | Rôle |
+|--------|------|
+| `cortex_activation` |  |
+| `cortex_brain_history` |  |
+| `cortex_bridge` |  |
+| `cortex_continuous` |  |
+| `cortex_emergence` |  |
+| `cortex_homeostasis` |  |
+| `cortex_identity` |  |
+| `cortex_memory` |  |
+| `cortex_publishing` |  |
+| `cortex_quantize` |  |
+| `cortex_research` |  |
+| `cortex_resources` |  |
+| `cortex_sam_model` |  |
+| `cortex_self_dev` |  |
+| `cortex_skills` |  |
+| `cortex_synthesis` |  |
+| `cortex_thought_graph` |  |
+| `cortex_tools` |  |
+| `cortex_vision` |  |
+
+## Endpoints HTTP exposés
+
+Tous via `serve.py` sur `127.0.0.1:8765`. Quelques-uns clés :
+
+- `/api/cortex/activations` — état Spreading Activation courant
+- `/api/cortex/pulses` — événements de propagation (8 s TTL)
+- `/api/cortex/brain_history` — historique snapshots + régressions
+- `/api/cortex/explain_brain` — auto-introspection (sans LLM, à partir des métriques)
+- `/api/cortex/homeostasis` — vitals + actions homeostatiques
+- `/api/cortex/research?query=…` — recherche multi-source sourcée
+- `/gpu` — visualisation 3D temps réel

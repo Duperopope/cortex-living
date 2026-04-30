@@ -1,0 +1,68 @@
+{
+  "ts": 1777560283.8821177,
+  "iso": "2026-04-30T16:44:43",
+  "brain": {
+    "ts": 1777560283.8849032,
+    "iso": "2026-04-30T16:44:43",
+    "n_nodes": 65,
+    "by_kind": {
+      "claude_memory": 20,
+      "semantic": 15,
+      "episodic": 30
+    },
+    "n_edges": 420,
+    "n_isolated": 0,
+    "density": 0.2019,
+    "n_active": 5,
+    "hebbian_total": 0.06
+  },
+  "activation": {
+    "active_nodes": {
+      ".claude/memory/cortex_identity.md": 0.051,
+      "feedback_iteration_discipline.md": 0.018,
+      ".claude/memory/project_thought_graph.md": 0.231,
+      "project_voice_pipeline.md": 0.014,
+      "project_vision.md": 0.013
+    },
+    "n_active": 5,
+    "top_hebbian_edges": [
+      {
+        "a": ".claude/memory/cortex_identity.md",
+        "b": ".claude/memory/project_thought_graph.md",
+        "strength": 0.01
+      },
+      {
+        "a": ".claude/memory/project_thought_graph.md",
+        "b": "07 - Ingested\\conversations\\2026-04-30\\16-04-17-bah-tas-aussi-la-caméra-aussi-lol.md",
+        "strength": 0.01
+      },
+      {
+        "a": ".claude/memory/cortex_identity.md",
+        "b": "07 - Ingested\\conversations\\2026-04-30\\15-22-29-que-sais-tu-sur-la-voix-et-le-pipeline.md",
+        "strength": 0.01
+      },
+      {
+        "a": ".claude/memory/project_multi_llm.md",
+        "b": "07 - Ingested\\conversations\\2026-04-30\\12-53-51-moi-jai-constaté-que-tu-réponds-apparemm.md",
+        "strength": 0.01
+      },
+      {
+        "a": ".claude/memory/MEMORY.md",
+        "b": ".claude/memory/project_cortex_factice_audit.md",
+        "strength": 0.01
+      },
+      {
+        "a": ".claude/memory/cortex_identity.md",
+        "b": ".claude/memory/project_cortex_factice_audit.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777560283.8934608
+  },
+  "body": {
+    "cpu_percent": 12.2,
+    "ram_percent": 72.9,
+    "n_disks": 5,
+    "gpu": []
+  }
+}
