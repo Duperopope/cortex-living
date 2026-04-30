@@ -14,6 +14,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_emergence` |  |
 | `cortex_homeostasis` |  |
 | `cortex_identity` |  |
+| `cortex_learned_skills` |  |
 | `cortex_memory` |  |
 | `cortex_publishing` |  |
 | `cortex_quantize` |  |
