@@ -1,39 +1,75 @@
 {
-  "ts": 1777579653.2877245,
-  "iso": "2026-04-30T22:07:33",
+  "ts": 1777580263.0496593,
+  "iso": "2026-04-30T22:17:43",
   "brain": {
-    "ts": 1777579653.2907248,
-    "iso": "2026-04-30T22:07:33",
-    "n_nodes": 544,
+    "ts": 1777580263.0953283,
+    "iso": "2026-04-30T22:17:43",
+    "n_nodes": 560,
     "by_kind": {
       "claude_memory": 20,
-      "semantic": 480,
+      "semantic": 496,
       "episodic": 44
     },
-    "n_edges": 16387,
+    "n_edges": 17331,
     "n_isolated": 0,
-    "density": 0.111,
-    "n_active": 0,
-    "hebbian_total": 0
+    "density": 0.1107,
+    "n_active": 4,
+    "hebbian_total": 0.06
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777579659.8393626,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "active_nodes": {
+      "08 - Semantic\\pixmap-caching-bug\\417559ddef-_mem_cache-bug-caused-24px-popup-icons.md": 0.042,
+      "08 - Semantic\\ui-icon-size\\480fdb1cda-Confirmed-pixmap-size-is-120x120px.md": 0.042,
+      "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md": 0.042,
+      "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md": 0.042
+    },
+    "n_active": 4,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\pixmap-caching-bug\\417559ddef-_mem_cache-bug-caused-24px-popup-icons.md",
+        "b": "08 - Semantic\\ui-icon-size\\480fdb1cda-Confirmed-pixmap-size-is-120x120px.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md",
+        "b": "08 - Semantic\\pixmap-caching-bug\\417559ddef-_mem_cache-bug-caused-24px-popup-icons.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
+        "b": "08 - Semantic\\pixmap-caching-bug\\417559ddef-_mem_cache-bug-caused-24px-popup-icons.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md",
+        "b": "08 - Semantic\\ui-icon-size\\480fdb1cda-Confirmed-pixmap-size-is-120x120px.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
+        "b": "08 - Semantic\\ui-icon-size\\480fdb1cda-Confirmed-pixmap-size-is-120x120px.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
+        "b": "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777580263.3213708,
+    "cum_activations": 8,
+    "cum_pulses": 6,
+    "cum_hebbian_ticks": 6,
+    "last_activation_ts": 1777579692.4180007,
+    "last_pulse_ts": 1777579692.4190004,
+    "last_hebbian_ts": 1777579692.4190004,
+    "last_wander_ts": 1777579692.3899245,
+    "n_edges_total": 6,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 19.7,
-    "ram_percent": 85.7,
+    "cpu_percent": 15.0,
+    "ram_percent": 77.9,
     "n_disks": 5,
     "gpu": []
   }
