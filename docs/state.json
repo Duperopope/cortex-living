@@ -1,39 +1,82 @@
 {
-  "ts": 1777585560.5423923,
-  "iso": "2026-04-30T23:46:00",
+  "ts": 1777586122.7878015,
+  "iso": "2026-04-30T23:55:22",
   "brain": {
-    "ts": 1777585560.546392,
-    "iso": "2026-04-30T23:46:00",
-    "n_nodes": 796,
+    "ts": 1777586122.790809,
+    "iso": "2026-04-30T23:55:22",
+    "n_nodes": 806,
     "by_kind": {
       "claude_memory": 20,
-      "semantic": 732,
+      "semantic": 742,
       "episodic": 44
     },
-    "n_edges": 37721,
+    "n_edges": 39113,
     "n_isolated": 0,
-    "density": 0.1192,
-    "n_active": 0,
-    "hebbian_total": 0
+    "density": 0.1206,
+    "n_active": 6,
+    "hebbian_total": 0.07
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777585567.5108814,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "active_nodes": {
+      "08 - Semantic\\cdn-actions-mapping\\d39072e14f-Use-cdn_actions-json-as-the-single-source-of-truth-for-actio.md": 0.055,
+      "08 - Semantic\\wakfu-item-stats\\e7934322b1-Fix-incorrect-ACTIONS-dictionary-mappings-in-item-js.md": 0.055,
+      "08 - Semantic\\tooltip-renderer\\fccda0747f-Tooltip-renderer-relies-on-ACTIONS-dictionary-for-label-look.md": 0.055,
+      "08 - Semantic\\wakfu-item-mapping\\89d2f201b5-Incorrect-actionId-to-label-mapping-in-item-js-ACTIONS-dicti.md": 0.055,
+      ".claude/memory/sam_model.md": 0.079,
+      ".claude/memory/cortex_identity.md": 0.079
+    },
+    "n_active": 6,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\cdn-actions-mapping\\d39072e14f-Use-cdn_actions-json-as-the-single-source-of-truth-for-actio.md",
+        "b": "08 - Semantic\\wakfu-item-stats\\e7934322b1-Fix-incorrect-ACTIONS-dictionary-mappings-in-item-js.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\cdn-actions-mapping\\d39072e14f-Use-cdn_actions-json-as-the-single-source-of-truth-for-actio.md",
+        "b": "08 - Semantic\\tooltip-renderer\\fccda0747f-Tooltip-renderer-relies-on-ACTIONS-dictionary-for-label-look.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\cdn-actions-mapping\\d39072e14f-Use-cdn_actions-json-as-the-single-source-of-truth-for-actio.md",
+        "b": "08 - Semantic\\wakfu-item-mapping\\89d2f201b5-Incorrect-actionId-to-label-mapping-in-item-js-ACTIONS-dicti.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\tooltip-renderer\\fccda0747f-Tooltip-renderer-relies-on-ACTIONS-dictionary-for-label-look.md",
+        "b": "08 - Semantic\\wakfu-item-stats\\e7934322b1-Fix-incorrect-ACTIONS-dictionary-mappings-in-item-js.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\wakfu-item-mapping\\89d2f201b5-Incorrect-actionId-to-label-mapping-in-item-js-ACTIONS-dicti.md",
+        "b": "08 - Semantic\\wakfu-item-stats\\e7934322b1-Fix-incorrect-ACTIONS-dictionary-mappings-in-item-js.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\tooltip-renderer\\fccda0747f-Tooltip-renderer-relies-on-ACTIONS-dictionary-for-label-look.md",
+        "b": "08 - Semantic\\wakfu-item-mapping\\89d2f201b5-Incorrect-actionId-to-label-mapping-in-item-js-ACTIONS-dicti.md",
+        "strength": 0.01
+      },
+      {
+        "a": ".claude/memory/cortex_identity.md",
+        "b": ".claude/memory/sam_model.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777586122.8655634,
+    "cum_activations": 10,
+    "cum_pulses": 7,
+    "cum_hebbian_ticks": 7,
+    "last_activation_ts": 1777585665.4886436,
+    "last_pulse_ts": 1777585665.4886436,
+    "last_hebbian_ts": 1777585665.4886436,
+    "last_wander_ts": 1777585599.4923341,
+    "n_edges_total": 7,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 20.5,
-    "ram_percent": 86.6,
+    "cpu_percent": 28.4,
+    "ram_percent": 91.6,
     "n_disks": 5,
     "gpu": []
   }
