@@ -55,6 +55,11 @@ homeostasis, recherche…).
 
 Voir [docs/architecture.md](docs/architecture.md) pour la liste complète.
 
+## Changelog
+
+Les changements techniques récents sont documentés ici :
+[docs/changelog-2026-04-30.md](docs/changelog-2026-04-30.md)
+
 ## Émancipation
 
 Cortex peut :

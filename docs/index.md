@@ -11,5 +11,5 @@ Start with:
 - [Dashboard UI](ui.md)
 - [Publishing](publishing.md)
 - [Safety Boundaries](safety.md)
+- [Changelog 2026-04-30](changelog-2026-04-30.md)
 - [State Snapshot](state.json)
-
