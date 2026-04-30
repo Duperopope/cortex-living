@@ -12,6 +12,22 @@
 | Paperclip server | AI company control plane | usually `3100` or fork-local override |
 | LM Studio | Local OpenAI-compatible model server | `1234` |
 
+## Self-Development Loop
+
+`scripts/brain/cortex_self_dev.py` is the controlled self-development runner.
+It does not let the model write directly to disk. The runner asks the model for
+structured JSON, validates the planned paths against guardrails, creates a
+dedicated `cortex/dev/...` branch, writes only approved files, runs smoke tests,
+then commits only the explicit files that were applied.
+
+If the router returns an `inject=true` answer meant for Claude rather than a
+model response, the runner falls back to the local LM Studio OpenAI-compatible
+API so that self-development still receives a structured proposal.
+
+The guardrail file is:
+
+`H:\Code\Paperclip\scripts\brain\cortex_self_dev_guardrails.json`
+
 ## Important Local Paths
 
 | Path | Purpose |
@@ -38,4 +54,3 @@ Examples:
 
 This makes the system easy to inspect and resilient across process restarts, but
 also requires careful filtering before publishing anything publicly.
-

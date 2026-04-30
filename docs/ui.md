@@ -74,3 +74,12 @@ The right panel explains what Cortex is currently doing:
 
 This panel is the main anti-black-box feature of the interface.
 
+The panel separates measured state from UI interpretation:
+
+- spreading activations come from `/api/cortex/activations`
+- Hebbian edges come from the persisted activation state
+- recent pulses come from `.cortex-pulses.jsonl`
+- cognitive mode and attention focus are inferred labels, not direct sensors
+
+When there are no active nodes or pulses, the UI should show that quiet state
+rather than fabricate activity.
