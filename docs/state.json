@@ -1,33 +1,58 @@
 {
-  "ts": 1777580725.1493363,
-  "iso": "2026-04-30T22:25:25",
+  "ts": 1777582082.2470315,
+  "iso": "2026-04-30T22:48:02",
   "brain": {
-    "ts": 1777580725.1523418,
-    "iso": "2026-04-30T22:25:25",
-    "n_nodes": 581,
+    "ts": 1777582082.2520573,
+    "iso": "2026-04-30T22:48:02",
+    "n_nodes": 622,
     "by_kind": {
       "claude_memory": 20,
-      "semantic": 517,
+      "semantic": 558,
       "episodic": 44
     },
-    "n_edges": 18346,
+    "n_edges": 21006,
     "n_isolated": 0,
-    "density": 0.1089,
+    "density": 0.1088,
     "n_active": 4,
-    "hebbian_total": 0.12
+    "hebbian_total": 0.18
   },
   "activation": {
     "active_nodes": {
-      "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md": 0.352,
-      "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md": 0.352,
-      "08 - Semantic\\icon-urls\\0d01f4a09f-Icon-URL-domain-updated-to-static-ankama-com.md": 0.352,
-      "08 - Semantic\\icon-caching\\0ce243c7a3-Local-icon-caching-via-static-domain-redirect.md": 0.352
+      "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md": 0.022,
+      "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md": 0.022,
+      "08 - Semantic\\icon-urls\\0d01f4a09f-Icon-URL-domain-updated-to-static-ankama-com.md": 0.022,
+      "08 - Semantic\\icon-caching\\0ce243c7a3-Local-icon-caching-via-static-domain-redirect.md": 0.022
     },
     "n_active": 4,
     "top_hebbian_edges": [
       {
         "a": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
         "b": "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md",
+        "strength": 0.03
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
+        "b": "08 - Semantic\\icon-urls\\0d01f4a09f-Icon-URL-domain-updated-to-static-ankama-com.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\0ce243c7a3-Local-icon-caching-via-static-domain-redirect.md",
+        "b": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md",
+        "b": "08 - Semantic\\icon-urls\\0d01f4a09f-Icon-URL-domain-updated-to-static-ankama-com.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\0ce243c7a3-Local-icon-caching-via-static-domain-redirect.md",
+        "b": "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\icon-caching\\0ce243c7a3-Local-icon-caching-via-static-domain-redirect.md",
+        "b": "08 - Semantic\\icon-urls\\0d01f4a09f-Icon-URL-domain-updated-to-static-ankama-com.md",
         "strength": 0.02
       },
       {
@@ -54,47 +79,22 @@
         "a": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
         "b": "08 - Semantic\\ui-icon-size\\480fdb1cda-Confirmed-pixmap-size-is-120x120px.md",
         "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
-        "b": "08 - Semantic\\icon-urls\\0d01f4a09f-Icon-URL-domain-updated-to-static-ankama-com.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\icon-caching\\0ce243c7a3-Local-icon-caching-via-static-domain-redirect.md",
-        "b": "08 - Semantic\\icon-caching\\176e0138f6-Icons-cached-locally-and-served-from-disk.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md",
-        "b": "08 - Semantic\\icon-urls\\0d01f4a09f-Icon-URL-domain-updated-to-static-ankama-com.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\icon-caching\\0ce243c7a3-Local-icon-caching-via-static-domain-redirect.md",
-        "b": "08 - Semantic\\icon-caching\\ed61046eb2-Cached-icon-upscaling-behavior-in-get_cached.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\icon-caching\\0ce243c7a3-Local-icon-caching-via-static-domain-redirect.md",
-        "b": "08 - Semantic\\icon-urls\\0d01f4a09f-Icon-URL-domain-updated-to-static-ankama-com.md",
-        "strength": 0.01
       }
     ],
-    "ts": 1777580725.192392,
-    "cum_activations": 16,
-    "cum_pulses": 12,
-    "cum_hebbian_ticks": 12,
-    "last_activation_ts": 1777580537.431759,
-    "last_pulse_ts": 1777580537.4327602,
-    "last_hebbian_ts": 1777580537.4327602,
-    "last_wander_ts": 1777580537.4082177,
+    "ts": 1777582082.3097117,
+    "cum_activations": 24,
+    "cum_pulses": 18,
+    "cum_hebbian_ticks": 18,
+    "last_activation_ts": 1777581394.5677297,
+    "last_pulse_ts": 1777581394.569235,
+    "last_hebbian_ts": 1777581394.5677297,
+    "last_wander_ts": 1777581394.5461905,
     "n_edges_total": 11,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 19.9,
-    "ram_percent": 63.2,
+    "cpu_percent": 60.2,
+    "ram_percent": 67.3,
     "n_disks": 5,
     "gpu": []
   }
