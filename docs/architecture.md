@@ -16,6 +16,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_identity` |  |
 | `cortex_learned_skills` |  |
 | `cortex_memory` |  |
+| `cortex_pipeline_manager` |  |
 | `cortex_publishing` |  |
 | `cortex_quantize` |  |
 | `cortex_research` |  |
