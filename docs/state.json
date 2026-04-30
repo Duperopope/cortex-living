@@ -1,9 +1,9 @@
 {
-  "ts": 1777586447.2790108,
-  "iso": "2026-05-01T00:00:47",
+  "ts": 1777586690.9684196,
+  "iso": "2026-05-01T00:04:50",
   "brain": {
-    "ts": 1777586447.2820096,
-    "iso": "2026-05-01T00:00:47",
+    "ts": 1777586691.0273519,
+    "iso": "2026-05-01T00:04:51",
     "n_nodes": 825,
     "by_kind": {
       "claude_memory": 20,
@@ -13,27 +13,63 @@
     "n_edges": 40995,
     "n_isolated": 0,
     "density": 0.1206,
-    "n_active": 0,
-    "hebbian_total": 0
+    "n_active": 4,
+    "hebbian_total": 0.06
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777586452.7003872,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "active_nodes": {
+      "08 - Semantic\\cloud-ip-config\\55f9d4a01c-Use-Ephemeral-Public-IPs-for-Primary-Interfaces.md": 0.309,
+      "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md": 0.309,
+      "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md": 0.309,
+      "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md": 0.309
+    },
+    "n_active": 4,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\cloud-ip-config\\55f9d4a01c-Use-Ephemeral-Public-IPs-for-Primary-Interfaces.md",
+        "b": "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\cloud-ip-config\\55f9d4a01c-Use-Ephemeral-Public-IPs-for-Primary-Interfaces.md",
+        "b": "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\cloud-ip-config\\55f9d4a01c-Use-Ephemeral-Public-IPs-for-Primary-Interfaces.md",
+        "b": "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
+        "b": "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
+        "b": "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
+        "b": "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777586691.236448,
+    "cum_activations": 8,
+    "cum_pulses": 6,
+    "cum_hebbian_ticks": 6,
+    "last_activation_ts": 1777586479.945264,
+    "last_pulse_ts": 1777586479.9472647,
+    "last_hebbian_ts": 1777586479.9462657,
+    "last_wander_ts": 1777586479.9165637,
+    "n_edges_total": 6,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 17.0,
-    "ram_percent": 70.2,
+    "cpu_percent": 29.1,
+    "ram_percent": 83.0,
     "n_disks": 5,
     "gpu": []
   }
