@@ -1,9 +1,9 @@
 {
-  "ts": 1777560283.8821177,
-  "iso": "2026-04-30T16:44:43",
+  "ts": 1777561279.515322,
+  "iso": "2026-04-30T17:01:19",
   "brain": {
-    "ts": 1777560283.8849032,
-    "iso": "2026-04-30T16:44:43",
+    "ts": 1777561279.5193226,
+    "iso": "2026-04-30T17:01:19",
     "n_nodes": 65,
     "by_kind": {
       "claude_memory": 20,
@@ -13,18 +13,21 @@
     "n_edges": 420,
     "n_isolated": 0,
     "density": 0.2019,
-    "n_active": 5,
-    "hebbian_total": 0.06
+    "n_active": 8,
+    "hebbian_total": 0.2
   },
   "activation": {
     "active_nodes": {
-      ".claude/memory/cortex_identity.md": 0.051,
-      "feedback_iteration_discipline.md": 0.018,
-      ".claude/memory/project_thought_graph.md": 0.231,
-      "project_voice_pipeline.md": 0.014,
-      "project_vision.md": 0.013
+      ".claude/memory/project_thought_graph.md": 0.03,
+      "07 - Ingested\\conversations\\2026-04-30\\16-03-39-bah-je-suis-pas-vraiment-absent-mais-ok-.md": 0.237,
+      "07 - Ingested\\conversations\\2026-04-30\\16-06-59-je-sais-pas-tu-as-tout-un-systeme-comple.md": 0.237,
+      "07 - Ingested\\conversations\\2026-04-30\\15-22-29-que-sais-tu-sur-la-voix-et-le-pipeline.md": 0.237,
+      "feedback_iteration_discipline.md": 0.237,
+      "MEMORY.md": 0.237,
+      "project_paperclip_setup.md": 0.237,
+      "08 - Semantic\\communities\\community-0000-paperclip-resume-delta-cluster.md": 0.237
     },
-    "n_active": 5,
+    "n_active": 8,
     "top_hebbian_edges": [
       {
         "a": ".claude/memory/cortex_identity.md",
@@ -55,13 +58,83 @@
         "a": ".claude/memory/cortex_identity.md",
         "b": ".claude/memory/project_cortex_factice_audit.md",
         "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-03-39-bah-je-suis-pas-vraiment-absent-mais-ok-.md",
+        "b": "07 - Ingested\\conversations\\2026-04-30\\16-06-59-je-sais-pas-tu-as-tout-un-systeme-comple.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\15-22-29-que-sais-tu-sur-la-voix-et-le-pipeline.md",
+        "b": "07 - Ingested\\conversations\\2026-04-30\\16-03-39-bah-je-suis-pas-vraiment-absent-mais-ok-.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-03-39-bah-je-suis-pas-vraiment-absent-mais-ok-.md",
+        "b": "feedback_iteration_discipline.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-03-39-bah-je-suis-pas-vraiment-absent-mais-ok-.md",
+        "b": "MEMORY.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-03-39-bah-je-suis-pas-vraiment-absent-mais-ok-.md",
+        "b": "project_paperclip_setup.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-03-39-bah-je-suis-pas-vraiment-absent-mais-ok-.md",
+        "b": "08 - Semantic\\communities\\community-0000-paperclip-resume-delta-cluster.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\15-22-29-que-sais-tu-sur-la-voix-et-le-pipeline.md",
+        "b": "07 - Ingested\\conversations\\2026-04-30\\16-06-59-je-sais-pas-tu-as-tout-un-systeme-comple.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-06-59-je-sais-pas-tu-as-tout-un-systeme-comple.md",
+        "b": "feedback_iteration_discipline.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-06-59-je-sais-pas-tu-as-tout-un-systeme-comple.md",
+        "b": "MEMORY.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-06-59-je-sais-pas-tu-as-tout-un-systeme-comple.md",
+        "b": "project_paperclip_setup.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\16-06-59-je-sais-pas-tu-as-tout-un-systeme-comple.md",
+        "b": "08 - Semantic\\communities\\community-0000-paperclip-resume-delta-cluster.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\15-22-29-que-sais-tu-sur-la-voix-et-le-pipeline.md",
+        "b": "feedback_iteration_discipline.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\15-22-29-que-sais-tu-sur-la-voix-et-le-pipeline.md",
+        "b": "MEMORY.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-04-30\\15-22-29-que-sais-tu-sur-la-voix-et-le-pipeline.md",
+        "b": "project_paperclip_setup.md",
+        "strength": 0.01
       }
     ],
-    "ts": 1777560283.8934608
+    "ts": 1777561279.5315075
   },
   "body": {
-    "cpu_percent": 12.2,
-    "ram_percent": 72.9,
+    "cpu_percent": 30.6,
+    "ram_percent": 77.7,
     "n_disks": 5,
     "gpu": []
   }

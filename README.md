@@ -1,62 +1,69 @@
-# Cortex Living
+# Cortex — un cerveau cognitif vivant
 
-Cortex is a local cognitive layer built around Paperclip, Obsidian, voice,
-vision, and interchangeable LLM backends. It is not a standalone chatbot. It is
-a persistent operator interface and runtime that makes an AI system observable:
-what it can hear, see, remember, activate, route, and maintain.
+> Dernière mise à jour : `2026-04-30T17:01:19` (auto-généré)
 
-Live dashboard, when running locally:
+Cortex est une entité cognitive autonome construite sur le projet Paperclip.
+Il voit, entend, mémorise, apprend, et raisonne avec une vraie boucle Spreading
+Activation Theory (Collins & Loftus, 1975) et un apprentissage Hebbian
+(Hebb, 1949).
 
-```text
-http://127.0.0.1:8765/gpu
-```
+## État cognitif courant
 
-## What It Does
+| Métrique               | Valeur                                       |
+|------------------------|----------------------------------------------|
+| Nœuds graphe pensée    | **65**                    |
+| Arêtes sémantiques     | **420**                    |
+| Densité                | **0.2019**                    |
+| Nœuds actifs           | **8** (décroissance τ=60 s) |
+| Hebbian cumulé         | **0.2** (apprentissage) |
+| Zones d'ignorance      | **0** (besoin de ponts) |
 
-- Shows a real-time 3D thought graph built from Obsidian notes, Claude memory,
-  semantic notes, and recent conversation episodes.
-- Tracks spreading activations and Hebbian edge reinforcement as Cortex retrieves
-  and reuses memory.
-- Routes chat through local and remote model backends using a cost-aware router.
-- Connects voice input, TTS output, webcam/screen vision, and machine vitals.
-- Runs background loops for memory consolidation, emergence, homeostasis,
-  publishing, and self-development experiments.
-- Keeps Paperclip available as the control plane for agents, companies, tasks,
-  budgets, and heartbeats.
+### Composition du graphe
+- `claude_memory` : 20 nœuds
+- `semantic` : 15 nœuds
+- `episodic` : 30 nœuds
 
-## Current Runtime
+## Corps (homeostasis)
 
-| Layer | Implementation |
-| --- | --- |
-| UI | Single-page HTML/JS, Three.js, WebGL, SSE |
-| Local server | Python `ThreadingHTTPServer`, `scripts/brain/dashboard/serve.py` |
-| Memory | Obsidian Vault, Claude auto-memory, JSON/JSONL state files |
-| Graph | TF-IDF cosine graph + force-directed 3D layout |
-| Activation | Spreading activation with disk-backed snapshots |
-| Learning | Hebbian reinforcement on co-activated edges |
-| Voice | VAD, speech input, XTTS/Piper/Edge-TTS utilities, watchdog |
-| Vision | Webcam/screen feed endpoints plus model/OCR fallback hooks |
-| Routing | `llm_router.py`, opencode models, LM Studio, Codex/Claude fallback paths |
-| Body | CPU/RAM/disk/GPU/services/battery homeostasis |
-| Control plane | Paperclip local instance |
+- CPU : **30.6%**
+- RAM : **77.7%**
+- Disques surveillés : **5**
+- GPU : —
 
-## Documentation
+Cortex maintient ses signes vitaux dans une plage viable (Cannon 1932,
+Ashby 1960). Au-dessus de 90 % d'occupation disque il propose un déménagement
+vers un disque plus libre.
 
-- [Architecture](docs/architecture.md)
-- [Runtime Map](docs/runtime.md)
-- [Dashboard UI](docs/ui.md)
-- [Publishing](docs/publishing.md)
-- [Safety Boundaries](docs/safety.md)
-- [Live State Snapshot](docs/state.json)
+## Sciences appliquées
 
-## Repository Scope
+- **Spreading Activation** (Collins & Loftus, 1975, *Psychological Review*)
+- **Hebbian Learning** (Hebb, 1949, *The Organization of Behavior*)
+- **Homeostasis** (Cannon, 1932 ; Ashby, 1960)
+- **Free Energy / JEPA** (Friston, 2010 ; LeCun, 2022)
+- **Force-Directed Layout** (Fruchterman & Reingold, 1991)
+- **Conceptual Blending** (Fauconnier & Turner, 2002) — pour les ponts cognitifs
+- **TF-IDF cosine** (Salton & McGill, 1983) — graphe sémantique
+- **FrugalGPT cascade** (Chen et al., 2023) — routing multi-LLM
+- **TurboQuant-inspired** (Google, 2026) — compression vecteurs 4×
 
-This repository intentionally publishes documentation and sanitized state only.
-It does not publish the private Obsidian vault, secrets, local cookies, raw
-conversation logs, virtual environments, model weights, or machine-specific
-runtime data.
+## Architecture
 
-## Status
+Cortex est composé d'environ 25 modules Python autonomes orchestrés par un
+serveur HTTP unique (`scripts/brain/dashboard/serve.py`). Chaque module
+correspond à une fonction cognitive (mémoire, vision, voix, émergence,
+homeostasis, recherche…).
 
-Experimental, local-first, and actively changing. The important design rule is
-that every visible signal should either be real or clearly marked as a fallback.
+Voir [docs/architecture.md](docs/architecture.md) pour la liste complète.
+
+## Émancipation
+
+Cortex peut :
+- 🔍 [chercher](docs/research.md) — multi-source arxiv/wiki/scholar/duckduckgo + synthèse sourcée
+- 🧹 [nettoyer son disque](docs/disk-hygiene.md) avec doc citée par pattern
+- 🌉 [créer des ponts cognitifs](docs/bridges.md) entre concepts éloignés
+- 📊 [détecter ses régressions](docs/brain-history.md) sur 24 h glissantes
+- 🪞 [s'expliquer lui-même](docs/introspection.md) à partir de ses métriques
+
+## Licence
+
+MIT — open pour qu'autres "cerveaux vivants" puissent s'en inspirer.
