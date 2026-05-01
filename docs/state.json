@@ -1,105 +1,39 @@
 {
-  "ts": 1777590055.28293,
-  "iso": "2026-05-01T01:00:55",
+  "ts": 1777594399.9696739,
+  "iso": "2026-05-01T02:13:19",
   "brain": {
-    "ts": 1777590055.287439,
-    "iso": "2026-05-01T01:00:55",
-    "n_nodes": 949,
+    "ts": 1777594399.9751894,
+    "iso": "2026-05-01T02:13:19",
+    "n_nodes": 1093,
     "by_kind": {
       "claude_memory": 20,
-      "semantic": 885,
+      "semantic": 1029,
       "episodic": 44
     },
-    "n_edges": 52538,
+    "n_edges": 71635,
     "n_isolated": 0,
-    "density": 0.1168,
-    "n_active": 4,
-    "hebbian_total": 0.3
+    "density": 0.12,
+    "n_active": 0,
+    "hebbian_total": 0
   },
   "activation": {
-    "active_nodes": {
-      "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md": 0.304,
-      "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md": 0.304,
-      "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md": 0.304,
-      "08 - Semantic\\oci-ui-workflow\\ab6e4b740b-OCI-console-steps-for-adding-public-IP-to-existing-private-I.md": 0.304
-    },
-    "n_active": 4,
-    "top_hebbian_edges": [
-      {
-        "a": "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "b": "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md",
-        "strength": 0.05
-      },
-      {
-        "a": "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "b": "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md",
-        "strength": 0.05
-      },
-      {
-        "a": "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "b": "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "strength": 0.05
-      },
-      {
-        "a": "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "b": "08 - Semantic\\oci-ui-workflow\\ab6e4b740b-OCI-console-steps-for-adding-public-IP-to-existing-private-I.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "b": "08 - Semantic\\oci-ui-workflow\\ab6e4b740b-OCI-console-steps-for-adding-public-IP-to-existing-private-I.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md",
-        "b": "08 - Semantic\\oci-ui-workflow\\ab6e4b740b-OCI-console-steps-for-adding-public-IP-to-existing-private-I.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\cloud-ip-config\\55f9d4a01c-Use-Ephemeral-Public-IPs-for-Primary-Interfaces.md",
-        "b": "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\cloud-ip-config\\55f9d4a01c-Use-Ephemeral-Public-IPs-for-Primary-Interfaces.md",
-        "b": "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\cloud-ip-config\\55f9d4a01c-Use-Ephemeral-Public-IPs-for-Primary-Interfaces.md",
-        "b": "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\cloud-networking-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "b": "08 - Semantic\\cloud-networking\\eb579472e8-Assign-ephemeral-public-IP-when-missing.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\cloud-ip-config\\9131d0f5b7-Configure-Public-IP-Type-for-SSH-Access.md",
-        "b": "08 - Semantic\\cloud-networking\\eb579472e8-Assign-ephemeral-public-IP-when-missing.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\cloud-networking\\eb579472e8-Assign-ephemeral-public-IP-when-missing.md",
-        "b": "08 - Semantic\\infra-config\\def9e79840-Primary-IP-set-to-Ephemeral-public-IP.md",
-        "strength": 0.01
-      }
-    ],
-    "ts": 1777590055.4027603,
-    "cum_activations": 40,
-    "cum_pulses": 30,
-    "cum_hebbian_ticks": 30,
-    "last_activation_ts": 1777589840.8139873,
-    "last_pulse_ts": 1777589840.8149827,
-    "last_hebbian_ts": 1777589840.8149827,
-    "last_wander_ts": 1777589840.7934477,
-    "n_edges_total": 12,
+    "active_nodes": {},
+    "n_active": 0,
+    "top_hebbian_edges": [],
+    "ts": 1777594409.3851006,
+    "cum_activations": 0,
+    "cum_pulses": 0,
+    "cum_hebbian_ticks": 0,
+    "last_activation_ts": 0.0,
+    "last_pulse_ts": 0.0,
+    "last_hebbian_ts": 0.0,
+    "last_wander_ts": 0.0,
+    "n_edges_total": 0,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 20.9,
-    "ram_percent": 83.3,
+    "cpu_percent": 28.7,
+    "ram_percent": 88.1,
     "n_disks": 5,
     "gpu": []
   }
