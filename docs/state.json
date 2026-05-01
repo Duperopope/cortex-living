@@ -1,48 +1,39 @@
 {
-  "ts": 1777599521.7303927,
-  "iso": "2026-05-01T03:38:41",
+  "ts": 1777599895.5922666,
+  "iso": "2026-05-01T03:44:55",
   "brain": {
-    "ts": 1777599521.7335005,
-    "iso": "2026-05-01T03:38:41",
-    "n_nodes": 1119,
+    "ts": 1777599895.5957816,
+    "iso": "2026-05-01T03:44:55",
+    "n_nodes": 1121,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1040,
-      "episodic": 59
+      "episodic": 61
     },
-    "n_edges": 76038,
+    "n_edges": 76281,
     "n_isolated": 0,
-    "density": 0.1216,
-    "n_active": 2,
-    "hebbian_total": 0.01
+    "density": 0.1215,
+    "n_active": 0,
+    "hebbian_total": 0
   },
   "activation": {
-    "active_nodes": {
-      ".claude/memory/sam_model.md": 0.98,
-      "07 - Ingested\\conversations\\2026-05-01\\03-37-57-quelle-est-la-capitale-du-japon.md": 0.98
-    },
-    "n_active": 2,
-    "top_hebbian_edges": [
-      {
-        "a": ".claude/memory/sam_model.md",
-        "b": "07 - Ingested\\conversations\\2026-05-01\\03-37-57-quelle-est-la-capitale-du-japon.md",
-        "strength": 0.01
-      }
-    ],
-    "ts": 1777599527.1996055,
-    "cum_activations": 2,
-    "cum_pulses": 1,
-    "cum_hebbian_ticks": 1,
-    "last_activation_ts": 1777599523.5906274,
-    "last_pulse_ts": 1777599523.5906274,
-    "last_hebbian_ts": 1777599523.5906274,
+    "active_nodes": {},
+    "n_active": 0,
+    "top_hebbian_edges": [],
+    "ts": 1777599900.5985746,
+    "cum_activations": 0,
+    "cum_pulses": 0,
+    "cum_hebbian_ticks": 0,
+    "last_activation_ts": 0.0,
+    "last_pulse_ts": 0.0,
+    "last_hebbian_ts": 0.0,
     "last_wander_ts": 0.0,
-    "n_edges_total": 1,
+    "n_edges_total": 0,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 44.0,
-    "ram_percent": 51.4,
+    "cpu_percent": 12.9,
+    "ram_percent": 51.7,
     "n_disks": 5,
     "gpu": []
   }
