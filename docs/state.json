@@ -1,39 +1,75 @@
 {
-  "ts": 1777672161.9201176,
-  "iso": "2026-05-01T23:49:21",
+  "ts": 1777675772.1314309,
+  "iso": "2026-05-02T00:49:32",
   "brain": {
-    "ts": 1777672161.924146,
-    "iso": "2026-05-01T23:49:21",
+    "ts": 1777675772.1514034,
+    "iso": "2026-05-02T00:49:32",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1658,
       "episodic": 100
     },
-    "n_edges": 179416,
+    "n_edges": 179126,
     "n_isolated": 0,
-    "density": 0.1136,
-    "n_active": 0,
-    "hebbian_total": 0
+    "density": 0.1134,
+    "n_active": 4,
+    "hebbian_total": 0.3
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777672169.59382,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "active_nodes": {
+      "07 - Ingested\\conversations\\2026-05-01\\19-06-26-quel-jour-on-est.md": 0.354,
+      "07 - Ingested\\conversations\\2026-05-01\\19-23-48-teston-nos-nouvelles-fonctions.md": 0.354,
+      "07 - Ingested\\conversations\\2026-05-01\\19-25-48-teston-nos-nouvelles-fonctions.md": 0.354,
+      "07 - Ingested\\conversations\\2026-05-01\\19-25-39-qui-est-tu.md": 0.354
+    },
+    "n_active": 4,
+    "top_hebbian_edges": [
+      {
+        "a": "07 - Ingested\\conversations\\2026-05-01\\19-25-39-qui-est-tu.md",
+        "b": "07 - Ingested\\conversations\\2026-05-01\\19-25-48-teston-nos-nouvelles-fonctions.md",
+        "strength": 0.05
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-05-01\\19-23-48-teston-nos-nouvelles-fonctions.md",
+        "b": "07 - Ingested\\conversations\\2026-05-01\\19-25-39-qui-est-tu.md",
+        "strength": 0.05
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-05-01\\19-06-26-quel-jour-on-est.md",
+        "b": "07 - Ingested\\conversations\\2026-05-01\\19-25-39-qui-est-tu.md",
+        "strength": 0.05
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-05-01\\19-23-48-teston-nos-nouvelles-fonctions.md",
+        "b": "07 - Ingested\\conversations\\2026-05-01\\19-25-48-teston-nos-nouvelles-fonctions.md",
+        "strength": 0.05
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-05-01\\19-06-26-quel-jour-on-est.md",
+        "b": "07 - Ingested\\conversations\\2026-05-01\\19-25-48-teston-nos-nouvelles-fonctions.md",
+        "strength": 0.05
+      },
+      {
+        "a": "07 - Ingested\\conversations\\2026-05-01\\19-06-26-quel-jour-on-est.md",
+        "b": "07 - Ingested\\conversations\\2026-05-01\\19-23-48-teston-nos-nouvelles-fonctions.md",
+        "strength": 0.05
+      }
+    ],
+    "ts": 1777675781.9715474,
+    "cum_activations": 40,
+    "cum_pulses": 30,
+    "cum_hebbian_ticks": 30,
+    "last_activation_ts": 1777675594.9897854,
+    "last_pulse_ts": 1777675594.9917874,
+    "last_hebbian_ts": 1777675594.9907866,
+    "last_wander_ts": 1777675594.9592268,
+    "n_edges_total": 6,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 44.8,
-    "ram_percent": 53.2,
+    "cpu_percent": 23.5,
+    "ram_percent": 56.9,
     "n_disks": 5,
     "gpu": []
   }
