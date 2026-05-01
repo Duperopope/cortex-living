@@ -1,18 +1,18 @@
 {
-  "ts": 1777599895.5922666,
-  "iso": "2026-05-01T03:44:55",
+  "ts": 1777600007.6581645,
+  "iso": "2026-05-01T03:46:47",
   "brain": {
-    "ts": 1777599895.5957816,
-    "iso": "2026-05-01T03:44:55",
-    "n_nodes": 1121,
+    "ts": 1777600007.6621654,
+    "iso": "2026-05-01T03:46:47",
+    "n_nodes": 1104,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1040,
-      "episodic": 61
+      "episodic": 44
     },
-    "n_edges": 76281,
+    "n_edges": 73314,
     "n_isolated": 0,
-    "density": 0.1215,
+    "density": 0.1204,
     "n_active": 0,
     "hebbian_total": 0
   },
@@ -20,7 +20,7 @@
     "active_nodes": {},
     "n_active": 0,
     "top_hebbian_edges": [],
-    "ts": 1777599900.5985746,
+    "ts": 1777600024.1983871,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -32,8 +32,8 @@
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 12.9,
-    "ram_percent": 51.7,
+    "cpu_percent": 32.6,
+    "ram_percent": 51.0,
     "n_disks": 5,
     "gpu": []
   }
