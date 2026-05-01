@@ -1,26 +1,62 @@
 {
-  "ts": 1777633836.0863082,
-  "iso": "2026-05-01T13:10:36",
+  "ts": 1777635395.6134534,
+  "iso": "2026-05-01T13:36:35",
   "brain": {
-    "ts": 1777633836.091308,
-    "iso": "2026-05-01T13:10:36",
-    "n_nodes": 1217,
+    "ts": 1777635395.617464,
+    "iso": "2026-05-01T13:36:35",
+    "n_nodes": 1218,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1101,
-      "episodic": 96
+      "episodic": 97
     },
-    "n_edges": 90603,
+    "n_edges": 90517,
     "n_isolated": 0,
-    "density": 0.1224,
-    "n_active": 0,
-    "hebbian_total": 0
+    "density": 0.1221,
+    "n_active": 4,
+    "hebbian_total": 0.12
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777633841.5140483,
+    "active_nodes": {
+      "08 - Semantic\\vm-network-isolation\\62a70a33b0-VM-Network-Reconfiguration-Procedure.md": 0.025,
+      "08 - Semantic\\vm-network-isolation\\119e563c60-VM-Network-Switch-Isolation-Requirement.md": 0.025,
+      "08 - Semantic\\vm-network\\8da0bf404e-VM-network-location-and-IP-configuration.md": 0.025,
+      "08 - Semantic\\vm-resource-allocation\\3f59d56366-Host-Resource-Allocation-Rule-for-VMs.md": 0.025
+    },
+    "n_active": 4,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\vm-network-isolation\\119e563c60-VM-Network-Switch-Isolation-Requirement.md",
+        "b": "08 - Semantic\\vm-network-isolation\\62a70a33b0-VM-Network-Reconfiguration-Procedure.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\vm-network-isolation\\62a70a33b0-VM-Network-Reconfiguration-Procedure.md",
+        "b": "08 - Semantic\\vm-network\\8da0bf404e-VM-network-location-and-IP-configuration.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\vm-network-isolation\\62a70a33b0-VM-Network-Reconfiguration-Procedure.md",
+        "b": "08 - Semantic\\vm-resource-allocation\\3f59d56366-Host-Resource-Allocation-Rule-for-VMs.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\vm-network-isolation\\119e563c60-VM-Network-Switch-Isolation-Requirement.md",
+        "b": "08 - Semantic\\vm-network\\8da0bf404e-VM-network-location-and-IP-configuration.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\vm-network-isolation\\119e563c60-VM-Network-Switch-Isolation-Requirement.md",
+        "b": "08 - Semantic\\vm-resource-allocation\\3f59d56366-Host-Resource-Allocation-Rule-for-VMs.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\vm-network\\8da0bf404e-VM-network-location-and-IP-configuration.md",
+        "b": "08 - Semantic\\vm-resource-allocation\\3f59d56366-Host-Resource-Allocation-Rule-for-VMs.md",
+        "strength": 0.02
+      }
+    ],
+    "ts": 1777635402.2936943,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -28,12 +64,12 @@
     "last_pulse_ts": 0.0,
     "last_hebbian_ts": 0.0,
     "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "n_edges_total": 6,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 20.7,
-    "ram_percent": 46.7,
+    "cpu_percent": 36.2,
+    "ram_percent": 54.3,
     "n_disks": 5,
     "gpu": []
   }
