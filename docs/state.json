@@ -1,39 +1,48 @@
 {
-  "ts": 1777598774.6358793,
-  "iso": "2026-05-01T03:26:14",
+  "ts": 1777599461.1884415,
+  "iso": "2026-05-01T03:37:41",
   "brain": {
-    "ts": 1777598774.6388896,
-    "iso": "2026-05-01T03:26:14",
-    "n_nodes": 1111,
+    "ts": 1777599461.1919506,
+    "iso": "2026-05-01T03:37:41",
+    "n_nodes": 1117,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1040,
-      "episodic": 51
+      "episodic": 57
     },
-    "n_edges": 74944,
+    "n_edges": 75285,
     "n_isolated": 0,
-    "density": 0.1215,
-    "n_active": 0,
-    "hebbian_total": 0
+    "density": 0.1208,
+    "n_active": 2,
+    "hebbian_total": 0.01
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777598780.3660655,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
+    "active_nodes": {
+      ".claude/memory/sam_model.md": 0.978,
+      "07 - Ingested\\conversations\\2026-05-01\\03-36-42-résume-cette-conversation-en-un-titre-co.md": 0.978
+    },
+    "n_active": 2,
+    "top_hebbian_edges": [
+      {
+        "a": ".claude/memory/sam_model.md",
+        "b": "07 - Ingested\\conversations\\2026-05-01\\03-36-42-résume-cette-conversation-en-un-titre-co.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777599467.063039,
+    "cum_activations": 2,
+    "cum_pulses": 1,
+    "cum_hebbian_ticks": 1,
+    "last_activation_ts": 1777599463.0377164,
+    "last_pulse_ts": 1777599463.0377164,
+    "last_hebbian_ts": 1777599463.0377164,
     "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "n_edges_total": 1,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 32.0,
-    "ram_percent": 49.1,
+    "cpu_percent": 41.9,
+    "ram_percent": 51.8,
     "n_disks": 5,
     "gpu": []
   }
