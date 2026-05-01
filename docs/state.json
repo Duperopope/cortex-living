@@ -1,39 +1,75 @@
 {
-  "ts": 1777642634.5515976,
-  "iso": "2026-05-01T15:37:14",
+  "ts": 1777646244.2645247,
+  "iso": "2026-05-01T16:37:24",
   "brain": {
-    "ts": 1777642634.5555947,
-    "iso": "2026-05-01T15:37:14",
-    "n_nodes": 1514,
+    "ts": 1777646244.2685251,
+    "iso": "2026-05-01T16:37:24",
+    "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
-      "semantic": 1394,
+      "semantic": 1658,
       "episodic": 100
     },
-    "n_edges": 129792,
+    "n_edges": 181370,
     "n_isolated": 0,
-    "density": 0.1133,
-    "n_active": 0,
-    "hebbian_total": 0
+    "density": 0.1148,
+    "n_active": 4,
+    "hebbian_total": 0.3
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777642641.5824997,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "active_nodes": {
+      "08 - Semantic\\recruitment\\0e3478e55a-Agent-active-and-configured.md": 0.276,
+      "08 - Semantic\\recruitment\\9a39a69362-Weekly-routine-set-up.md": 0.276,
+      "08 - Semantic\\recruitment\\1c80b322bb-KAIAA-102-recruitment-complete.md": 0.276,
+      "08 - Semantic\\recruitment\\206593c955-First-report-published.md": 0.276
+    },
+    "n_active": 4,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\recruitment\\0e3478e55a-Agent-active-and-configured.md",
+        "b": "08 - Semantic\\recruitment\\9a39a69362-Weekly-routine-set-up.md",
+        "strength": 0.05
+      },
+      {
+        "a": "08 - Semantic\\recruitment\\0e3478e55a-Agent-active-and-configured.md",
+        "b": "08 - Semantic\\recruitment\\1c80b322bb-KAIAA-102-recruitment-complete.md",
+        "strength": 0.05
+      },
+      {
+        "a": "08 - Semantic\\recruitment\\0e3478e55a-Agent-active-and-configured.md",
+        "b": "08 - Semantic\\recruitment\\206593c955-First-report-published.md",
+        "strength": 0.05
+      },
+      {
+        "a": "08 - Semantic\\recruitment\\1c80b322bb-KAIAA-102-recruitment-complete.md",
+        "b": "08 - Semantic\\recruitment\\9a39a69362-Weekly-routine-set-up.md",
+        "strength": 0.05
+      },
+      {
+        "a": "08 - Semantic\\recruitment\\206593c955-First-report-published.md",
+        "b": "08 - Semantic\\recruitment\\9a39a69362-Weekly-routine-set-up.md",
+        "strength": 0.05
+      },
+      {
+        "a": "08 - Semantic\\recruitment\\1c80b322bb-KAIAA-102-recruitment-complete.md",
+        "b": "08 - Semantic\\recruitment\\206593c955-First-report-published.md",
+        "strength": 0.05
+      }
+    ],
+    "ts": 1777646244.4868567,
+    "cum_activations": 40,
+    "cum_pulses": 30,
+    "cum_hebbian_ticks": 30,
+    "last_activation_ts": 1777646012.7126143,
+    "last_pulse_ts": 1777646012.7136137,
+    "last_hebbian_ts": 1777646012.7136137,
+    "last_wander_ts": 1777646012.7046373,
+    "n_edges_total": 6,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 47.2,
-    "ram_percent": 68.8,
+    "cpu_percent": 11.9,
+    "ram_percent": 77.1,
     "n_disks": 5,
     "gpu": []
   }
