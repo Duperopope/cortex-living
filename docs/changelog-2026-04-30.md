@@ -101,6 +101,22 @@ Changes:
 - This gives an immediate operator-side check that pulse propagation is working
   end-to-end (`cortex_activation` -> jsonl/api -> panel).
 
+## LLM-Only Enforcement And No-Fake Test
+
+Files:
+
+- `H:\Code\Paperclip\scripts\brain\dashboard\serve.py`
+- `H:\Code\Paperclip\scripts\brain\tests\test_smoke.py`
+
+Changes:
+
+- Added strict `llm_only` backend enforcement in chat:
+  - if a non-LLM backend path leaks (policy/tool/direct),
+    the response is blocked and returned as explicit error.
+- Added smoke test `serve_chat_llm_only_no_fake`:
+  - asserts that `llm_only=true` never ends on non-LLM backends.
+  - accepts `llm_unavailable` as honest behavior when model calls fail.
+
 ## Playwright Preview
 
 Files:
