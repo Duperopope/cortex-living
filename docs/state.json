@@ -1,48 +1,48 @@
 {
-  "ts": 1777599461.1884415,
-  "iso": "2026-05-01T03:37:41",
+  "ts": 1777599521.7303927,
+  "iso": "2026-05-01T03:38:41",
   "brain": {
-    "ts": 1777599461.1919506,
-    "iso": "2026-05-01T03:37:41",
-    "n_nodes": 1117,
+    "ts": 1777599521.7335005,
+    "iso": "2026-05-01T03:38:41",
+    "n_nodes": 1119,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1040,
-      "episodic": 57
+      "episodic": 59
     },
-    "n_edges": 75285,
+    "n_edges": 76038,
     "n_isolated": 0,
-    "density": 0.1208,
+    "density": 0.1216,
     "n_active": 2,
     "hebbian_total": 0.01
   },
   "activation": {
     "active_nodes": {
-      ".claude/memory/sam_model.md": 0.978,
-      "07 - Ingested\\conversations\\2026-05-01\\03-36-42-résume-cette-conversation-en-un-titre-co.md": 0.978
+      ".claude/memory/sam_model.md": 0.98,
+      "07 - Ingested\\conversations\\2026-05-01\\03-37-57-quelle-est-la-capitale-du-japon.md": 0.98
     },
     "n_active": 2,
     "top_hebbian_edges": [
       {
         "a": ".claude/memory/sam_model.md",
-        "b": "07 - Ingested\\conversations\\2026-05-01\\03-36-42-résume-cette-conversation-en-un-titre-co.md",
+        "b": "07 - Ingested\\conversations\\2026-05-01\\03-37-57-quelle-est-la-capitale-du-japon.md",
         "strength": 0.01
       }
     ],
-    "ts": 1777599467.063039,
+    "ts": 1777599527.1996055,
     "cum_activations": 2,
     "cum_pulses": 1,
     "cum_hebbian_ticks": 1,
-    "last_activation_ts": 1777599463.0377164,
-    "last_pulse_ts": 1777599463.0377164,
-    "last_hebbian_ts": 1777599463.0377164,
+    "last_activation_ts": 1777599523.5906274,
+    "last_pulse_ts": 1777599523.5906274,
+    "last_hebbian_ts": 1777599523.5906274,
     "last_wander_ts": 0.0,
     "n_edges_total": 1,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 41.9,
-    "ram_percent": 51.8,
+    "cpu_percent": 44.0,
+    "ram_percent": 51.4,
     "n_disks": 5,
     "gpu": []
   }
