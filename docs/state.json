@@ -1,26 +1,62 @@
 {
-  "ts": 1777706781.7521985,
-  "iso": "2026-05-02T09:26:21",
+  "ts": 1777707209.9626033,
+  "iso": "2026-05-02T09:33:29",
   "brain": {
-    "ts": 1777706781.7632558,
-    "iso": "2026-05-02T09:26:21",
+    "ts": 1777707209.9666853,
+    "iso": "2026-05-02T09:33:29",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1658,
       "episodic": 100
     },
-    "n_edges": 180649,
+    "n_edges": 180971,
     "n_isolated": 0,
-    "density": 0.1144,
-    "n_active": 0,
-    "hebbian_total": 0
+    "density": 0.1146,
+    "n_active": 4,
+    "hebbian_total": 0.06
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777706789.3420718,
+    "active_nodes": {
+      "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md": 0.108,
+      "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md": 0.108,
+      "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md": 0.108,
+      "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md": 0.108
+    },
+    "n_active": 4,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
+        "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
+        "b": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
+        "b": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
+        "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
+        "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
+        "b": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777707215.5028436,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -28,12 +64,12 @@
     "last_pulse_ts": 0.0,
     "last_hebbian_ts": 0.0,
     "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "n_edges_total": 6,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 18.6,
-    "ram_percent": 29.1,
+    "cpu_percent": 21.1,
+    "ram_percent": 35.1,
     "n_disks": 5,
     "gpu": []
   }
