@@ -1,9 +1,9 @@
 {
-  "ts": 1777761257.4040973,
-  "iso": "2026-05-03T00:34:17",
+  "ts": 1777764860.1474385,
+  "iso": "2026-05-03T01:34:20",
   "brain": {
-    "ts": 1777761257.4101517,
-    "iso": "2026-05-03T00:34:17",
+    "ts": 1777764860.1519825,
+    "iso": "2026-05-03T01:34:20",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -14,92 +14,92 @@
     "n_isolated": 0,
     "density": 0.1142,
     "n_active": 4,
-    "hebbian_total": 3.96
+    "hebbian_total": 4.2
   },
   "activation": {
     "active_nodes": {
-      "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md": 0.527,
-      "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md": 0.527,
-      "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md": 0.527,
-      "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md": 0.527
+      "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md": 0.123,
+      "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md": 0.123,
+      "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md": 0.123,
+      "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md": 0.123
     },
     "n_active": 4,
     "top_hebbian_edges": [
       {
         "a": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
         "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.35
+        "strength": 0.38
       },
       {
         "a": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
         "b": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
-        "strength": 0.35
+        "strength": 0.38
       },
       {
         "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
         "b": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
-        "strength": 0.35
+        "strength": 0.38
       },
       {
         "a": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
         "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.35
+        "strength": 0.38
       },
       {
         "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
         "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.35
+        "strength": 0.38
       },
       {
         "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
         "b": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
-        "strength": 0.35
+        "strength": 0.38
       },
       {
         "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
         "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
-        "strength": 0.31
+        "strength": 0.32
       },
       {
         "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
         "b": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
-        "strength": 0.31
+        "strength": 0.32
       },
       {
         "a": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
         "b": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
-        "strength": 0.31
+        "strength": 0.32
       },
       {
         "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
         "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
-        "strength": 0.31
+        "strength": 0.32
       },
       {
         "a": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
         "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
-        "strength": 0.31
+        "strength": 0.32
       },
       {
         "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
         "b": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
-        "strength": 0.31
+        "strength": 0.32
       }
     ],
-    "ts": 1777761257.624591,
-    "cum_activations": 520,
-    "cum_pulses": 390,
-    "cum_hebbian_ticks": 390,
-    "last_activation_ts": 1777761142.3253586,
-    "last_pulse_ts": 1777761142.3263595,
-    "last_hebbian_ts": 1777761142.3253586,
-    "last_wander_ts": 1777761142.3005106,
+    "ts": 1777764860.366208,
+    "cum_activations": 552,
+    "cum_pulses": 414,
+    "cum_hebbian_ticks": 414,
+    "last_activation_ts": 1777764482.7513394,
+    "last_pulse_ts": 1777764482.7523491,
+    "last_hebbian_ts": 1777764482.7523491,
+    "last_wander_ts": 1777764482.7270007,
     "n_edges_total": 12,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 11.3,
-    "ram_percent": 34.9,
+    "cpu_percent": 12.4,
+    "ram_percent": 35.0,
     "n_disks": 5,
     "gpu": []
   }
