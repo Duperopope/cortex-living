@@ -1,75 +1,105 @@
 {
-  "ts": 1777707209.9626033,
-  "iso": "2026-05-02T09:33:29",
+  "ts": 1777710818.1459634,
+  "iso": "2026-05-02T10:33:38",
   "brain": {
-    "ts": 1777707209.9666853,
-    "iso": "2026-05-02T09:33:29",
+    "ts": 1777710818.1504939,
+    "iso": "2026-05-02T10:33:38",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1658,
       "episodic": 100
     },
-    "n_edges": 180971,
+    "n_edges": 180483,
     "n_isolated": 0,
-    "density": 0.1146,
+    "density": 0.1142,
     "n_active": 4,
-    "hebbian_total": 0.06
+    "hebbian_total": 0.3
   },
   "activation": {
     "active_nodes": {
-      "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md": 0.108,
-      "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md": 0.108,
-      "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md": 0.108,
-      "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md": 0.108
+      "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md": 0.026,
+      "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md": 0.026,
+      "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md": 0.026,
+      "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md": 0.026
     },
     "n_active": 4,
     "top_hebbian_edges": [
       {
         "a": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
         "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.01
+        "strength": 0.03
       },
       {
         "a": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
         "b": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
-        "strength": 0.01
+        "strength": 0.03
       },
       {
         "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
         "b": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
-        "strength": 0.01
+        "strength": 0.03
       },
       {
         "a": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
         "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.01
+        "strength": 0.03
       },
       {
         "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
         "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.01
+        "strength": 0.03
       },
       {
         "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
         "b": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
-        "strength": 0.01
+        "strength": 0.03
+      },
+      {
+        "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
+        "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
+        "b": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
+        "b": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
+        "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
+        "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
+        "b": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
+        "strength": 0.02
       }
     ],
-    "ts": 1777707215.5028436,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 6,
+    "ts": 1777710818.3685405,
+    "cum_activations": 32,
+    "cum_pulses": 24,
+    "cum_hebbian_ticks": 24,
+    "last_activation_ts": 1777710159.8936596,
+    "last_pulse_ts": 1777710159.8951623,
+    "last_hebbian_ts": 1777710159.8936596,
+    "last_wander_ts": 1777710159.869603,
+    "n_edges_total": 12,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 21.1,
-    "ram_percent": 35.1,
+    "cpu_percent": 15.2,
+    "ram_percent": 34.1,
     "n_disks": 5,
     "gpu": []
   }
