@@ -1,9 +1,9 @@
 {
-  "ts": 1777803364.9395723,
-  "iso": "2026-05-03T12:16:04",
+  "ts": 1777803508.5477664,
+  "iso": "2026-05-03T12:18:28",
   "brain": {
-    "ts": 1777803364.9471118,
-    "iso": "2026-05-03T12:16:04",
+    "ts": 1777803508.5533164,
+    "iso": "2026-05-03T12:18:28",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,66 +13,14 @@
     "n_edges": 180673,
     "n_isolated": 0,
     "density": 0.1144,
-    "n_active": 5,
-    "hebbian_total": 0.18
+    "n_active": 0,
+    "hebbian_total": 0
   },
   "activation": {
-    "active_nodes": {
-      "08 - Semantic\\kaiaa-68-in_review-status\\aaada3a6e0-KAIAA-68-is-now-in_review.md": 0.667,
-      "08 - Semantic\\typo-correction\\d3178feeb8-Typo-in-gallery-fixed.md": 0.797,
-      "08 - Semantic\\typescript-quality\\ce3ab90900-No-TypeScript-errors-found.md": 0.797,
-      "08 - Semantic\\p1-issues-resolved\\85e958012c-P1-issues-fixed-directly.md": 0.798,
-      "08 - Semantic\\p2-p3-issues-reported\\603a9f0204-P2-and-P3-issues-reported-for-review.md": 0.798
-    },
-    "n_active": 5,
-    "top_hebbian_edges": [
-      {
-        "a": "08 - Semantic\\typescript-quality\\ce3ab90900-No-TypeScript-errors-found.md",
-        "b": "08 - Semantic\\typo-correction\\d3178feeb8-Typo-in-gallery-fixed.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\p1-issues-resolved\\85e958012c-P1-issues-fixed-directly.md",
-        "b": "08 - Semantic\\typo-correction\\d3178feeb8-Typo-in-gallery-fixed.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\p1-issues-resolved\\85e958012c-P1-issues-fixed-directly.md",
-        "b": "08 - Semantic\\typescript-quality\\ce3ab90900-No-TypeScript-errors-found.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\kaiaa-68-in_review-status\\aaada3a6e0-KAIAA-68-is-now-in_review.md",
-        "b": "08 - Semantic\\typo-correction\\d3178feeb8-Typo-in-gallery-fixed.md",
-        "strength": 0.02
-      },
-      {
-        "a": "08 - Semantic\\kaiaa-68-in_review-status\\aaada3a6e0-KAIAA-68-is-now-in_review.md",
-        "b": "08 - Semantic\\typescript-quality\\ce3ab90900-No-TypeScript-errors-found.md",
-        "strength": 0.02
-      },
-      {
-        "a": "08 - Semantic\\kaiaa-68-in_review-status\\aaada3a6e0-KAIAA-68-is-now-in_review.md",
-        "b": "08 - Semantic\\p1-issues-resolved\\85e958012c-P1-issues-fixed-directly.md",
-        "strength": 0.02
-      },
-      {
-        "a": "08 - Semantic\\p2-p3-issues-reported\\603a9f0204-P2-and-P3-issues-reported-for-review.md",
-        "b": "08 - Semantic\\typescript-quality\\ce3ab90900-No-TypeScript-errors-found.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\p2-p3-issues-reported\\603a9f0204-P2-and-P3-issues-reported-for-review.md",
-        "b": "08 - Semantic\\typo-correction\\d3178feeb8-Typo-in-gallery-fixed.md",
-        "strength": 0.01
-      },
-      {
-        "a": "08 - Semantic\\p1-issues-resolved\\85e958012c-P1-issues-fixed-directly.md",
-        "b": "08 - Semantic\\p2-p3-issues-reported\\603a9f0204-P2-and-P3-issues-reported-for-review.md",
-        "strength": 0.01
-      }
-    ],
-    "ts": 1777803371.1997445,
+    "active_nodes": {},
+    "n_active": 0,
+    "top_hebbian_edges": [],
+    "ts": 1777803514.2867181,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -80,12 +28,12 @@
     "last_pulse_ts": 0.0,
     "last_hebbian_ts": 0.0,
     "last_wander_ts": 0.0,
-    "n_edges_total": 9,
+    "n_edges_total": 0,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 18.4,
-    "ram_percent": 38.3,
+    "cpu_percent": 13.2,
+    "ram_percent": 38.6,
     "n_disks": 5,
     "gpu": []
   }
