@@ -1,9 +1,9 @@
 {
-  "ts": 1777837969.943124,
-  "iso": "2026-05-03T21:52:49",
+  "ts": 1777838352.7656872,
+  "iso": "2026-05-03T21:59:12",
   "brain": {
-    "ts": 1777837969.9507284,
-    "iso": "2026-05-03T21:52:49",
+    "ts": 1777838352.776864,
+    "iso": "2026-05-03T21:59:12",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,53 +13,66 @@
     "n_edges": 180530,
     "n_isolated": 0,
     "density": 0.1143,
-    "n_active": 10,
-    "hebbian_total": 56.61
+    "n_active": 23,
+    "hebbian_total": 57.44
   },
   "activation": {
     "active_nodes": {
-      "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md": 1.0,
+      "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md": 0.999,
       "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md": 0.999,
-      "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md": 1.0,
-      "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md": 1.0,
-      "world_model": 0.891,
-      "jepa": 0.891,
-      "world model autonome JEPA test Codex": 0.891,
-      "05 - Daily Log/2026-04-29.md": 0.891,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md": 0.891,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-failed-_0-s_.md": 0.891
+      "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md": 0.999,
+      "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md": 0.999,
+      "world_model": 0.984,
+      "jepa": 0.984,
+      "world model autonome JEPA test Codex": 0.117,
+      "05 - Daily Log/2026-04-29.md": 0.117,
+      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md": 0.117,
+      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-failed-_0-s_.md": 0.117,
+      "cycle manuel world model cortex autonome": 0.135,
+      "07 - Ingested/claude-code/2026-04-23/00-42-15 - Claude_-All-runs-still-active.-QA-_KAIAA-69_-still-queued-_-.md": 0.135,
+      "07 - Ingested/claude-code/2026-04-28/08-04-27 - Claude_-Perfect_-Now-I-have-enough-information.-Let-me-compi.md": 0.266,
+      "07 - Ingested/claude-code/2026-04-28/07-02-58 - Claude_-Perfect_-Now-let-me-compile-my-comprehensive-analysi.md": 0.266,
+      "Teste si le world model peut aider Cortex a s autocorriger sans fake": 0.984,
+      "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-Pour-l_instant-tu-as-seulement-tes-deux-anciens-modè.md": 0.984,
+      "07 - Ingested/claude-code/2026-04-22/11-47-36 - Claude_-Pour-l_instant-tu-as-seulement-tes-deux-anciens-modè.md": 0.766,
+      "07 - Ingested/claude-code/2026-03-17/00-22-33 - Claude_-_analysis_-Let-me-chronologically-analyze-this-conve.md": 0.766,
+      "preuve UI world model interactif": 0.204,
+      "07 - Ingested/claude-code/2026-04-28/02-21-37 - Claude_-Heartbeat-terminé.-Voici-ce-qui-s_est-passé-_-__KAI.md": 0.266,
+      "preuve UI world model interactif 1777838114329": 0.266,
+      "H:\\Code\\Paperclip\\lecun_world_model.md": 0.984,
+      "H:\\Code\\Paperclip\\scripts\\brain\\cortex_world_model.py": 0.984
     },
-    "n_active": 10,
+    "n_active": 23,
     "top_hebbian_edges": [
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 8.33
+        "strength": 8.45
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
-        "strength": 8.33
+        "strength": 8.45
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
-        "strength": 8.33
+        "strength": 8.45
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 8.33
+        "strength": 8.45
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 8.33
+        "strength": 8.45
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
-        "strength": 8.33
+        "strength": 8.45
       },
       {
         "a": "08 - Semantic\\paperclip-workflow\\3d8ea807cb-Handle-Paperclip-Wake-Payload-First.md",
@@ -117,6 +130,11 @@
         "strength": 0.42
       },
       {
+        "a": "jepa",
+        "b": "world_model",
+        "strength": 0.11
+      },
+      {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-workflow\\ad1b135949-Harness-Claimed-Issue.md",
         "strength": 0.06
@@ -125,26 +143,21 @@
         "a": "08 - Semantic\\paperclip-workflow\\ad1b135949-Harness-Claimed-Issue.md",
         "b": "08 - Semantic\\paperclip-workflow\\c4f12bcae0-Issue-already-claimed-by-harness.md",
         "strength": 0.06
-      },
-      {
-        "a": "08 - Semantic\\paperclip-workflow\\5b54ce9a5d-Handle-Paperclip-Wake-Payload-First.md",
-        "b": "08 - Semantic\\paperclip-workflow\\ad1b135949-Harness-Claimed-Issue.md",
-        "strength": 0.06
       }
     ],
-    "ts": 1777837995.120356,
+    "ts": 1777838360.195617,
     "cum_activations": 17,
     "cum_pulses": 14,
     "cum_hebbian_ticks": 21,
-    "last_activation_ts": 1777837995.0934787,
-    "last_pulse_ts": 1777837995.110419,
-    "last_hebbian_ts": 1777837995.1092339,
-    "last_wander_ts": 1777837994.7201104,
-    "n_edges_total": 42,
+    "last_activation_ts": 1777838359.9430099,
+    "last_pulse_ts": 1777838359.9440284,
+    "last_hebbian_ts": 1777838359.943522,
+    "last_wander_ts": 1777838359.8855388,
+    "n_edges_total": 93,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 47.5,
+    "cpu_percent": 45.1,
     "ram_percent": 72.5,
     "n_disks": 5,
     "gpu": []
