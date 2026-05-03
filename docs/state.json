@@ -1,9 +1,9 @@
 {
-  "ts": 1777836609.255158,
-  "iso": "2026-05-03T21:30:09",
+  "ts": 1777837969.943124,
+  "iso": "2026-05-03T21:52:49",
   "brain": {
-    "ts": 1777836609.2607656,
-    "iso": "2026-05-03T21:30:09",
+    "ts": 1777837969.9507284,
+    "iso": "2026-05-03T21:52:49",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,47 +13,53 @@
     "n_edges": 180530,
     "n_isolated": 0,
     "density": 0.1143,
-    "n_active": 4,
-    "hebbian_total": 54.69
+    "n_active": 10,
+    "hebbian_total": 56.61
   },
   "activation": {
     "active_nodes": {
-      "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md": 0.904,
-      "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md": 0.904,
-      "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md": 0.904,
-      "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md": 0.904
+      "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md": 1.0,
+      "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md": 0.999,
+      "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md": 1.0,
+      "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md": 1.0,
+      "world_model": 0.891,
+      "jepa": 0.891,
+      "world model autonome JEPA test Codex": 0.891,
+      "05 - Daily Log/2026-04-29.md": 0.891,
+      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md": 0.891,
+      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-failed-_0-s_.md": 0.891
     },
-    "n_active": 4,
+    "n_active": 10,
     "top_hebbian_edges": [
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 8.0
+        "strength": 8.33
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
-        "strength": 8.0
+        "strength": 8.33
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
-        "strength": 8.0
+        "strength": 8.33
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 8.0
+        "strength": 8.33
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 8.0
+        "strength": 8.33
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
-        "strength": 8.0
+        "strength": 8.33
       },
       {
         "a": "08 - Semantic\\paperclip-workflow\\3d8ea807cb-Handle-Paperclip-Wake-Payload-First.md",
@@ -126,20 +132,20 @@
         "strength": 0.06
       }
     ],
-    "ts": 1777836609.5017767,
-    "cum_activations": 7336,
-    "cum_pulses": 5502,
-    "cum_hebbian_ticks": 5502,
-    "last_activation_ts": 1777836591.2816842,
-    "last_pulse_ts": 1777836591.2877173,
-    "last_hebbian_ts": 1777836591.2867112,
-    "last_wander_ts": 1777836591.2494137,
-    "n_edges_total": 26,
+    "ts": 1777837995.120356,
+    "cum_activations": 17,
+    "cum_pulses": 14,
+    "cum_hebbian_ticks": 21,
+    "last_activation_ts": 1777837995.0934787,
+    "last_pulse_ts": 1777837995.110419,
+    "last_hebbian_ts": 1777837995.1092339,
+    "last_wander_ts": 1777837994.7201104,
+    "n_edges_total": 42,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 11.3,
-    "ram_percent": 57.0,
+    "cpu_percent": 47.5,
+    "ram_percent": 72.5,
     "n_disks": 5,
     "gpu": []
   }
