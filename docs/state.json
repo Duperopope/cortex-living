@@ -1,9 +1,9 @@
 {
-  "ts": 1777803606.903904,
-  "iso": "2026-05-03T12:20:06",
+  "ts": 1777803708.6845374,
+  "iso": "2026-05-03T12:21:48",
   "brain": {
-    "ts": 1777803606.9099429,
-    "iso": "2026-05-03T12:20:06",
+    "ts": 1777803708.6920886,
+    "iso": "2026-05-03T12:21:48",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,14 +13,66 @@
     "n_edges": 180673,
     "n_isolated": 0,
     "density": 0.1144,
-    "n_active": 0,
-    "hebbian_total": 0
+    "n_active": 5,
+    "hebbian_total": 0.12
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777803613.484155,
+    "active_nodes": {
+      "08 - Semantic\\code-identification\\1c763cc3be-Code-Identification.md": 0.934,
+      "08 - Semantic\\repository-exploration\\f4068d1c0c-Repository-Structure.md": 0.934,
+      "08 - Semantic\\key-files\\1e92bfa24c-Key-Files.md": 0.934,
+      "08 - Semantic\\directory-structure\\01b9d77947-src--Directory-Structure.md": 0.934,
+      "08 - Semantic\\page-files\\6bc17922cf-Page-Files.md": 0.781
+    },
+    "n_active": 5,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\code-identification\\1c763cc3be-Code-Identification.md",
+        "b": "08 - Semantic\\key-files\\1e92bfa24c-Key-Files.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\code-identification\\1c763cc3be-Code-Identification.md",
+        "b": "08 - Semantic\\directory-structure\\01b9d77947-src--Directory-Structure.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\directory-structure\\01b9d77947-src--Directory-Structure.md",
+        "b": "08 - Semantic\\key-files\\1e92bfa24c-Key-Files.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\code-identification\\1c763cc3be-Code-Identification.md",
+        "b": "08 - Semantic\\repository-exploration\\f4068d1c0c-Repository-Structure.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\key-files\\1e92bfa24c-Key-Files.md",
+        "b": "08 - Semantic\\repository-exploration\\f4068d1c0c-Repository-Structure.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\directory-structure\\01b9d77947-src--Directory-Structure.md",
+        "b": "08 - Semantic\\repository-exploration\\f4068d1c0c-Repository-Structure.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\key-files\\1e92bfa24c-Key-Files.md",
+        "b": "08 - Semantic\\page-files\\6bc17922cf-Page-Files.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\code-identification\\1c763cc3be-Code-Identification.md",
+        "b": "08 - Semantic\\page-files\\6bc17922cf-Page-Files.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\directory-structure\\01b9d77947-src--Directory-Structure.md",
+        "b": "08 - Semantic\\page-files\\6bc17922cf-Page-Files.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777803715.7501056,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -28,12 +80,12 @@
     "last_pulse_ts": 0.0,
     "last_hebbian_ts": 0.0,
     "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "n_edges_total": 9,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 27.0,
-    "ram_percent": 38.8,
+    "cpu_percent": 32.1,
+    "ram_percent": 39.0,
     "n_disks": 5,
     "gpu": []
   }
