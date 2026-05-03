@@ -1,9 +1,9 @@
 {
-  "ts": 1777829403.422262,
-  "iso": "2026-05-03T19:30:03",
+  "ts": 1777833006.301565,
+  "iso": "2026-05-03T20:30:06",
   "brain": {
-    "ts": 1777829403.4313698,
-    "iso": "2026-05-03T19:30:03",
+    "ts": 1777833006.308939,
+    "iso": "2026-05-03T20:30:06",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -14,11 +14,11 @@
     "n_isolated": 0,
     "density": 0.1143,
     "n_active": 4,
-    "hebbian_total": 42.33
+    "hebbian_total": 48.87
   },
   "activation": {
     "active_nodes": {
-      "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md": 0.874,
+      "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md": 0.873,
       "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md": 0.874,
       "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md": 0.874,
       "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md": 0.874
@@ -28,32 +28,32 @@
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 5.94
+        "strength": 7.03
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
-        "strength": 5.94
+        "strength": 7.03
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
-        "strength": 5.94
+        "strength": 7.03
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 5.94
+        "strength": 7.03
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 5.94
+        "strength": 7.03
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
-        "strength": 5.94
+        "strength": 7.03
       },
       {
         "a": "08 - Semantic\\paperclip-workflow\\3d8ea807cb-Handle-Paperclip-Wake-Payload-First.md",
@@ -126,20 +126,20 @@
         "strength": 0.06
       }
     ],
-    "ts": 1777829403.657002,
-    "cum_activations": 5688,
-    "cum_pulses": 4266,
-    "cum_hebbian_ticks": 4266,
-    "last_activation_ts": 1777829379.4183567,
-    "last_pulse_ts": 1777829379.4240205,
-    "last_hebbian_ts": 1777829379.4233959,
-    "last_wander_ts": 1777829379.3935423,
+    "ts": 1777833006.5713003,
+    "cum_activations": 6560,
+    "cum_pulses": 4920,
+    "cum_hebbian_ticks": 4920,
+    "last_activation_ts": 1777832982.2334967,
+    "last_pulse_ts": 1777832982.2411299,
+    "last_hebbian_ts": 1777832982.2406206,
+    "last_wander_ts": 1777832982.2021463,
     "n_edges_total": 26,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 4.0,
-    "ram_percent": 55.6,
+    "cpu_percent": 33.8,
+    "ram_percent": 64.1,
     "n_disks": 5,
     "gpu": []
   }
