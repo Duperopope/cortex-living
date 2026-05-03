@@ -1,9 +1,9 @@
 {
-  "ts": 1777802707.9199073,
-  "iso": "2026-05-03T12:05:07",
+  "ts": 1777802886.049116,
+  "iso": "2026-05-03T12:08:06",
   "brain": {
-    "ts": 1777802707.9259646,
-    "iso": "2026-05-03T12:05:07",
+    "ts": 1777802886.054674,
+    "iso": "2026-05-03T12:08:06",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,14 +13,66 @@
     "n_edges": 180673,
     "n_isolated": 0,
     "density": 0.1144,
-    "n_active": 0,
-    "hebbian_total": 0
+    "n_active": 5,
+    "hebbian_total": 0.24
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777802729.5118513,
+    "active_nodes": {
+      "08 - Semantic\\wakassets-repo\\85035caeee-User-working-with-Vertylo-wakassets-GitHub-repo.md": 0.874,
+      "08 - Semantic\\wakfu-assets-repo\\7c17a87cd8-Professions-folder-missing-in-repo.md": 0.874,
+      "08 - Semantic\\wakfu-assets-repo\\d4aa184323-Main-directory-structure-of-wakassets.md": 0.874,
+      "08 - Semantic\\wakassets-repo\\b2bd059272-Available-JSON-files-in-Vertylo-wakassets-repo.md": 0.731,
+      "08 - Semantic\\wakfuassistant-jobs-assets\\e4895a3874-Jobs-directory-contains-18-numbered-PNG-assets.md": 0.874
+    },
+    "n_active": 5,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\wakassets-repo\\85035caeee-User-working-with-Vertylo-wakassets-GitHub-repo.md",
+        "b": "08 - Semantic\\wakfu-assets-repo\\7c17a87cd8-Professions-folder-missing-in-repo.md",
+        "strength": 0.04
+      },
+      {
+        "a": "08 - Semantic\\wakassets-repo\\85035caeee-User-working-with-Vertylo-wakassets-GitHub-repo.md",
+        "b": "08 - Semantic\\wakfu-assets-repo\\d4aa184323-Main-directory-structure-of-wakassets.md",
+        "strength": 0.04
+      },
+      {
+        "a": "08 - Semantic\\wakfu-assets-repo\\7c17a87cd8-Professions-folder-missing-in-repo.md",
+        "b": "08 - Semantic\\wakfu-assets-repo\\d4aa184323-Main-directory-structure-of-wakassets.md",
+        "strength": 0.04
+      },
+      {
+        "a": "08 - Semantic\\wakassets-repo\\85035caeee-User-working-with-Vertylo-wakassets-GitHub-repo.md",
+        "b": "08 - Semantic\\wakassets-repo\\b2bd059272-Available-JSON-files-in-Vertylo-wakassets-repo.md",
+        "strength": 0.03
+      },
+      {
+        "a": "08 - Semantic\\wakassets-repo\\b2bd059272-Available-JSON-files-in-Vertylo-wakassets-repo.md",
+        "b": "08 - Semantic\\wakfu-assets-repo\\7c17a87cd8-Professions-folder-missing-in-repo.md",
+        "strength": 0.03
+      },
+      {
+        "a": "08 - Semantic\\wakassets-repo\\b2bd059272-Available-JSON-files-in-Vertylo-wakassets-repo.md",
+        "b": "08 - Semantic\\wakfu-assets-repo\\d4aa184323-Main-directory-structure-of-wakassets.md",
+        "strength": 0.03
+      },
+      {
+        "a": "08 - Semantic\\wakfu-assets-repo\\d4aa184323-Main-directory-structure-of-wakassets.md",
+        "b": "08 - Semantic\\wakfuassistant-jobs-assets\\e4895a3874-Jobs-directory-contains-18-numbered-PNG-assets.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\wakfu-assets-repo\\7c17a87cd8-Professions-folder-missing-in-repo.md",
+        "b": "08 - Semantic\\wakfuassistant-jobs-assets\\e4895a3874-Jobs-directory-contains-18-numbered-PNG-assets.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\wakassets-repo\\85035caeee-User-working-with-Vertylo-wakassets-GitHub-repo.md",
+        "b": "08 - Semantic\\wakfuassistant-jobs-assets\\e4895a3874-Jobs-directory-contains-18-numbered-PNG-assets.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777802893.0788927,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -28,12 +80,12 @@
     "last_pulse_ts": 0.0,
     "last_hebbian_ts": 0.0,
     "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "n_edges_total": 9,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 20.0,
-    "ram_percent": 37.3,
+    "cpu_percent": 12.6,
+    "ram_percent": 38.5,
     "n_disks": 5,
     "gpu": []
   }
