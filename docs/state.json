@@ -1,9 +1,9 @@
 {
-  "ts": 1777800888.3865185,
-  "iso": "2026-05-03T11:34:48",
+  "ts": 1777802707.9199073,
+  "iso": "2026-05-03T12:05:07",
   "brain": {
-    "ts": 1777800888.3941624,
-    "iso": "2026-05-03T11:34:48",
+    "ts": 1777802707.9259646,
+    "iso": "2026-05-03T12:05:07",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,93 +13,27 @@
     "n_edges": 180673,
     "n_isolated": 0,
     "density": 0.1144,
-    "n_active": 4,
-    "hebbian_total": 6.78
+    "n_active": 0,
+    "hebbian_total": 0
   },
   "activation": {
-    "active_nodes": {
-      "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md": 0.109,
-      "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md": 0.109,
-      "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md": 0.109,
-      "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md": 0.109
-    },
-    "n_active": 4,
-    "top_hebbian_edges": [
-      {
-        "a": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
-        "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.67
-      },
-      {
-        "a": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
-        "b": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
-        "strength": 0.67
-      },
-      {
-        "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
-        "b": "08 - Semantic\\starfield-modding\\9a440ca531-Alternative-menu-mods-if-NativeUltrawideMenus-fails.md",
-        "strength": 0.67
-      },
-      {
-        "a": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
-        "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.67
-      },
-      {
-        "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
-        "b": "08 - Semantic\\starfield-modding\\fd178504b3-Disabled-NativeUltrawideMenus-via-rename.md",
-        "strength": 0.67
-      },
-      {
-        "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
-        "b": "08 - Semantic\\starfield-modding\\86e8abfd03-SFSE-only-loads--dll-files.md",
-        "strength": 0.67
-      },
-      {
-        "a": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
-        "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
-        "strength": 0.46
-      },
-      {
-        "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
-        "b": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
-        "strength": 0.46
-      },
-      {
-        "a": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
-        "b": "08 - Semantic\\starfield-modding-landscape\\a4365b414e-Community-mods-partially-reduce-Starfield-loading-times-via-.md",
-        "strength": 0.46
-      },
-      {
-        "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
-        "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
-        "strength": 0.46
-      },
-      {
-        "a": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
-        "b": "08 - Semantic\\starfield-optimization-strategy\\81da121327-Realistic-optimization-targets-async-preloading-and-fade-in-.md",
-        "strength": 0.46
-      },
-      {
-        "a": "08 - Semantic\\starfield-engine-architecture\\4e2d96b146-Starfield-loading-screens-stem-from-synchronous-cell-streami.md",
-        "b": "08 - Semantic\\starfield-engine-limits\\03a83bb2d5-Seamless-space-to-surface-travel-requires-rewriting-the-cell.md",
-        "strength": 0.46
-      }
-    ],
-    "ts": 1777800888.6467009,
-    "cum_activations": 896,
-    "cum_pulses": 672,
-    "cum_hebbian_ticks": 672,
-    "last_activation_ts": 1777800489.155959,
-    "last_pulse_ts": 1777800489.155959,
-    "last_hebbian_ts": 1777800489.155959,
-    "last_wander_ts": 1777800489.1256895,
-    "n_edges_total": 12,
+    "active_nodes": {},
+    "n_active": 0,
+    "top_hebbian_edges": [],
+    "ts": 1777802729.5118513,
+    "cum_activations": 0,
+    "cum_pulses": 0,
+    "cum_hebbian_ticks": 0,
+    "last_activation_ts": 0.0,
+    "last_pulse_ts": 0.0,
+    "last_hebbian_ts": 0.0,
+    "last_wander_ts": 0.0,
+    "n_edges_total": 0,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 28.9,
-    "ram_percent": 38.4,
+    "cpu_percent": 20.0,
+    "ram_percent": 37.3,
     "n_disks": 5,
     "gpu": []
   }
