@@ -248,6 +248,16 @@ Cortex peut :
   des deltas observés post-action (mode `empirical` quand n≥8 exemples par
   action, fallback heuristique sinon). Ce **n'est pas** le formalisme
   variationnel complet de Friston, mais ce n'est plus une table fixe.
+- **Score IAG calibré** : le score brut est multiplié par un facteur ≤1
+  basé sur la maturité runtime réelle (ratio learned/fallback,
+  prediction_error, fake_confident_rate). Sans ça le scoring binaire
+  donnait 90+/100 sur un système clairement immature.
+- **Vision en deux étages** : modèle VL pour la perception (qwen2.5-vl, llava)
+  + brain LLM pour la synthèse. Pour les questions vision simples, on
+  court-circuite le brain LLM (la description VL = la réponse). Pour les
+  questions vision complexes, garde-fou anti-censure injecté dans le prompt
+  brain LLM (qui sinon répondait « Je ne vois rien » alors que [Vue webcam]
+  avait du contenu).
 - **Active Inference vs banc de baselines** : la fraction "better than random"
   est calculée sur des **prédictions** EFE. Une mesure plus solide compare les
   *outcomes observés* post-action contre plusieurs baselines naïves (random,
@@ -676,6 +686,12 @@ fichier de preuve. Trois niveaux :
 | Boucle décision unifiée            | implémenté      | `cortex_emergence._emergence_loop` appelle `drive_step(execute=True)` — scoring EFE + exécution réelle via TOOLS + apprentissage des effets en un seul cycle |
 | Bridge Claude Code (contexte vivant) | implémenté    | `cortex_claude_code.py` génère `.cortex-claude-context.md` ; `CLAUDE.md` du repo Paperclip pointe dessus ; refresh auto tous les 6 cycles dans la boucle |
 | CI locale bloquante                | implémenté      | `cortex_smoke_check.py` : compile + import + self_test sur 5 modules cœur ; appelé en pre-flight par `cortex_publishing.update()` → abort si fail. Indépendant de GitHub Actions (quota). Le workflow `smoke.yml` reste dispo pour quand le compte GH sera débloqué |
+| Auto-détection modèles LM Studio   | implémenté      | `cortex_dialogue._detect_brain_llm_model()` + `cortex_vision._detect_vision_model()` interrogent `/v1/models` au lieu de hardcoder. Évite les fallbacks silencieux quand un modèle attendu est unloaded |
+| Vision shortcut (court-circuit brain LLM) | implémenté | Pour les questions vision SIMPLES (`tu vois quoi`, `qu'est-ce que je fais`, etc.), `compose_response` renvoie directement la description du modèle VL, sans repasser par le brain LLM (qui censurait le contenu vision). Pour les questions vision COMPLEXES, garde-fou anti-censure injecté dans le meta_prompt |
+| Calibration IAG honnête            | implémenté      | `cortex_iag_test._calibration_factor()` déflate le score brut selon (a) ratio actions en mode `learned` vs `fallback`, (b) erreur prédiction-vs-réalité, (c) fake_confident_rate anti-fake. Évite les scores 90+/100 marqués « improbable » par Cortex lui-même |
+| Memory hygiene auditable           | implémenté      | `cortex_memory_audit.audit()` détecte contradictions, paths obsolètes, endpoints incohérents, duplicatas. `propose_corrections()` génère des fixes EN DRY_RUN par défaut — Sam valide avant action |
+| Modules périodiques branchés       | implémenté      | `cortex_emergence._emergence_loop` appelle désormais `body_health` (12 cycles, ~1h), `memory_audit` (144 cycles, 12h), `anti_fake` (288 cycles, 24h) automatiquement. Avant : `cortex_body_health` existait mais n'était jamais déclenché → C: à 97% sans alerte |
+| 3D viz : graphe sémantique notes   | métaphorique    | La visualisation 3D (`brain_gpu.html`) montre **les notes Obsidian** du vault qui s'activent (Spreading Activation), PAS les modules Cortex eux-mêmes ni leurs états. C'est une vue "graphe de connaissance" pas "topologie système". Voir docstring de `cortex_publishing.py` pour la liste des modules réels |
 
 ## Méthodologie anti-fake recommandée pour auditer
 
@@ -905,6 +921,45 @@ re-déclencher manuellement via "Actions → smoke → Run workflow"). Mais ce
 n'est plus le seul rempart : la CI locale est désormais le rempart
 principal.
 
+## Memory hygiene (auto-audit du vault)
+
+```bash
+python code/brain/cortex_memory_audit.py audit       # rapport complet
+python code/brain/cortex_memory_audit.py propose     # propose des fix DRY_RUN
+```
+
+Détecte 4 types d'issues :
+- **Contradictions** entre notes mémoire (axes opposés, proposition manuelle)
+- **Paths obsolètes** : refs vers fichiers qui n'existent plus (annotation
+  proposée, pas suppression)
+- **Endpoints incohérents** : `/api/cortex/X` cités dans la mémoire mais
+  qui répondent 404
+- **Duplicatas** : notes avec ≥0.7 jaccard sur leur description
+
+`propose_corrections()` retourne des `fix_id` en `dry_run=true` par défaut.
+Sam doit explicitement appliquer chacun. Pas de cleanup auto qui pourrait
+détruire de l'historique utile.
+
+## Stack LM Studio recommandée (local-first)
+
+Pour que tout fonctionne sans dégradation silencieuse :
+
+| Rôle | Modèle suggéré | Taille | Notes |
+|---|---|---|---|
+| **Vision-Language** | `unsloth/qwen2.5-vl-7b-instruct` (Q4-Q5) | ~5-7 GB | Webcam description, capture screen analysis |
+| **Embedding** | `text-embedding-nomic-embed-text-v1.5` | ~80 MB | Vectorisation queries pour graphe sémantique |
+| **Brain text** (optionnel) | `qwen3-4b` ou `qwen3.6-35b-a3b` | 2-14 GB | Synthèse meta_prompt pour questions complexes |
+
+Tous chargés en parallèle dans LM Studio (multi-load). Le code Cortex
+auto-détecte les modèles disponibles via `/v1/models` :
+- `cortex_vision._detect_vision_model()` cherche `vl`/`vision`/`llava`
+- `cortex_dialogue._detect_brain_llm_model()` cherche un brain text-only
+  d'abord (qwen3, claude, llama, deepseek), retombe sur le VL en mode text
+  si nécessaire
+
+Pas de hardcoded model name → pas de fallback silencieux quand un modèle
+est unloaded.
+
 ## Comment Claude Code se branche au système
 
 Si tu utilises Claude Code (Anthropic CLI), un `CLAUDE.md` dans la racine
@@ -1102,6 +1157,49 @@ Chaque ligne contient :
 Si `outcome_score << outcome_proxy` systématiquement, ça signale que le
 modèle de prédiction sur-estime les effets d'action — exactement le genre de
 calibration que `docs/claims.md` rappelle d'auditer.
+
+## Pipeline de réponse (chat)
+
+```
+Sam → /api/chat
+        │
+        ├── should_handle(msg) → query_type ∈ {{vision, self, general}}
+        │      (sticky 90s : si dernier tour=vision, suivants restent vision
+        │       même sans keyword — anti perte de contexte image)
+        │
+        ├── compose_response(msg, query_type)
+        │     │
+        │     ├── if query_type == "vision":
+        │     │     │
+        │     │     ├── _capture_vision_context() ──→ cortex_vision.see()
+        │     │     │      ├── webcam capture
+        │     │     │      ├── _detect_vision_model()  ←── LM Studio /v1/models
+        │     │     │      ├── _try_lm_vision(VL)  ──→ description
+        │     │     │      └── fallback OCR / cv2_basic
+        │     │     │
+        │     │     ├── if "tu vois quoi" pattern (simple) + lm_studio_vision :
+        │     │     │     ── COURT-CIRCUIT : retourne description directe
+        │     │     │
+        │     │     ├── if vision MUTE / KO :
+        │     │     │     ── retourne "Ma vision est cassée pour ce tour"
+        │     │     │
+        │     │     └── else (vision complex) :
+        │     │           inject extra_rules anti-censure dans meta_prompt
+        │     │           ── brain LLM via _query_local_llm()
+        │     │
+        │     ├── if query_type == "self" :
+        │     │     ── meta_prompt avec [État interne] + tutoiement forcé
+        │     │
+        │     └── else (general) :
+        │           ── meta_prompt avec sources internes
+        │           ── brain LLM
+        │
+        └── _query_local_llm()
+              ├── _detect_brain_llm_model()  ←── LM Studio /v1/models
+              │      (préfère qwen3, claude, llama, deepseek > VL en text-mode)
+              ├── LM Studio chat completion
+              └── fallback OpenRouter free
+```
 
 ## Architecture unifiée (depuis ce commit)
 

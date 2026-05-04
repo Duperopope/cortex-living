@@ -19,9 +19,9 @@ runtime réels.
 ## Chiffres clés
 
 - Cycles observés : 10
-- Steps totaux : 88
-- Fraction "better than random" sur EFE prédit : 0.841
-- Cycles avec outcome évalué : 35
+- Steps totaux : 126
+- Fraction "better than random" sur EFE prédit : 0.849
+- Cycles avec outcome évalué : 73
 
 ## Note honnête sur le score anti-fake
 
@@ -54,6 +54,49 @@ Chaque ligne contient :
 Si `outcome_score << outcome_proxy` systématiquement, ça signale que le
 modèle de prédiction sur-estime les effets d'action — exactement le genre de
 calibration que `docs/claims.md` rappelle d'auditer.
+
+## Pipeline de réponse (chat)
+
+```
+Sam → /api/chat
+        │
+        ├── should_handle(msg) → query_type ∈ {vision, self, general}
+        │      (sticky 90s : si dernier tour=vision, suivants restent vision
+        │       même sans keyword — anti perte de contexte image)
+        │
+        ├── compose_response(msg, query_type)
+        │     │
+        │     ├── if query_type == "vision":
+        │     │     │
+        │     │     ├── _capture_vision_context() ──→ cortex_vision.see()
+        │     │     │      ├── webcam capture
+        │     │     │      ├── _detect_vision_model()  ←── LM Studio /v1/models
+        │     │     │      ├── _try_lm_vision(VL)  ──→ description
+        │     │     │      └── fallback OCR / cv2_basic
+        │     │     │
+        │     │     ├── if "tu vois quoi" pattern (simple) + lm_studio_vision :
+        │     │     │     ── COURT-CIRCUIT : retourne description directe
+        │     │     │
+        │     │     ├── if vision MUTE / KO :
+        │     │     │     ── retourne "Ma vision est cassée pour ce tour"
+        │     │     │
+        │     │     └── else (vision complex) :
+        │     │           inject extra_rules anti-censure dans meta_prompt
+        │     │           ── brain LLM via _query_local_llm()
+        │     │
+        │     ├── if query_type == "self" :
+        │     │     ── meta_prompt avec [État interne] + tutoiement forcé
+        │     │
+        │     └── else (general) :
+        │           ── meta_prompt avec sources internes
+        │           ── brain LLM
+        │
+        └── _query_local_llm()
+              ├── _detect_brain_llm_model()  ←── LM Studio /v1/models
+              │      (préfère qwen3, claude, llama, deepseek > VL en text-mode)
+              ├── LM Studio chat completion
+              └── fallback OpenRouter free
+```
 
 ## Architecture unifiée (depuis ce commit)
 

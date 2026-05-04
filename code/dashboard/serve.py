@@ -3791,15 +3791,34 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if body.get("dry_run"):
                 self._send_json({"ok": True, "dry_run": True, "message": "backend restart would be scheduled"}); return
             try:
+                # Garde anti-doublon : si un helper restart tourne déjà (lock
+                # < 30s), refuser le 2e. Sans ça : 2 clics Relancer = 4
+                # processus serve.py + 4 router (vu en live avec Sam).
+                lock_file = HERE / "state" / "backend_restart.lock"
+                lock_file.parent.mkdir(parents=True, exist_ok=True)
+                if lock_file.exists():
+                    try:
+                        age = time.time() - lock_file.stat().st_mtime
+                        if age < 30.0:
+                            self._send_json({
+                                "ok": False, "error": "restart_in_progress",
+                                "lock_age_s": round(age, 1),
+                                "msg": "Un restart est déjà en cours. Patiente ~10-20s."
+                            }, status=429); return
+                    except Exception: pass
+                try: lock_file.write_text(str(time.time()), encoding="utf-8")
+                except Exception: pass
                 pid = os.getpid()
                 repo = str(REPO)
                 script = str(HERE / "serve.py")
                 pyexe = sys.executable
                 flags = int(getattr(_sp, "CREATE_NO_WINDOW", 0))
                 helper_log = str(HERE / "state" / "backend_restart.log")
+                lock_path = str(lock_file)
                 helper = f"""
-import subprocess, sys, time, traceback
+import subprocess, sys, time, traceback, os
 log_path = {helper_log!r}
+lock_path = {lock_path!r}
 def log(msg):
     try:
         open(log_path, 'a', encoding='utf-8').write(str(msg) + '\\n')
@@ -3807,22 +3826,35 @@ def log(msg):
         pass
 try:
     time.sleep(2.5)
-    log('restart helper: stopping router')
+    log('restart helper: stopping ALL routers')
     subprocess.run([
         'powershell', '-NoProfile', '-Command',
         "Get-CimInstance Win32_Process | Where-Object {{ $_.CommandLine -match 'scripts[\\\\\\\\/]+brain[\\\\\\\\/]+llm_router\\\\.py' }} | ForEach-Object {{ Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }}"
     ], timeout=8)
-    log('restart helper: stopping serve pid {pid}')
-    subprocess.run(['powershell', '-NoProfile', '-Command', 'Stop-Process -Id {pid} -Force -ErrorAction SilentlyContinue'], timeout=8)
-    time.sleep(1.2)
-    log('restart helper: starting serve.py')
+    log('restart helper: stopping ALL serve.py (par pattern, pas que pid {pid})')
+    # Tue TOUTES les instances serve.py (les doublons compris) — pas juste par PID
+    subprocess.run([
+        'powershell', '-NoProfile', '-Command',
+        "Get-CimInstance Win32_Process | Where-Object {{ $_.CommandLine -match 'dashboard[\\\\\\\\/]+serve\\\\.py' }} | ForEach-Object {{ Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }}"
+    ], timeout=8)
+    time.sleep(1.5)
+    log('restart helper: starting ONE serve.py')
     subprocess.Popen([{pyexe!r}, {script!r}], cwd={repo!r}, creationflags={flags})
+    time.sleep(2.0)
+    # Libère le lock seulement après spawn
+    try: os.unlink(lock_path)
+    except Exception: pass
+    log('restart helper: done')
 except Exception:
     log(traceback.format_exc())
+    try: os.unlink(lock_path)
+    except Exception: pass
 """
                 _sp.Popen([pyexe, "-c", helper],
                            creationflags=getattr(_sp, "CREATE_NO_WINDOW", 0))
-                self._send_json({"ok": True, "message": "backend restart scheduled", "pid": pid}); return
+                self._send_json({"ok": True, "message": "backend restart scheduled",
+                                  "pid": pid,
+                                  "lock_acquired": str(lock_file)}); return
             except Exception as e:
                 self._send_json({"ok": False, "error": str(e)}, status=500); return
 

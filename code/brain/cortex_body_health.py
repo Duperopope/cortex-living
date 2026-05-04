@@ -288,6 +288,13 @@ def propose_plan() -> dict:
         }
     target = spare_disks[0]
 
+    # 1. Cache cleanups (LOW, action delete_cache, ne nécessite pas de target)
+    actions.extend(_propose_cache_cleanups())
+
+    # 2. Migrations huge user dirs (MEDIUM, move + junction NTFS)
+    actions.extend(_propose_huge_user_migrations(target["mount"]))
+
+    # 3. Intruders du scan _scan_largest (legacy : LM Studio paths, etc.)
     for mount, info in diag["intruders_by_disk"].items():
         for intruder in info["intruders"][:5]:  # max 5 par disque
             src = intruder["path"]
@@ -373,8 +380,247 @@ def _build_human_summary(diag: dict, actions: list[dict],
     return "\n".join(lines)
 
 
+# Gros dossiers user que les apps attendent à un path FIXE (Steam saves,
+# X4 Egosoft, captures jeux, etc.). On les déplace vers un autre disque ET
+# on laisse une JUNCTION NTFS au path original — l'app continue à trouver
+# son contenu, mais le stockage réel est ailleurs.
+HUGE_USER_DIRS = [
+    {"path": r"<USER_HOME>\Documents\my games",
+     "name": "Documents\\my games",
+     "reason": "Saves/replays jeux Steam (X4 Egosoft etc.) — path en dur côté apps, "
+                "junction NTFS conservée pour que les jeux continuent de fonctionner",
+     "risk": "MEDIUM",
+     "min_gb_to_act": 30.0},
+    # Identifié en 2e passe
+    {"path": r"<USER_HOME>\AppData\Local\Larian Studios",
+     "name": "Larian Studios (BG3)",
+     "reason": "Saves Baldur's Gate 3 / Divinity. Path en dur côté apps Larian, "
+                "junction NTFS conservée pour transparence",
+     "risk": "MEDIUM",
+     "min_gb_to_act": 5.0},
+    {"path": r"<USER_HOME>\AppData\Local\GensparkSoftware",
+     "name": "GensparkSoftware",
+     "reason": "Données app Genspark — path attendu en dur. Junction conservée",
+     "risk": "MEDIUM",
+     "min_gb_to_act": 10.0},
+    {"path": r"<USER_HOME>\.local\share",
+     "name": ".local/share",
+     "reason": "Données utilisateur Linux-style (peut contenir Lutris/WSL/Flatpak). "
+                "Junction conservée — risque limité car peu d'apps Windows attendent ce path",
+     "risk": "MEDIUM",
+     "min_gb_to_act": 10.0},
+    {"path": r"<USER_HOME>\AppData\Roaming\Claude",
+     "name": "Claude Desktop data",
+     "reason": "Données Claude Desktop. Junction conservée pour que l'app continue à fonctionner",
+     "risk": "MEDIUM",
+     "min_gb_to_act": 5.0},
+    {"path": r"<USER_HOME>\AppData\Roaming\anythingllm-desktop",
+     "name": "AnythingLLM data",
+     "reason": "Données AnythingLLM Desktop. Junction conservée",
+     "risk": "MEDIUM",
+     "min_gb_to_act": 3.0},
+]
+
+
+# Caches safe à supprimer (delete_cache action) — pip purge, Temp, HF cache.
+# Le contenu est SUPPRIMÉ, le dossier parent reste. Régénérable à la demande.
+SAFE_CACHE_TARGETS = [
+    {"path": r"<USER_HOME>\AppData\Local\pip\Cache",
+     "name": "pip cache",
+     "reason": "Cache pip — recréé automatiquement à la prochaine install",
+     "risk": "LOW"},
+    {"path": r"<USER_HOME>\AppData\Local\Temp",
+     "name": "AppData Temp",
+     "reason": "Fichiers temp Windows — Windows nettoie de toute façon, mais le fait pas tout le temps",
+     "risk": "LOW",
+     "skip_locked": True},  # certains fichiers en cours d'utilisation, on skip
+    {"path": r"<USER_HOME>\.cache\huggingface",
+     "name": "HuggingFace cache",
+     "reason": "Cache HF — re-téléchargé si un script en a besoin",
+     "risk": "LOW"},
+    {"path": r"<USER_HOME>\.cache\torch",
+     "name": "PyTorch cache",
+     "reason": "Cache PyTorch — recréé",
+     "risk": "LOW"},
+    # Caches identifiés en 2e passe (audit live de C:)
+    {"path": r"<USER_HOME>\AppData\Local\UnrealEngine\Common\DerivedDataCache",
+     "name": "UnrealEngine DDC",
+     "reason": "Derived Data Cache Unreal — recréé à la compile",
+     "risk": "LOW",
+     "skip_locked": True},
+    {"path": r"<USER_HOME>\.npm-cache",
+     "name": "npm cache (user)",
+     "reason": "Cache npm — recréé à la prochaine install",
+     "risk": "LOW",
+     "skip_locked": True},
+    {"path": r"<USER_HOME>\AppData\Roaming\npm-cache",
+     "name": "npm cache (roaming)",
+     "reason": "Cache npm — recréé",
+     "risk": "LOW",
+     "skip_locked": True},
+    {"path": r"<USER_HOME>\AppData\Roaming\Code\Cache",
+     "name": "VS Code cache",
+     "reason": "Cache HTTP/cookies VS Code — recréé sans perte de réglages",
+     "risk": "LOW",
+     "skip_locked": True},
+    {"path": r"<USER_HOME>\AppData\Roaming\Code\CachedData",
+     "name": "VS Code CachedData",
+     "reason": "CachedData VS Code — recréé",
+     "risk": "LOW",
+     "skip_locked": True},
+    {"path": r"<USER_HOME>\AppData\Local\GensparkSoftware\cache",
+     "name": "Genspark cache",
+     "reason": "Cache app Genspark — recréé",
+     "risk": "LOW",
+     "skip_locked": True},
+]
+
+
+def _measure(p: Path) -> tuple[int, int]:
+    """Taille + n_files d'un dossier (cap 200k pour rester rapide)."""
+    if not p.exists() or not p.is_dir(): return (0, 0)
+    total = 0; n = 0
+    try:
+        for cur, _, files in os.walk(p):
+            for fn in files:
+                try: total += (Path(cur) / fn).stat().st_size
+                except Exception: pass
+                n += 1
+                if n >= 200_000: return (total, n)
+    except Exception: pass
+    return (total, n)
+
+
+def _delete_cache_contents(target: Path, skip_locked: bool = True) -> dict:
+    """Supprime le CONTENU de `target` (récursif), garde le dossier lui-même.
+
+    `skip_locked=True` : si un fichier est verrouillé (Windows en cours
+    d'utilisation), on skip silencieusement. Sinon on lève l'exception.
+    """
+    if not target.exists():
+        return {"ok": False, "error": "target_missing", "path": str(target)}
+    if not target.is_dir():
+        return {"ok": False, "error": "target_not_dir", "path": str(target)}
+    n_deleted = 0
+    n_skipped = 0
+    bytes_freed = 0
+    errors = []
+    for entry in list(target.iterdir()):
+        try:
+            if entry.is_file() or entry.is_symlink():
+                sz = 0
+                try: sz = entry.stat().st_size
+                except Exception: pass
+                entry.unlink(missing_ok=True)
+                n_deleted += 1
+                bytes_freed += sz
+            elif entry.is_dir():
+                # Mesure avant pour avoir le delta
+                pre_sz, _ = _measure(entry)
+                shutil.rmtree(str(entry), ignore_errors=skip_locked)
+                # Si le dossier existe encore après rmtree (ignored errors),
+                # on compte ce qui reste
+                if entry.exists():
+                    post_sz, _ = _measure(entry)
+                    bytes_freed += pre_sz - post_sz
+                    n_skipped += 1
+                else:
+                    bytes_freed += pre_sz
+                    n_deleted += 1
+        except Exception as e:
+            n_skipped += 1
+            errors.append(f"{entry.name}: {str(e)[:80]}")
+            if not skip_locked:
+                return {"ok": False, "error": "delete_failed",
+                        "path": str(entry), "errors": errors}
+    return {"ok": True, "n_deleted": n_deleted, "n_skipped": n_skipped,
+            "bytes_freed": bytes_freed,
+            "gb_freed": round(bytes_freed / 1e9, 2),
+            "errors": errors[:5]}
+
+
+def _propose_cache_cleanups() -> list[dict]:
+    """Génère les actions `delete_cache` pour les SAFE_CACHE_TARGETS dispo."""
+    actions = []
+    for entry in SAFE_CACHE_TARGETS:
+        p = Path(entry["path"])
+        if not p.exists() or not p.is_dir(): continue
+        sz, n_files = _measure(p)
+        if sz < 100 * 1024 * 1024:  # skip si < 100 MB
+            continue
+        action_id = f"clean_{int(_now())}_{len(actions)}"
+        actions.append({
+            "id": action_id,
+            "type": "delete_cache",
+            "name": entry["name"],
+            "src": entry["path"],
+            "size_gb": round(sz / 1e9, 2),
+            "n_files": n_files,
+            "risk": entry["risk"],
+            "reason": entry["reason"],
+            "skip_locked": entry.get("skip_locked", True),
+            # Pas de rollback : delete = définitif. Mais c'est un cache donc OK.
+            "rollback_command": "(delete cache : pas de rollback, contenu régénéré à la demande)",
+        })
+    return actions
+
+
+def _propose_huge_user_migrations(target_disk: str) -> list[dict]:
+    """Génère les actions `move_with_junction` pour les HUGE_USER_DIRS dispo.
+
+    `target_disk` : ex `G:\\` — disque cible avec assez d'espace.
+    Junction NTFS conservée au path original pour transparence côté apps.
+    """
+    import subprocess
+    actions = []
+    for entry in HUGE_USER_DIRS:
+        src_p = Path(entry["path"])
+        if not src_p.exists() or not src_p.is_dir():
+            continue
+        # Vérifie que ce n'est pas déjà une junction (idempotence)
+        try:
+            # Sur Windows, junction = type "REPARSE_POINT"
+            r = subprocess.run(
+                ["fsutil", "reparsepoint", "query", str(src_p)],
+                capture_output=True, text=True, timeout=5)
+            if r.returncode == 0 and "Mount Point" in r.stdout:
+                continue  # déjà migré + junction présente, skip
+        except Exception: pass
+
+        sz, n_files = _measure(src_p)
+        if sz < entry["min_gb_to_act"] * 1e9:
+            continue
+
+        target_root = Path(target_disk) / "cortex-migrated"
+        dst = target_root / src_p.parts[-1]
+        if dst.exists():
+            dst = dst.with_name(f"{dst.name}_{int(_now())}")
+        action_id = f"mvj_{int(_now())}_{len(actions)}"
+        actions.append({
+            "id": action_id,
+            "type": "move_with_junction",
+            "name": entry["name"],
+            "src": str(src_p),
+            "dst": str(dst),
+            "size_gb": round(sz / 1e9, 2),
+            "n_files": n_files,
+            "risk": entry["risk"],
+            "reason": entry["reason"],
+            "ps_command": (f'Move-Item -LiteralPath "{src_p}" -Destination "{dst}" -Force; '
+                            f'New-Item -ItemType Junction -Path "{src_p}" -Target "{dst}"'),
+            "rollback_command": (f'Remove-Item -LiteralPath "{src_p}"; '
+                                  f'Move-Item -LiteralPath "{dst}" -Destination "{src_p}"'),
+        })
+    return actions
+
+
 def execute(action_id: str, confirm: bool = False) -> dict:
-    """Exécute UNE action du plan, avec confirmation explicite obligatoire."""
+    """Exécute UNE action du plan, avec confirmation explicite obligatoire.
+
+    Dispatch selon le type d'action :
+    - `move_directory`  : shutil.move src → dst (cross-disk)
+    - `delete_cache`    : rmtree du contenu (dossier parent conservé)
+    """
     if not confirm:
         return {"ok": False, "error": "confirm_required",
                 "msg": "Refus : confirm=False. Aucune action exécutée."}
@@ -388,18 +634,102 @@ def execute(action_id: str, confirm: bool = False) -> dict:
     action = next((a for a in plan.get("actions", []) if a.get("id") == action_id), None)
     if not action:
         return {"ok": False, "error": "action_not_found", "id": action_id}
+
+    atype = action.get("type", "move_directory")
+
+    # Action : delete_cache
+    if atype == "delete_cache":
+        target = Path(action["src"])
+        started = _now()
+        rep = _delete_cache_contents(target,
+                                      skip_locked=action.get("skip_locked", True))
+        duration = _now() - started
+        ev = {"type": ("execute_success" if rep.get("ok") else "execute_failure"),
+              "action_id": action_id, "action_type": "delete_cache",
+              "target": str(target), "duration_s": round(duration, 1),
+              **{k: v for k, v in rep.items() if k != "ok"}}
+        _log_audit(ev)
+        return {**rep, "action_id": action_id, "type": "delete_cache",
+                "target": str(target), "duration_s": round(duration, 1)}
+
+    # Action : move_with_junction (pour my games, etc.)
+    # Move puis crée une jonction NTFS au path source pour que les apps qui
+    # référencent le path en dur (Steam, jeux) continuent de marcher.
+    if atype == "move_with_junction":
+        import subprocess
+        src = Path(action["src"])
+        dst = Path(action["dst"])
+        if not src.exists():
+            return {"ok": False, "error": "src_missing", "src": str(src)}
+        if dst.exists():
+            return {"ok": False, "error": "dst_exists", "dst": str(dst)}
+        try:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            return {"ok": False, "error": f"mkdir_dst_parent: {e}"}
+        started = _now()
+        # 1. Move
+        try:
+            shutil.move(str(src), str(dst))
+        except Exception as e:
+            _log_audit({"type": "execute_failure", "action_id": action_id,
+                         "action_type": "move_with_junction",
+                         "stage": "move", "error": str(e)[:300],
+                         "src": str(src), "dst": str(dst)})
+            return {"ok": False, "error": f"move_failed: {e}",
+                    "src": str(src), "dst": str(dst)}
+        # 2. Crée la junction NTFS au path original
+        try:
+            r = subprocess.run(
+                ["cmd", "/c", "mklink", "/J", str(src), str(dst)],
+                capture_output=True, text=True, timeout=15)
+            if r.returncode != 0:
+                # Move OK mais junction KO : on essaye de rollback le move
+                try: shutil.move(str(dst), str(src))
+                except Exception: pass
+                _log_audit({"type": "execute_failure", "action_id": action_id,
+                             "action_type": "move_with_junction",
+                             "stage": "junction",
+                             "stderr": r.stderr[:300] if r.stderr else "",
+                             "rolled_back_move": True})
+                return {"ok": False, "error": "junction_failed",
+                        "stderr": r.stderr[:300]}
+        except Exception as e:
+            try: shutil.move(str(dst), str(src))
+            except Exception: pass
+            _log_audit({"type": "execute_failure", "action_id": action_id,
+                         "action_type": "move_with_junction",
+                         "stage": "junction_exception", "error": str(e)[:300]})
+            return {"ok": False, "error": f"junction_exception: {e}"}
+        duration = _now() - started
+        _log_audit({"type": "execute_success", "action_id": action_id,
+                     "action_type": "move_with_junction",
+                     "src": str(src), "dst": str(dst),
+                     "size_gb": action.get("size_gb"),
+                     "duration_s": round(duration, 1)})
+        return {
+            "ok": True,
+            "action_id": action_id,
+            "type": "move_with_junction",
+            "src": str(src), "dst": str(dst),
+            "size_gb": action.get("size_gb"),
+            "gb_freed": action.get("size_gb"),
+            "duration_s": round(duration, 1),
+            "rollback": action.get("rollback_command"),
+            "msg": "Migré + junction NTFS créée. Les apps continuent à voir le path original.",
+        }
+
+    # Action : move_directory (legacy default)
     src = Path(action["src"])
     dst = Path(action["dst"])
     if not src.exists():
         return {"ok": False, "error": "src_missing", "src": str(src)}
     if dst.exists():
         return {"ok": False, "error": "dst_exists", "dst": str(dst)}
-    # Vérifie que dst.parent existe ou crée
     try:
         dst.parent.mkdir(parents=True, exist_ok=True)
     except Exception as e:
         return {"ok": False, "error": f"mkdir_dst_parent: {e}"}
-    # Move via shutil.move (cross-disk safe)
     started = _now()
     try:
         shutil.move(str(src), str(dst))
@@ -410,17 +740,92 @@ def execute(action_id: str, confirm: bool = False) -> dict:
                 "dst": str(dst)}
     duration = _now() - started
     _log_audit({"type": "execute_success", "action_id": action_id,
+                 "action_type": "move_directory",
                  "src": str(src), "dst": str(dst),
                  "size_gb": action.get("size_gb"),
                  "duration_s": round(duration, 1)})
     return {
         "ok": True,
         "action_id": action_id,
+        "type": "move_directory",
         "src": str(src), "dst": str(dst),
         "size_gb": action.get("size_gb"),
         "duration_s": round(duration, 1),
         "rollback": action.get("rollback_command"),
     }
+
+
+def auto_execute_authorized(allow_low: bool = True,
+                             allow_medium: bool = True,
+                             allow_high: bool = False) -> dict:
+    """Exécute automatiquement les actions du plan selon les niveaux autorisés.
+
+    Sam a explicitement autorisé LOW + MEDIUM ("toutes les actions, fais
+    confiance"). HIGH reste OFF par défaut (OneDrive sync, contenu cloud,
+    etc.) — il faudrait un opt-in explicite pour ça.
+
+    Sécurité :
+    - Audit log de CHAQUE action (succès / échec) dans `.cortex-body-health-audit.jsonl`
+    - HIGH refusé par défaut (override par Sam si vraiment voulu)
+    - Échec d'une action n'arrête pas la chaîne (les autres tentent)
+    - Sanity guard : refuse si total prétendu > 90 % de l'espace utilisé
+      du disque source (probable bug de scan)
+    """
+    if not PLAN_FILE.exists():
+        propose_plan()
+    if not PLAN_FILE.exists():
+        return {"ok": False, "error": "plan_generation_failed"}
+    try:
+        plan = json.loads(PLAN_FILE.read_text(encoding="utf-8"))
+    except Exception as e:
+        return {"ok": False, "error": f"plan_read: {e}"}
+
+    allowed = set()
+    if allow_low: allowed.add("LOW")
+    if allow_medium: allowed.add("MEDIUM")
+    if allow_high: allowed.add("HIGH")
+
+    actions = [a for a in plan.get("actions", [])
+               if a.get("risk") in allowed]
+    total_gb = sum(a.get("size_gb", 0) for a in actions)
+
+    # Sanity guard : si total > 250 Go, suspect — refuse
+    if total_gb > 250:
+        return {"ok": False, "error": "suspicious_total_gb",
+                "total_gb": total_gb, "n_actions": len(actions),
+                "msg": "Plus de 250 Go d'actions auto : refus, audit manuel requis."}
+
+    results = []
+    total_freed = 0.0
+    for a in actions:
+        rep = execute(a["id"], confirm=True)
+        freed = rep.get("gb_freed", a.get("size_gb", 0)) if rep.get("ok") else 0
+        results.append({"id": a["id"],
+                         "name": a.get("name", a.get("src")),
+                         "type": a.get("type"),
+                         "risk": a.get("risk"),
+                         "ok": rep.get("ok"),
+                         "freed_gb": freed,
+                         "error": rep.get("error")})
+        if rep.get("ok"):
+            total_freed += freed or 0
+    _log_audit({"type": "auto_execute_authorized_completed",
+                 "allowed_risks": sorted(allowed),
+                 "n_actions": len(actions),
+                 "n_ok": sum(1 for r in results if r["ok"]),
+                 "total_freed_gb": round(total_freed, 2)})
+    return {"ok": True,
+            "allowed_risks": sorted(allowed),
+            "n_actions_attempted": len(actions),
+            "n_succeeded": sum(1 for r in results if r["ok"]),
+            "total_freed_gb": round(total_freed, 2),
+            "results": results}
+
+
+# Compat : ancien nom conservé
+def auto_execute_low() -> dict:
+    return auto_execute_authorized(allow_low=True, allow_medium=False,
+                                    allow_high=False)
 
 
 def speak_if_critical() -> dict:

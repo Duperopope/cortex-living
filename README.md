@@ -1,6 +1,6 @@
 # Cortex — prototype expérimental de boucle cognitive locale
 
-> Dernière mise à jour : `2026-05-04T13:51:29` (auto-généré)
+> Dernière mise à jour : `2026-05-04T15:27:14` (auto-généré)
 
 Cortex est un **prototype expérimental** de boucle cognitive locale
 construite sur le projet Paperclip. Il combine capture webcam, audio, mémoire
@@ -18,8 +18,8 @@ score d'action **inspiré** d'Active Inference (Friston, 2010, version simplifi�
 | Nœuds graphe pensée    | **1782**                    |
 | Arêtes sémantiques     | **182753**                    |
 | Densité                | **0.1152**                    |
-| Nœuds actifs           | **43** (décroissance τ=60 s) |
-| Hebbian cumulé         | **15.96** (apprentissage) |
+| Nœuds actifs           | **35** (décroissance τ=60 s) |
+| Hebbian cumulé         | **23.29** (apprentissage) |
 | Zones d'ignorance      | **0** (besoin de ponts) |
 
 ### Composition du graphe
@@ -29,8 +29,8 @@ score d'action **inspiré** d'Active Inference (Friston, 2010, version simplifi�
 
 ## Corps (homeostasis)
 
-- CPU : **70.0%**
-- RAM : **82.3%**
+- CPU : **30.1%**
+- RAM : **67.2%**
 - Disques surveillés : **5**
 - GPU : —
 
@@ -123,6 +123,16 @@ Cortex peut :
   des deltas observés post-action (mode `empirical` quand n≥8 exemples par
   action, fallback heuristique sinon). Ce **n'est pas** le formalisme
   variationnel complet de Friston, mais ce n'est plus une table fixe.
+- **Score IAG calibré** : le score brut est multiplié par un facteur ≤1
+  basé sur la maturité runtime réelle (ratio learned/fallback,
+  prediction_error, fake_confident_rate). Sans ça le scoring binaire
+  donnait 90+/100 sur un système clairement immature.
+- **Vision en deux étages** : modèle VL pour la perception (qwen2.5-vl, llava)
+  + brain LLM pour la synthèse. Pour les questions vision simples, on
+  court-circuite le brain LLM (la description VL = la réponse). Pour les
+  questions vision complexes, garde-fou anti-censure injecté dans le prompt
+  brain LLM (qui sinon répondait « Je ne vois rien » alors que [Vue webcam]
+  avait du contenu).
 - **Active Inference vs banc de baselines** : la fraction "better than random"
   est calculée sur des **prédictions** EFE. Une mesure plus solide compare les
   *outcomes observés* post-action contre plusieurs baselines naïves (random,

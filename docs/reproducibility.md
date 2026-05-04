@@ -86,6 +86,45 @@ re-déclencher manuellement via "Actions → smoke → Run workflow"). Mais ce
 n'est plus le seul rempart : la CI locale est désormais le rempart
 principal.
 
+## Memory hygiene (auto-audit du vault)
+
+```bash
+python code/brain/cortex_memory_audit.py audit       # rapport complet
+python code/brain/cortex_memory_audit.py propose     # propose des fix DRY_RUN
+```
+
+Détecte 4 types d'issues :
+- **Contradictions** entre notes mémoire (axes opposés, proposition manuelle)
+- **Paths obsolètes** : refs vers fichiers qui n'existent plus (annotation
+  proposée, pas suppression)
+- **Endpoints incohérents** : `/api/cortex/X` cités dans la mémoire mais
+  qui répondent 404
+- **Duplicatas** : notes avec ≥0.7 jaccard sur leur description
+
+`propose_corrections()` retourne des `fix_id` en `dry_run=true` par défaut.
+Sam doit explicitement appliquer chacun. Pas de cleanup auto qui pourrait
+détruire de l'historique utile.
+
+## Stack LM Studio recommandée (local-first)
+
+Pour que tout fonctionne sans dégradation silencieuse :
+
+| Rôle | Modèle suggéré | Taille | Notes |
+|---|---|---|---|
+| **Vision-Language** | `unsloth/qwen2.5-vl-7b-instruct` (Q4-Q5) | ~5-7 GB | Webcam description, capture screen analysis |
+| **Embedding** | `text-embedding-nomic-embed-text-v1.5` | ~80 MB | Vectorisation queries pour graphe sémantique |
+| **Brain text** (optionnel) | `qwen3-4b` ou `qwen3.6-35b-a3b` | 2-14 GB | Synthèse meta_prompt pour questions complexes |
+
+Tous chargés en parallèle dans LM Studio (multi-load). Le code Cortex
+auto-détecte les modèles disponibles via `/v1/models` :
+- `cortex_vision._detect_vision_model()` cherche `vl`/`vision`/`llava`
+- `cortex_dialogue._detect_brain_llm_model()` cherche un brain text-only
+  d'abord (qwen3, claude, llama, deepseek), retombe sur le VL en mode text
+  si nécessaire
+
+Pas de hardcoded model name → pas de fallback silencieux quand un modèle
+est unloaded.
+
 ## Comment Claude Code se branche au système
 
 Si tu utilises Claude Code (Anthropic CLI), un `CLAUDE.md` dans la racine

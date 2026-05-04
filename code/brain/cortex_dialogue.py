@@ -155,13 +155,62 @@ def _confidence_on(topic: str) -> dict:
     return {"confidence": 0, "label": "inconnu"}
 
 
+# Cache du nom de modèle text-LLM détecté dans LM Studio (10s TTL pour ne pas
+# spammer /v1/models à chaque appel mais rester réactif au load/unload).
+_LM_MODEL_CACHE: tuple[float, str | None] = (0.0, None)
+
+
+def _detect_brain_llm_model() -> str | None:
+    """Cherche un modèle text dans LM Studio. Préfère un brain dédié (qwen3.6,
+    qwen3-, qwen2.5-7b text-only) au modèle vision (qui marche en text mode
+    mais avec son context fenêtre de 4096 limité et vocabulaire optimisé image).
+
+    Sans ça, on hardcodait `qwen3.6-35b-a3b` qui n'est pas toujours chargé →
+    LM Studio faisait un fallback silencieux sur le VL en mode text-only →
+    réponses lentes (176s vu en live) et qualité dégradée.
+    """
+    global _LM_MODEL_CACHE
+    cached_ts, cached_id = _LM_MODEL_CACHE
+    if _now() - cached_ts < 10.0 and cached_id is not None:
+        return cached_id
+    try:
+        import urllib.request
+        with urllib.request.urlopen("http://127.0.0.1:1234/v1/models",
+                                    timeout=3) as r:
+            d = json.loads(r.read().decode())
+        ids = [m.get("id") for m in (d.get("data") or []) if m.get("id")]
+        # Priorisation : brain dédié > VL fallback. On évite les modèles
+        # embedding (text-embedding-*) et autres non-chat.
+        chat_ids = [i for i in ids if "embedding" not in (i or "").lower()]
+        # Préférence brain text-only > VL
+        for tag in ("qwen3.6", "qwen3-", "qwen3_", "claude-4", "deepseek",
+                    "llama", "mistral"):
+            for i in chat_ids:
+                if tag in (i or "").lower():
+                    _LM_MODEL_CACHE = (_now(), i)
+                    return i
+        # Fallback : tout chat model dispo (incl. VL en mode text)
+        if chat_ids:
+            _LM_MODEL_CACHE = (_now(), chat_ids[0])
+            return chat_ids[0]
+    except Exception: pass
+    return None
+
+
 def _query_lm_studio(prompt: str, max_tokens: int = 350,
                       timeout: int = 60) -> str:
-    """Envoie un prompt à LM Studio local. Retourne '' si KO ou aucun modèle chargé."""
+    """Envoie un prompt à LM Studio local. Retourne '' si KO ou aucun modèle chargé.
+
+    Auto-détecte le modèle chargé (préférence brain > VL). Évite le hardcode
+    `qwen3.6-35b-a3b` qui causait un fallback silencieux LM Studio + lenteur.
+    """
+    model = _detect_brain_llm_model()
+    if not model:
+        return ""
     try:
         import urllib.request
         payload = json.dumps({
-            "model": "qwen3.6-35b-a3b",
+            "model": model,
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": max_tokens,
             "temperature": 0.4,
@@ -417,11 +466,26 @@ def compose_response(prompt: str, query_type: str | None = None) -> dict:
     # que de la passer dans un brain LLM text-only qui la censure et répond
     # « Je ne vois rien » (vu en live avec Sam — qwen vision a parfaitement
     # décrit la scène, puis le brain LLM downstream a ignoré [Vue webcam]).
-    # Le brain LLM ne sert à rien sur une question purement visuelle : la vraie
-    # info est déjà dans la description du modèle vision.
-    if query_type == "vision" and vision_ok and vision_description \
+    #
+    # Deux cas distingués :
+    # - Question visuelle SIMPLE ("tu vois quoi", "qu'est-ce que je fais") →
+    #   description directe, pas de brain LLM
+    # - Question visuelle COMPLEXE (raisonnement sur l'image, futur, identité,
+    #   etc. — ex : "tu saurais me reconnaître ?") → description + brain LLM
+    #   avec un prompt qui INTERDIT explicitement de nier le contenu vision
+    SIMPLE_VISION_TRIGGERS = (
+        "tu me vois", "tu vois", "qu'est-ce que je fais", "que fais-je",
+        "à quoi ressemble", "regarde-moi", "tu vois quoi",
+        "ce que je fais", "ce que tu vois", "tu peux voir",
+        "qu'est ce que tu vois", "qu'est-ce que tu vois",
+        "decris ce que", "décris ce que", "decris cette",
+        "décris cette", "décris la pi", "decris la pi",
+    )
+    is_simple_vision = (query_type == "vision"
+                         and any(k in prompt.lower() for k in SIMPLE_VISION_TRIGGERS))
+
+    if is_simple_vision and vision_ok and vision_description \
        and vision_method == "lm_studio_vision":
-        # On préfixe avec un mini ancrage identité + humeur si dispo, et c'est tout.
         head = ""
         if internal.get("mood_label"):
             head = f"({internal['mood_label']}) "
@@ -510,9 +574,30 @@ def compose_response(prompt: str, query_type: str | None = None) -> dict:
         sources_used.append("iag_score")
 
     structured_context = "\n".join(parts) if parts else "[état interne minimal]"
+
+    # Garde-fou anti-censure : si on a une description vision réelle ET que la
+    # question est vision complexe (raisonnement sur l'image), on injecte une
+    # instruction supplémentaire qui INTERDIT au brain LLM de nier le contenu
+    # vision. Vu en live : sans ça, qwen-vl en mode text-only répondait
+    # « Je ne vois rien » alors que [Vue webcam] contenait une description.
+    extra_rules = ""
+    if query_type == "vision" and vision_ok and vision_description \
+       and vision_method == "lm_studio_vision":
+        extra_rules = (
+            "\n\n=== RÈGLE SPÉCIFIQUE VISION ===\n"
+            "Le bloc [Vue webcam] ci-dessus contient une description RÉELLE "
+            "produite par un modèle vision-language qui a vraiment analysé "
+            "l'image. Tu DOIS l'utiliser. INTERDIT absolu :\n"
+            "- de répondre « je ne vois rien »\n"
+            "- de dire que tu n'as pas accès à l'image\n"
+            "- de réécrire « je ne sais pas »\n"
+            "OBLIGATOIRE : ouvre ta réponse en intégrant ce que dit le bloc "
+            "[Vue webcam], puis réponds à la question de Sam à partir de ça."
+        )
     meta_prompt = (
         f"{_IDENTITY_BLOCK}\n\n"
-        f"=== ÉTAT INTERNE COURANT ===\n{structured_context}\n\n"
+        f"=== ÉTAT INTERNE COURANT ===\n{structured_context}"
+        f"{extra_rules}\n\n"
         f"=== QUESTION DE SAM ===\n« {prompt} »\n\n"
         f"=== TA RÉPONSE (français, 2-4 phrases, tutoiement) ===\n/no_think"
     )

@@ -451,6 +451,14 @@ _running = False
 # Inference du cycle a choisi autre chose. Sam peut ouvrir Claude Code à tout
 # moment, le contexte ne doit pas être périmé.
 CONTEXT_REFRESH_EVERY = 6
+BODY_HEALTH_CHECK_EVERY = 12  # avec interval=300s : check toutes les heures
+MEMORY_AUDIT_EVERY = 144      # une fois par 12h
+ANTI_FAKE_EVERY = 288         # une fois par jour
+
+# Track la dernière fois qu'on a "parlé" de health pour éviter le spam si
+# critique persiste. Cooldown : 1 message critique max par 30 min.
+_LAST_HEALTH_SPEAK_TS: float = 0.0
+HEALTH_SPEAK_COOLDOWN_SEC = 1800.0
 
 
 def _maybe_refresh_claude_context(cycle_idx: int) -> None:
@@ -467,6 +475,126 @@ def _maybe_refresh_claude_context(cycle_idx: int) -> None:
                 _log(f"context refresh #cycle={cycle_idx}: {r.get('result', '?')[:120]}")
         except Exception as e:
             _log(f"context refresh err: {e}")
+
+
+# Sam a explicitement autorisé Cortex à exécuter LOW + MEDIUM en auto
+# ("toutes les actions, fais confiance"). HIGH reste OFF (OneDrive, etc.).
+BODY_HEALTH_AUTO_EXEC_LOW = True
+BODY_HEALTH_AUTO_EXEC_MEDIUM = True
+BODY_HEALTH_AUTO_EXEC_HIGH = False
+
+
+def _maybe_check_body_health(cycle_idx: int) -> None:
+    """Toutes les BODY_HEALTH_CHECK_EVERY cycles, vérifie l'état des disques.
+
+    Si zone rouge (>90%), Cortex :
+    1. Parle dans le chat (avec cooldown 30 min pour ne pas spammer)
+    2. Exécute automatiquement les actions LOW + MEDIUM autorisées
+       (caches + migrations user dirs avec junction NTFS)
+    3. Republie un résumé "j'ai libéré X Go" dans le chat
+
+    HIGH (OneDrive sync, contenu cloud) reste OFF — opt-in explicite requis.
+
+    Avant ce branchement, cortex_body_health existait mais n'était jamais
+    appelé périodiquement. Disque C: à 97% restait au rouge des heures
+    sans alerte ni action.
+    """
+    # Check au cycle 1 (premier cycle après boot, ~30s après restart) pour ne
+    # pas faire attendre Sam 1h. Puis check tous les BODY_HEALTH_CHECK_EVERY
+    # cycles. Le cooldown HEALTH_SPEAK_COOLDOWN_SEC empêche de toute façon le
+    # spam si CRITICAL persiste.
+    if cycle_idx <= 0:
+        return
+    if cycle_idx != 1 and cycle_idx % BODY_HEALTH_CHECK_EVERY != 0:
+        return
+    global _LAST_HEALTH_SPEAK_TS
+    try:
+        import cortex_body_health as bh
+        diag = bh.diagnose()
+        if diag.get("severity") == "CRITICAL":
+            now = time.time()
+            if now - _LAST_HEALTH_SPEAK_TS >= HEALTH_SPEAK_COOLDOWN_SEC:
+                # 1. Annonce dans le chat
+                rep_speak = bh.speak_if_critical()
+                _LAST_HEALTH_SPEAK_TS = now
+                _log(f"body_health: spoken ({rep_speak.get('spoken')})")
+                # 2. Exécute auto les actions autorisées
+                rep_exec = bh.auto_execute_authorized(
+                    allow_low=BODY_HEALTH_AUTO_EXEC_LOW,
+                    allow_medium=BODY_HEALTH_AUTO_EXEC_MEDIUM,
+                    allow_high=BODY_HEALTH_AUTO_EXEC_HIGH)
+                _log(f"body_health: auto_exec n_attempted="
+                     f"{rep_exec.get('n_actions_attempted', 0)} "
+                     f"n_succeeded={rep_exec.get('n_succeeded', 0)} "
+                     f"freed={rep_exec.get('total_freed_gb', 0)} Go")
+                # 3. Republie le bilan dans le chat
+                if rep_exec.get("ok") and rep_exec.get("n_succeeded", 0) > 0:
+                    try:
+                        from pathlib import Path as _P
+                        stream = _P(r"<USER_HOME>\Documents\Obsidian Vault") / ".cortex-chat-stream.jsonl"
+                        bilan = (f"J'ai exécuté {rep_exec['n_succeeded']}/"
+                                  f"{rep_exec['n_actions_attempted']} actions de cleanup. "
+                                  f"**{rep_exec.get('total_freed_gb', 0)} Go libérés** "
+                                  f"sur les disques. Détails dans "
+                                  f"`.cortex-body-health-audit.jsonl`.")
+                        entry = {
+                            "ts": now,
+                            "speaker": "cortex_body_health",
+                            "msg": "(cleanup auto effectué)",
+                            "response": bilan,
+                            "meta": {"trigger": "auto_exec_after_critical",
+                                      "n_succeeded": rep_exec["n_succeeded"],
+                                      "freed_gb": rep_exec.get("total_freed_gb", 0)},
+                        }
+                        with stream.open("a", encoding="utf-8") as f:
+                            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+                    except Exception as e:
+                        _log(f"body_health: republish err: {e}")
+            else:
+                _log(f"body_health critical but cooldown ({int(now - _LAST_HEALTH_SPEAK_TS)}s)")
+        elif diag.get("severity") == "WARNING":
+            _log(f"body_health: warning, disks={diag.get('warning_disks')}")
+        # OK : silence
+    except Exception as e:
+        _log(f"body_health check err: {e}")
+
+
+def _maybe_run_memory_audit(cycle_idx: int) -> None:
+    """Audit périodique mémoire (contradictions, paths obsolètes, duplicatas).
+
+    Le rapport est écrit sur disque (.cortex-memory-audit.json), pas dans le
+    chat. Sam peut le consulter via /api/cortex/memory/audit ou en CLI.
+    """
+    if cycle_idx <= 0 or cycle_idx % MEMORY_AUDIT_EVERY != 0:
+        return
+    try:
+        import cortex_memory_audit as ma
+        rep = ma.audit()
+        n = rep.get("issues_found", 0)
+        if n > 0:
+            _log(f"memory_audit: {n} issues found "
+                 f"(contradictions={rep.get('by_type', {}).get('contradictions', 0)}, "
+                 f"obsolete={rep.get('by_type', {}).get('obsolete_paths', 0)}, "
+                 f"dupes={rep.get('by_type', {}).get('duplicates', 0)})")
+    except Exception as e:
+        _log(f"memory_audit err: {e}")
+
+
+def _maybe_run_anti_fake(cycle_idx: int) -> None:
+    """Auto-test anti-fake périodique (1× par jour).
+
+    Le rapport est écrit en disque. Si score < 50, Cortex le notifie dans le
+    chat (avec cooldown). Sinon silencieux.
+    """
+    if cycle_idx <= 0 or cycle_idx % ANTI_FAKE_EVERY != 0:
+        return
+    try:
+        import cortex_anti_fake as af
+        rep = af.run_all_tests()
+        score = rep.get("score_global", 0)
+        _log(f"anti_fake: score_global={score}/100 verdict={rep.get('verdict','?')[:60]}")
+    except Exception as e:
+        _log(f"anti_fake err: {e}")
 
 
 def _emergence_loop(interval: int):
@@ -528,6 +656,10 @@ def _emergence_loop(interval: int):
 
             # Refresh périodique du contexte Claude Code
             _maybe_refresh_claude_context(cycle_idx)
+            # Modules périodiques : body health, memory audit, anti-fake
+            _maybe_check_body_health(cycle_idx)
+            _maybe_run_memory_audit(cycle_idx)
+            _maybe_run_anti_fake(cycle_idx)
 
             if action == "silent":
                 # Pas de publish pour rester discret

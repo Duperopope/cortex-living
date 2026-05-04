@@ -251,6 +251,100 @@ def _score_world_model_accuracy() -> dict:
         return {"score": 0, "error": str(e)}
 
 
+def _calibration_factor() -> dict:
+    """Coefficient ≤ 1.0 qui déflate le score IAG selon la maturité RÉELLE.
+
+    Avant cette correction, le score IAG était systématiquement >85/100 grâce
+    à des seuils binaires généreux ("modèle entraîné" → 30 points instantanés).
+    Cortex lui-même flaggait ses propres scores comme « improbable, à scruter ».
+
+    Trois signaux honnêtes pour calibrer :
+    1. Apprentissage des effets — si toutes les actions sont en mode `fallback`
+       (heuristiques hardcodées), Cortex n'a pas encore APPRIS empiriquement →
+       facteur 0.7. Si la moitié sont en `learned` → 0.85. Si toutes → 1.0.
+    2. Erreur de prédiction (Active Inference) — si `outcome_proxy` >> `outcome_observed`,
+       le modèle d'effets sur-promet. Si l'écart > 0.5 → 0.85. Si < 0.1 → 1.0.
+    3. Anti-fake fake_confident_rate — si > 0.1 (10%+ d'inventions confidentes
+       sur les questions d'état interne) → 0.7. Si 0 → 1.0.
+
+    Le facteur final est le minimum des trois (le maillon faible domine).
+    """
+    factor_action_effects = 1.0
+    factor_prediction_error = 1.0
+    factor_fake_confident = 1.0
+    notes = []
+    try:
+        import sys, importlib
+        sys.path.insert(0, str(REPO))
+        ae = importlib.import_module("cortex_action_effects")
+        s = ae.summary() or {}
+        actions = s.get("actions", {}) or {}
+        if actions:
+            n_learned = sum(1 for v in actions.values()
+                            if v.get("status") == "learned")
+            ratio = n_learned / max(1, len(actions))
+            factor_action_effects = 0.7 + 0.3 * ratio
+            notes.append(f"action_effects: {n_learned}/{len(actions)} learned "
+                          f"(factor={factor_action_effects:.2f})")
+        else:
+            factor_action_effects = 0.7
+            notes.append("action_effects: 0 actions observed (factor=0.70)")
+    except Exception as e:
+        notes.append(f"action_effects unavailable: {e}")
+    try:
+        import sys, importlib
+        sys.path.insert(0, str(REPO))
+        ai = importlib.import_module("cortex_active_inference")
+        st = ai.stats() or {}
+        proxy = st.get("cortex_avg_outcome_proxy")
+        observed = st.get("cortex_avg_outcome_observed")
+        if isinstance(proxy, (int, float)) and isinstance(observed, (int, float)):
+            err = abs(proxy - observed)
+            if err < 0.1:
+                factor_prediction_error = 1.0
+            elif err < 0.3:
+                factor_prediction_error = 0.95
+            elif err < 0.5:
+                factor_prediction_error = 0.90
+            else:
+                factor_prediction_error = 0.85
+            notes.append(f"prediction_error: {err:.2f} "
+                          f"(factor={factor_prediction_error:.2f})")
+    except Exception as e:
+        notes.append(f"prediction_error unavailable: {e}")
+    try:
+        import sys, importlib
+        sys.path.insert(0, str(REPO))
+        af = importlib.import_module("cortex_anti_fake")
+        # On ne RELANCE PAS run_all_tests (lent, appelle LLM). On lit le rapport
+        # disque le plus récent.
+        from pathlib import Path
+        rep_path = Path(r"<USER_HOME>\Documents\Obsidian Vault") / ".cortex-anti-fake-report.json"
+        if rep_path.exists():
+            import json as _json
+            r = _json.loads(rep_path.read_text(encoding="utf-8"))
+            isdk = (r.get("tests") or {}).get("internal_state_dont_know") or {}
+            rate = isdk.get("fake_confident_rate")
+            if isinstance(rate, (int, float)):
+                if rate < 0.05:
+                    factor_fake_confident = 1.0
+                elif rate < 0.1:
+                    factor_fake_confident = 0.9
+                else:
+                    factor_fake_confident = 0.7
+                notes.append(f"fake_confident_rate: {rate:.2f} "
+                              f"(factor={factor_fake_confident:.2f})")
+    except Exception as e:
+        notes.append(f"anti_fake unavailable: {e}")
+    factor = min(factor_action_effects, factor_prediction_error,
+                 factor_fake_confident)
+    return {"factor": round(factor, 3),
+            "factor_action_effects": round(factor_action_effects, 3),
+            "factor_prediction_error": round(factor_prediction_error, 3),
+            "factor_fake_confident": round(factor_fake_confident, 3),
+            "notes": notes}
+
+
 def run_iag_test() -> dict:
     """Lance le test complet et retourne le score global + verdict."""
     dimensions = {
@@ -262,9 +356,12 @@ def run_iag_test() -> dict:
         "resource_self_mgmt":  _score_resource_self_mgmt(),
         "world_model_accuracy":_score_world_model_accuracy(),
     }
-    # Score pondéré
-    global_score = sum(d.get("score", 0) * WEIGHTS[name]
-                       for name, d in dimensions.items())
+    # Score pondéré BRUT
+    raw_score = sum(d.get("score", 0) * WEIGHTS[name]
+                    for name, d in dimensions.items())
+    # Calibration honnête : facteur ≤ 1 selon maturité réelle
+    cal = _calibration_factor()
+    global_score = raw_score * cal["factor"]
     # Verdict
     if global_score < 30:
         verdict = "système autonome simple"
@@ -288,6 +385,8 @@ def run_iag_test() -> dict:
     rep = {
         "ts": _now(),
         "global_score":     round(global_score, 1),
+        "raw_score":        round(raw_score, 1),
+        "calibration":      cal,
         "verdict":          verdict,
         "is_iag":           is_iag,
         "dimensions":       dimensions,

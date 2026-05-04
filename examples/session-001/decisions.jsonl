@@ -1,10 +1,10 @@
-{"ts": 1777894264.077926, "vfe": 0.6306, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
-{"ts": 1777894517.8803086, "vfe": 2.8997, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 1.5, "outcome_proxy": 0.7909}
-{"ts": 1777894591.8943224, "vfe": 0.6344, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
-{"ts": 1777894825.490115, "vfe": 2.5506, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.35, "outcome_proxy": 0.5}
-{"ts": 1777894890.7636514, "vfe": 0.4984, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 1.5, "outcome_proxy": 1.5}
-{"ts": 1777894966.198048, "vfe": 0.542, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.25, "outcome_proxy": 0.6}
-{"ts": 1777895045.4824655, "vfe": 0.5885, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.5, "outcome_proxy": 0.5917}
-{"ts": 1777895270.2052941, "vfe": 2.3188, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
-{"ts": 1777895400.8891032, "vfe": 0.8864, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 0.7, "outcome_proxy": 0.0059}
-{"ts": 1777895489.4762003, "vfe": 0.7777, "chosen": "explore_graph", "comparison": "better_than_random"}
+{"ts": 1777899681.7596474, "vfe": 0.5325, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.5, "outcome_proxy": 0.5867}
+{"ts": 1777899917.3576653, "vfe": 2.2986, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.7, "outcome_proxy": 1.3867}
+{"ts": 1777900134.4296825, "vfe": 2.4041, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
+{"ts": 1777900356.4828496, "vfe": 2.3621, "chosen": "explore_graph", "comparison": "equal_to_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
+{"ts": 1777900571.8247051, "vfe": 2.3957, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.5, "outcome_proxy": 0.5667}
+{"ts": 1777900681.3872437, "vfe": 1.0756, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 1.1, "outcome_proxy": 0.62}
+{"ts": 1777900748.1305, "vfe": 0.5342, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.5, "outcome_proxy": 0.64}
+{"ts": 1777900786.3184118, "vfe": 0.1606, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
+{"ts": 1777901018.4226632, "vfe": 2.3194, "chosen": "map_knowledge", "comparison": "equal_to_random", "outcome_score": 1.3, "outcome_proxy": 0.6467}
+{"ts": 1777901234.488766, "vfe": 2.4193, "chosen": "explore_graph", "comparison": "better_than_random"}
