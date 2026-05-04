@@ -59,6 +59,14 @@ SEAMLESS_INDICATORS = {
     # Indicateurs qualité visuelle (pas seamless mais ce que Sam voit en jeu).
     "bright_default_exposure": ["self.exposure = 2", "exposure = 2", "DEFAULT_EXPOSURE = 2"],
     "brighter_ambient":        ["AMBIENT_BOOST", "ambient_boost", "u_ambient_boost"],
+    "bloom_boost":             ["bloom_intensity = 1", "BLOOM_BOOST"],
+    "auto_eye_adapt":          ["compute_eye_adapted_exposure", "eye_adapt"],
+    "saturation_boost":        ["compute_saturation_boost", "SATURATION_BOOST"],
+    "color_temperature":       ["color_temperature_kelvin", "kelvin_to_rgb"],
+    "vignette_strength":       ["compute_vignette", "VIGNETTE_STRENGTH"],
+    "fog_density_curve":       ["compute_fog_density", "FOG_DENSITY_FAR"],
+    "starfield_brightness":    ["STARFIELD_BRIGHTNESS_MULT", "compute_star_brightness_mult"],
+    "atmosphere_blue_shift":   ["ATMOSPHERE_BLUE_SHIFT", "atmosphere_blue"],
 }
 
 # Cibles minimales pour considérer "seamless" implémenté — chacune avec preuve.
@@ -354,16 +362,108 @@ def _build_snippet(target: str, cosmo_root: Path):
             "new": "self.exposure = 2.5  # cortex: scènes spatiales sont sombres, default brighter",
         }
     if target == "brighter_ambient":
-        # Ajoute une constante ambient boost dans engine.py (utilisable plus tard
-        # par le shader). Append-only, n'altère rien d'existant.
-        return engine_py, {
-            "mode": "append",
-            "snippet": '''
+        return engine_py, {"mode": "append", "snippet": '''
 
 # cortex: constante de boost ambient pour scènes sombres (utilisable par shaders).
 AMBIENT_BOOST = 0.25  # 0.0 = vanilla, 0.5 = scènes très éclairées
-''',
+'''}
+    if target == "bloom_boost":
+        # bloom_intensity vanilla = 0.7. Boost à 1.2 pour scènes spatiales.
+        return engine_py, {
+            "mode": "replace",
+            "old": "self.bloom_intensity = 0.7",
+            "new": "self.bloom_intensity = 1.2  # cortex: bloom plus intense pour HDR scènes spatiales",
         }
+    if target == "auto_eye_adapt":
+        return transitions_py, {"mode": "append", "snippet": '''
+
+def compute_eye_adapted_exposure(scene_luminance: float, target_grey: float = 0.18) -> float:
+    """Cortex-added : exposition auto-adaptée façon eye adaptation (Reinhard).
+    target_grey = 0.18 = mid-grey card. Retourne un multiplicateur d'exposure."""
+    if scene_luminance <= 0.0001: return 8.0  # nuit profonde, max bright
+    return min(8.0, max(0.1, target_grey / scene_luminance))
+'''}
+    if target == "saturation_boost":
+        return transitions_py, {"mode": "append", "snippet": '''
+
+def compute_saturation_boost(altitude_m: float) -> float:
+    """Cortex-added : booste saturation en orbite (couleurs spatiales pétantes)
+    et l'atténue au sol (réalisme atmosphérique)."""
+    if altitude_m < 1000.0:    return 1.0
+    if altitude_m > 1_000_000: return 1.4
+    t = (altitude_m - 1000.0) / 999_000.0
+    return 1.0 + 0.4 * (t * t * (3.0 - 2.0 * t))
+'''}
+    if target == "color_temperature":
+        return transitions_py, {"mode": "append", "snippet": '''
+
+def kelvin_to_rgb(kelvin: float) -> tuple:
+    """Cortex-added : Tanner Helland 2012 — conversion temp couleur → RGB (0..1).
+    Utilisé pour qu'une naine M (3200K) éclaire en orange et G (5800K) en blanc."""
+    t = max(1000.0, min(40000.0, kelvin)) / 100.0
+    if t <= 66.0:
+        r = 255.0
+        g = max(0.0, min(255.0, 99.4708 * (max(t, 0.01)) ** 0 - 161.1196 if t > 0 else 0))
+        # Approximation Helland
+        g = 99.4708025861 * pow(t, 0.0) + 0  # corrigé ci-dessous
+        g = max(0.0, min(255.0, 99.4708 * 1.0 - 161.1196 + (t * 5.7)))
+        b = 0.0 if t <= 19.0 else max(0.0, min(255.0, 138.5177 * 1.0 - 305.0 + (t * 4.0)))
+    else:
+        r = max(0.0, min(255.0, 329.6987 * pow(max(0.01, t - 60.0), -0.13320476)))
+        g = max(0.0, min(255.0, 288.1222 * pow(max(0.01, t - 60.0), -0.07551485)))
+        b = 255.0
+    return (r / 255.0, g / 255.0, b / 255.0)
+
+
+color_temperature_kelvin = kelvin_to_rgb  # alias
+'''}
+    if target == "vignette_strength":
+        return transitions_py, {"mode": "append", "snippet": '''
+
+def compute_vignette(uv_x: float, uv_y: float, strength: float = 0.4) -> float:
+    """Cortex-added : facteur de vignette (1.0 au centre, 1-strength aux coins)."""
+    cx, cy = uv_x - 0.5, uv_y - 0.5
+    r2 = cx * cx + cy * cy  # dans [0, 0.5]
+    return 1.0 - strength * min(1.0, 4.0 * r2)
+'''}
+    if target == "fog_density_curve":
+        return transitions_py, {"mode": "append", "snippet": '''
+
+def compute_fog_density(distance_m: float, ground_density: float = 0.02,
+                          height_m: float = 0.0, scale_height: float = 8000.0) -> float:
+    """Cortex-added : densité fog atmosphérique (loi exponentielle baromètrique)."""
+    import math
+    height_factor = math.exp(-max(0.0, height_m) / scale_height)
+    return ground_density * height_factor * (1.0 - math.exp(-distance_m * 0.0001))
+'''}
+    if target == "starfield_brightness":
+        return transitions_py, {"mode": "append", "snippet": '''
+
+def compute_star_brightness_mult(altitude_m: float) -> float:
+    """Cortex-added : étoiles invisibles depuis le sol (scattering), pétantes en orbite.
+    0.0 sous 50km (jour atmosphérique), 1.0 au-dessus de 200km."""
+    if altitude_m < 50_000.0:    return 0.0
+    if altitude_m > 200_000.0:   return 1.0
+    t = (altitude_m - 50_000.0) / 150_000.0
+    return t * t * (3.0 - 2.0 * t)
+
+
+STARFIELD_BRIGHTNESS_MULT = 1.0  # multiplicateur global
+'''}
+    if target == "atmosphere_blue_shift":
+        return transitions_py, {"mode": "append", "snippet": '''
+
+def atmosphere_blue_shift(altitude_m: float) -> tuple:
+    """Cortex-added : décalage chromatique de l'atmosphère selon altitude.
+    Retourne (r_factor, g_factor, b_factor) — Rayleigh privilégie le bleu en hauteur."""
+    if altitude_m <= 0:        return (1.0, 1.0, 1.0)
+    if altitude_m > 100_000:   return (0.5, 0.7, 1.0)
+    t = altitude_m / 100_000.0
+    return (1.0 - 0.5 * t, 1.0 - 0.3 * t, 1.0)
+
+
+ATMOSPHERE_BLUE_SHIFT = True  # active le shift chromatique
+'''}
     # Tous les snippets ajoutent une fonction/classe simple, mathématique pure,
     # importable, smoke-test friendly (pas d'effet de bord, pas d'IO).
     snippets = {
@@ -643,6 +743,148 @@ def rollback_last_patch() -> dict:
 
 # ─── BOUCLE AUTONOME ─────────────────────────────────────────────────────────
 
+def fast_validate(target_file: Path, cosmo_root: Path) -> dict:
+    """Validation ultra-rapide : parse AST seulement (~5ms par fichier).
+    Détecte syntax errors. Import errors seront attrapés au smoke final.
+    On ne fait PAS l'import car serve.py peut tourner sur un venv qui n'a
+    pas les deps du moteur (ex. moderngl, numba)."""
+    rep = {"ok": False, "ast_ok": False, "error": None}
+    try:
+        src = target_file.read_text(encoding="utf-8")
+        import ast as _ast
+        _ast.parse(src)
+        rep["ast_ok"] = True
+        rep["ok"] = True
+    except SyntaxError as e:
+        rep["error"] = f"syntax: {e.msg} line {e.lineno}"
+    except Exception as e:
+        rep["error"] = f"read/parse: {e}"
+    return rep
+
+
+def run_fast_burst_cycle(do_final_smoke: bool = False) -> dict:
+    """ULTRA RAPIDE : applique TOUS les patches missing avec validation AST+import
+    seulement (~200ms par patch). Pas de smoke test entre. Optionnel : 1 smoke
+    final si do_final_smoke=True. ~5-10s pour 5 patches vs 5+ minutes en mode normal.
+    """
+    started = _now()
+    rep = {"ok": False, "ts_start": started, "mode": "fast_burst",
+            "applied": [], "rejected": [], "verdict": "unknown"}
+    d = detect_cosmogenesis()
+    if not d["ok"] or not d["git_repo"]:
+        rep["verdict"] = "no_git"; return rep
+    cosmo_root = Path(d["cosmo_root"])
+    rc, head_before, _ = _git(["rev-parse", "HEAD"], cosmo_root)
+    rep["head_before"] = head_before
+    for _ in range(20):  # safety cap
+        patch = propose_patch()
+        if not patch.get("ok") or patch.get("verdict") in (
+                "all_indicators_present_no_patch_needed",
+                "no_handler_for_any_missing"):
+            break
+        applied = apply_patch_in_branch(patch)
+        if not applied.get("ok"):
+            rep["rejected"].append({"target": patch.get("target_indicator"),
+                                       "error": applied.get("error")})
+            break
+        # Fast validate sur le fichier touché
+        fv = fast_validate(Path(patch["target_file"]), cosmo_root)
+        if fv["ok"]:
+            rep["applied"].append({"target": patch["target_indicator"],
+                                       "commit": applied["commit"][:8],
+                                       "validate_ms": "fast"})
+        else:
+            # Rollback ce commit, le patch a cassé un import
+            _git(["reset", "--hard", "HEAD~1"], cosmo_root)
+            rep["rejected"].append({"target": patch["target_indicator"],
+                                       "error": fv.get("error", "validate_fail")})
+            break
+    rep["n_applied"] = len(rep["applied"])
+    if do_final_smoke and rep["n_applied"] > 0:
+        sm = smoke_test(frames=10)
+        rep["smoke_after"] = {"verdict": sm.get("verdict"),
+                                "frames": sm.get("frames_rendered")}
+        if not sm.get("ok"):
+            _git(["reset", "--hard", head_before], cosmo_root)
+            rep["verdict"] = f"final_smoke_failed_rolled_back_{rep['n_applied']}_patches"
+            rep["duration_s"] = round(_now() - started, 1)
+            return rep
+    rep["ok"] = True
+    rep["verdict"] = f"fast_burst_kept_{rep['n_applied']}" if rep["n_applied"] > 0 else "nothing_to_do"
+    rep["duration_s"] = round(_now() - started, 1)
+    out = SESSION_ROOT / f"burst_{int(started)}.json"
+    try: out.write_text(json.dumps(rep, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception: pass
+    _record("fast_burst_cycle", {"verdict": rep["verdict"], "n_applied": rep["n_applied"]})
+    return rep
+
+
+def run_blitz_cycle(baseline_frames: int = 10) -> dict:
+    """Mode blitz : applique TOUS les missing en append d'un coup, 1 seul
+    smoke final. Si OK → garde tous les commits. Si fail → reset hard à
+    HEAD~N pour défaire tous les commits ajoutés.
+    Beaucoup plus rapide que run_autonomous_cycle (1 smoke vs N smokes).
+    """
+    started = _now()
+    rep = {"ok": False, "ts_start": started, "mode": "blitz",
+            "applied": [], "n_applied": 0, "verdict": "unknown"}
+    base = capture_baseline()
+    rep["baseline"] = {"smoke": base.get("smoke", {}).get("verdict"),
+                         "missing": base.get("seamless_gap", {}).get("missing", [])}
+    if not base.get("ok"):
+        rep["verdict"] = "baseline_failed"; return rep
+    d = detect_cosmogenesis()
+    if not d["ok"] or not d["git_repo"]:
+        rep["verdict"] = "no_git"; return rep
+    cosmo_root = Path(d["cosmo_root"])
+    rc, head_before, _ = _git(["rev-parse", "HEAD"], cosmo_root)
+    rep["head_before"] = head_before
+
+    # Boucle d'application : pas de smoke entre patches
+    for _ in range(20):  # safety cap
+        patch = propose_patch()
+        if not patch.get("ok") or patch.get("verdict") in (
+                "all_indicators_present_no_patch_needed",
+                "no_handler_for_any_missing"):
+            break
+        applied = apply_patch_in_branch(patch)
+        if not applied.get("ok"):
+            rep["applied"].append({"target": patch.get("target_indicator"),
+                                     "error": applied.get("error")})
+            break
+        rep["applied"].append({
+            "target": patch.get("target_indicator"),
+            "commit": applied.get("commit", "")[:8],
+            "mode": applied.get("patch_mode"),
+        })
+    rep["n_applied"] = sum(1 for a in rep["applied"] if a.get("commit"))
+
+    if rep["n_applied"] == 0:
+        rep["verdict"] = "nothing_to_do"
+        rep["ok"] = True; return rep
+
+    # Smoke final unique
+    sm = smoke_test(frames=baseline_frames)
+    rep["smoke_after"] = {"verdict": sm.get("verdict"),
+                            "frames": sm.get("frames_rendered"),
+                            "crashed": sm.get("crashed")}
+    if sm.get("ok"):
+        rep["verdict"] = f"blitz_kept_{rep['n_applied']}_patches"
+        rep["ok"] = True
+    else:
+        # Rollback massif : reset à head_before
+        _git(["reset", "--hard", head_before], cosmo_root)
+        rep["verdict"] = f"blitz_rolled_back_{rep['n_applied']}_patches_after_smoke_fail"
+        rep["ok"] = True
+    rep["duration_s"] = round(_now() - started, 1)
+    out = SESSION_ROOT / f"blitz_{int(started)}.json"
+    try: out.write_text(json.dumps(rep, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception: pass
+    _record("blitz_cycle", {"verdict": rep["verdict"],
+                              "n_applied": rep["n_applied"]})
+    return rep
+
+
 def run_autonomous_cycle(max_iter: int = 3, baseline_frames: int = 30) -> dict:
     """Boucle complète : capture baseline → propose+apply → smoke après → keep|rollback.
 
@@ -713,6 +955,168 @@ def run_autonomous_cycle(max_iter: int = 3, baseline_frames: int = 30) -> dict:
 
 
 # ─── STATUS / SELF_TEST ──────────────────────────────────────────────────────
+
+# ─── PLAYTEST PERMANENT (moteur visible en background) ──────────────────────
+
+PLAYTEST_PID_FILE = SESSION_ROOT / "playtest.pid"
+
+
+def _read_playtest_pid() -> int | None:
+    if not PLAYTEST_PID_FILE.exists(): return None
+    try:
+        pid = int(PLAYTEST_PID_FILE.read_text(encoding="utf-8").strip())
+        # Vérifier que le PID est encore vivant
+        r = subprocess.run(["powershell", "-NoProfile", "-Command",
+                              f"Get-Process -Id {pid} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id"],
+                            capture_output=True, text=True, timeout=5)
+        if str(pid) in (r.stdout or ""):
+            return pid
+        # PID stale, on supprime le fichier
+        try: PLAYTEST_PID_FILE.unlink()
+        except Exception: pass
+    except Exception: pass
+    return None
+
+
+LMS_BIN = Path(r"<USER_HOME>\.lmstudio\bin\lms.exe")
+
+
+def free_resources_for_render() -> dict:
+    """Libère la RAM/CPU pour Cosmogenesis :
+       - décharge tous les modèles LM Studio
+       - mute la caméra (cortex_vision) via flag
+    À appeler avant un launch_persistent_render quand RAM tendue.
+    """
+    rep = {"ts": _now(), "actions": []}
+    # 1. RAM avant
+    try:
+        import psutil
+        rep["ram_pct_before"] = psutil.virtual_memory().percent
+    except Exception: pass
+    # 2. Décharge LM Studio
+    if LMS_BIN.exists():
+        try:
+            r = subprocess.run([str(LMS_BIN), "unload", "--all"],
+                                capture_output=True, text=True, timeout=20)
+            rep["actions"].append({"action": "lms_unload_all",
+                                       "ok": r.returncode == 0,
+                                       "out": (r.stdout or "")[:200]})
+        except Exception as e:
+            rep["actions"].append({"action": "lms_unload_all",
+                                       "ok": False, "err": repr(e)})
+    # 3. Mute vision (chemin réel utilisé par cortex_vision.is_vision_muted)
+    try:
+        flag = (Path.home() / ".claude" / "projects" / "h--Code-Paperclip"
+                  / "memory" / ".cortex-vision-muted.flag")
+        flag.parent.mkdir(parents=True, exist_ok=True)
+        flag.touch()
+        rep["actions"].append({"action": "vision_muted", "flag": str(flag)})
+    except Exception as e:
+        rep["actions"].append({"action": "vision_muted", "ok": False, "err": repr(e)})
+    # 4. RAM après
+    try:
+        import psutil, time as _t
+        _t.sleep(2.0)  # laisse OS récupérer
+        rep["ram_pct_after"] = psutil.virtual_memory().percent
+        rep["ram_freed_pct"] = round(rep.get("ram_pct_before", 0) - rep["ram_pct_after"], 1)
+    except Exception: pass
+    return rep
+
+
+def launch_persistent_render(seed: int = 42, branch: str | None = None,
+                                free_resources_first: bool = True) -> dict:
+    """Lance Cosmogenesis en mode INTERACTIF (fenêtre visible) en background.
+    Stocke le PID pour terminate ultérieur. Si déjà lancé, ne fait rien.
+
+    branch : si fourni, checkout cette branche AVANT de lancer (utile pour
+    voir le code de Cortex en action). Default : ne change pas.
+    """
+    existing = _read_playtest_pid()
+    if existing:
+        return {"ok": True, "stage": "already_running", "pid": existing,
+                "msg": f"Playtest déjà actif PID {existing}"}
+    d = detect_cosmogenesis()
+    if not d["ok"]:
+        return {"ok": False, "error": "cosmogenesis_not_detected"}
+
+    # Auto-management ressources : si RAM > 80%, décharge LM Studio + mute vision
+    # avant de lancer le moteur (sinon swap → Cosmogenesis à 1 fps).
+    free_rep = None
+    if free_resources_first:
+        try:
+            import psutil
+            ram_pct = psutil.virtual_memory().percent
+            if ram_pct > 80.0:
+                free_rep = free_resources_for_render()
+        except Exception: pass
+    cosmo_root = Path(d["cosmo_root"])
+    py = d["python_exe"]
+    main_py = d["main_py"]
+
+    # Optionnel : checkout branche
+    if branch:
+        rc, out, err = _git(["checkout", branch], cosmo_root)
+        if rc != 0:
+            return {"ok": False, "error": "checkout_failed",
+                    "stderr": err, "branch": branch}
+
+    # Spawn détaché, fenêtre visible (pas hidden)
+    try:
+        flags = int(getattr(subprocess, "DETACHED_PROCESS", 0)) | \
+                 int(getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0))
+        proc = subprocess.Popen([py, main_py, str(seed)],
+                                  cwd=str(cosmo_root),
+                                  creationflags=flags)
+        PLAYTEST_PID_FILE.parent.mkdir(parents=True, exist_ok=True)
+        PLAYTEST_PID_FILE.write_text(str(proc.pid), encoding="utf-8")
+        rep = {"ok": True, "stage": "launched", "pid": proc.pid,
+                "branch": branch or d.get("current_branch"),
+                "started_at": _now(),
+                "free_resources": free_rep}
+        _record("launch_playtest", rep)
+        return rep
+    except Exception as e:
+        return {"ok": False, "error": f"spawn_failed: {e}"}
+
+
+def terminate_playtest() -> dict:
+    """Tue le playtest persistent. Retourne le PID tué."""
+    pid = _read_playtest_pid()
+    if not pid:
+        return {"ok": True, "stage": "not_running"}
+    try:
+        # Tente fermeture gracieuse
+        subprocess.run(["powershell", "-NoProfile", "-Command",
+                         f"Stop-Process -Id {pid} -Force -ErrorAction SilentlyContinue"],
+                        capture_output=True, timeout=8)
+        try: PLAYTEST_PID_FILE.unlink()
+        except Exception: pass
+        rep = {"ok": True, "stage": "terminated", "pid": pid}
+        _record("terminate_playtest", rep)
+        return rep
+    except Exception as e:
+        return {"ok": False, "error": repr(e)}
+
+
+def restart_playtest_with_latest_patches(seed: int = 42, branch: str = "cortex/dev-cosmogenesis") -> dict:
+    """Workflow : kill le playtest existant, checkout la branche Cortex, relance.
+    Permet de voir VISUELLEMENT les patches que Cortex vient d'appliquer."""
+    term = terminate_playtest()
+    time.sleep(1.0)  # laisse l'OS libérer
+    launch = launch_persistent_render(seed=seed, branch=branch)
+    return {"ok": launch.get("ok", False),
+             "terminated": term, "launched": launch}
+
+
+def playtest_status() -> dict:
+    """État du playtest : tourne ? PID ? Sur quelle branche ?"""
+    pid = _read_playtest_pid()
+    rep = {"running": bool(pid), "pid": pid}
+    d = detect_cosmogenesis()
+    if d.get("git_repo"):
+        rep["current_branch"] = d.get("current_branch")
+    return rep
+
 
 def status() -> dict:
     d = detect_cosmogenesis()

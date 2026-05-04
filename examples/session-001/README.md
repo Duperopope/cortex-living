@@ -19,9 +19,9 @@ runtime réels.
 ## Chiffres clés
 
 - Cycles observés : 10
-- Steps totaux : 284
-- Fraction "better than random" sur EFE prédit : 0.873
-- Cycles avec outcome évalué : 231
+- Steps totaux : 311
+- Fraction "better than random" sur EFE prédit : 0.871
+- Cycles avec outcome évalué : 258
 
 ## Note honnête sur le score anti-fake
 

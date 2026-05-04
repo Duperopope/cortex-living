@@ -3856,6 +3856,92 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 elif p == "/api/cortex/cosmo/gap":
                     import cortex_cosmogenesis_lab as _co
                     self._send_json(_co.inspect_seamless_gap()); return
+                elif p == "/api/cortex/cosmo/playtest_status":
+                    import cortex_cosmogenesis_lab as _co
+                    self._send_json(_co.playtest_status()); return
+                elif p == "/api/cortex/cosmo/screenshot":
+                    # Priorité : cosmo_live.png (stream continu écrasé en place).
+                    # Fallback : dernier cosmo_*.png horodaté.
+                    from pathlib import Path as _P
+                    shots_dir = _P(r"H:\Code\Universe\cosmogenesis_screenshots")
+                    if not shots_dir.exists():
+                        self.send_error(404, "no screenshots dir"); return
+                    live_png = shots_dir / "cosmo_live.png"
+                    if live_png.exists():
+                        target = live_png
+                    else:
+                        shots = sorted(shots_dir.glob("cosmo_*.png"),
+                                         key=lambda f: f.stat().st_mtime, reverse=True)
+                        if not shots:
+                            self.send_error(404, "no screenshots yet"); return
+                        target = shots[0]
+                    try:
+                        data = target.read_bytes()
+                        self.send_response(200)
+                        self.send_header("Content-Type", "image/png")
+                        self.send_header("Content-Length", str(len(data)))
+                        self.send_header("Cache-Control", "no-store")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        self.wfile.write(data)
+                    except Exception as _e:
+                        self.send_error(500, f"read failed: {_e}")
+                    return
+                elif p == "/api/cortex/cosmo/live":
+                    # Page HTML qui auto-refresh le dernier screenshot Cosmogenesis.
+                    html = """<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Cosmogenesis live</title>
+<style>
+  html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;font-family:ui-monospace,monospace;color:#9ec1ff}
+  .wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+  img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  .hud{position:absolute;top:6px;left:8px;background:rgba(0,0,0,.55);padding:3px 7px;border-radius:4px;font-size:10px;border:1px solid #1f3055}
+  .err{position:absolute;bottom:8px;left:8px;color:#ff8a8a;font-size:10px}
+</style>
+</head><body>
+<div class="wrap">
+  <img id="shot" alt="cosmogenesis live">
+  <div class="hud" id="hud">live · — fps</div>
+  <div class="err" id="err"></div>
+</div>
+<script>
+let frames = 0, lastTs = performance.now(), fps = 0;
+async function tick() {
+  try {
+    const url = '/api/cortex/cosmo/screenshot?t=' + Date.now();
+    const r = await fetch(url, {cache:'no-store'});
+    if (r.ok) {
+      const blob = await r.blob();
+      const old = document.getElementById('shot').src;
+      document.getElementById('shot').src = URL.createObjectURL(blob);
+      if (old.startsWith('blob:')) URL.revokeObjectURL(old);
+      document.getElementById('err').textContent = '';
+      frames++;
+      const now = performance.now();
+      if (now - lastTs > 1000) {
+        fps = (frames * 1000 / (now - lastTs)).toFixed(1);
+        frames = 0; lastTs = now;
+        document.getElementById('hud').textContent = 'live · ' + fps + ' fps screenshots';
+      }
+    } else if (r.status === 404) {
+      document.getElementById('err').textContent = 'aucun screenshot — Cosmogenesis tourne ?';
+    }
+  } catch(e) {
+    document.getElementById('err').textContent = 'fetch err: ' + e.message;
+  }
+  setTimeout(tick, 65);  // ~15 Hz pour suivre le moteur
+}
+tick();
+</script>
+</body></html>"""
+                    data = html.encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(data)))
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
                 elif p == "/api/cortex/memory_audit":
                     import cortex_memory_audit as _ma
                     self._send_json(_ma.audit()); return
@@ -4205,6 +4291,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     rep = _co.run_autonomous_cycle(
                         max_iter=int(body.get("max_iter", 2)),
                         baseline_frames=int(body.get("frames", 30)))
+                elif sub == "blitz":
+                    rep = _co.run_blitz_cycle(
+                        baseline_frames=int(body.get("frames", 10)))
+                elif sub == "burst":
+                    rep = _co.run_fast_burst_cycle(
+                        do_final_smoke=bool(body.get("smoke", False)))
+                elif sub == "launch_playtest":
+                    rep = _co.launch_persistent_render(
+                        seed=int(body.get("seed", 42)),
+                        branch=body.get("branch"))
+                elif sub == "terminate_playtest":
+                    rep = _co.terminate_playtest()
+                elif sub == "restart_playtest":
+                    rep = _co.restart_playtest_with_latest_patches(
+                        seed=int(body.get("seed", 42)),
+                        branch=str(body.get("branch", "cortex/dev-cosmogenesis")))
+                elif sub == "free_resources":
+                    rep = _co.free_resources_for_render()
                 else:
                     self.send_error(404, f"unknown cosmo sub: {sub}")
                     return
@@ -6108,35 +6212,42 @@ def main():
                     except Exception: pass
                     _t.sleep(3600)  # 1h entre les diagnostics (scan disk lent)
             def _cosmo_autonomy_loop():
-                """Cortex code/teste son propre jeu (Cosmogenesis) en autonomie.
-
-                Cycle toutes les 20 min : capture baseline → propose patch
-                seamless → apply sur branche cortex/dev-cosmogenesis → smoke
-                test → keep|rollback. Respecte le pause flag (RAM/CPU haut).
+                """Cortex code/teste son propre jeu (Cosmogenesis) en mode BLITZ.
+                Warmup 60s, cycle toutes les 5 min, applique TOUS les patches
+                manquants d'un coup avec 1 seul smoke final.
                 """
-                _t.sleep(900)  # warmup 15 min (laisse les autres loops se stabiliser)
+                _t.sleep(60)  # warmup minimal
                 try: import cortex_cosmogenesis_lab as _co
                 except Exception: return
                 while True:
                     try:
-                        # Skip si le système est saturé
                         pause_flag = REPO / ".cortex-pause.flag"
                         if pause_flag.exists():
-                            _t.sleep(300); continue
-                        # Vérification rapide : projet détecté + python deps OK ?
+                            _t.sleep(120); continue
                         d = _co.detect_cosmogenesis()
                         if not d.get("ok"):
-                            _t.sleep(1800); continue
-                        # Cycle autonome avec 1 itération (frugal)
-                        rep = _co.run_autonomous_cycle(max_iter=1, baseline_frames=20)
+                            _t.sleep(600); continue
+                        # Mode burst : applique tous les patches via parse+import
+                        # validation (~200ms par patch). Ultra rapide.
+                        rep = _co.run_fast_burst_cycle(do_final_smoke=False)
                         if rep.get("verdict"):
                             print(f"[cosmo-autonomy] {rep['verdict']} "
-                                    f"kept={rep.get('n_kept', 0)} "
-                                    f"rolled={rep.get('n_rolled_back', 0)}",
+                                    f"n_applied={rep.get('n_applied', 0)} "
+                                    f"duration={rep.get('duration_s')}s",
                                     flush=True)
+                        # Si nouveaux patches appliqués ET playtest tourne :
+                        # restart le playtest pour qu'il voie les nouveaux patches.
+                        if rep.get("n_applied", 0) > 0:
+                            ps = _co.playtest_status()
+                            if ps.get("running"):
+                                _co.restart_playtest_with_latest_patches(
+                                    branch="cortex/dev-cosmogenesis")
+                                print(f"[cosmo-autonomy] playtest auto-restart pour "
+                                        f"charger {rep['n_applied']} nouveaux patches",
+                                        flush=True)
                     except Exception as _e:
                         print(f"[cosmo-autonomy] err: {_e}", flush=True)
-                    _t.sleep(1200)  # 20 min entre cycles
+                    _t.sleep(30)  # 30s entre cycles (mode rapide)
             _th.Thread(target=_proactive_loop,         name="iag-proactive",  daemon=True).start()
             _th.Thread(target=_continual_loop,         name="iag-continual",  daemon=True).start()
             _th.Thread(target=_audit_loop,             name="iag-audit",      daemon=True).start()
