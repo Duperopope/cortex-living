@@ -1,60 +1,60 @@
 {
-  "ts": 1777910567.5521843,
-  "n_steps_total": 199,
-  "late_surprise": 1.7542,
-  "n_better_than_random": 169,
-  "n_outcome_evaluated": 146,
+  "ts": 1777910741.1909866,
+  "n_steps_total": 201,
+  "late_surprise": 0.138,
+  "n_better_than_random": 171,
+  "n_outcome_evaluated": 148,
   "vs_baselines": {
     "random": {
       "wins": 36,
-      "losses": 59,
-      "ties": 51,
-      "outcome_score_sum": 82.9674
+      "losses": 60,
+      "ties": 52,
+      "outcome_score_sum": 85.1174
     },
     "always_reflect": {
       "wins": 16,
-      "losses": 130,
+      "losses": 132,
       "ties": 0,
-      "outcome_score_sum": 137.89999999999995
+      "outcome_score_sum": 140.64999999999995
     },
     "always_explore": {
       "wins": 3,
-      "losses": 39,
-      "ties": 104,
-      "outcome_score_sum": 94.22390000000004
+      "losses": 40,
+      "ties": 105,
+      "outcome_score_sum": 96.00060000000005
     },
     "round_robin": {
       "wins": 26,
-      "losses": 64,
-      "ties": 56,
-      "outcome_score_sum": 89.80000000000004
+      "losses": 65,
+      "ties": 57,
+      "outcome_score_sum": 91.57670000000005
     },
     "last_best": {
       "wins": 5,
-      "losses": 39,
-      "ties": 102,
-      "outcome_score_sum": 92.26400000000004
+      "losses": 40,
+      "ties": 103,
+      "outcome_score_sum": 94.04070000000004
     }
   },
   "jepa_diagnostic": {
-    "n_train_steps": 1,
-    "last_loss": 0.030266549438238144,
-    "loss_avg_recent": 0.030266549438238144,
-    "online_target_W1_diff_mean": 5e-06,
-    "online_target_W2_diff_mean": 6e-06,
+    "n_train_steps": 4,
+    "last_loss": 0.11546653509140015,
+    "loss_avg_recent": 0.05486795445904136,
+    "online_target_W1_diff_mean": 4.6e-05,
+    "online_target_W2_diff_mean": 6.5e-05,
     "ema_tau": 0.99,
     "anti_collapse_ok": true
   },
   "belief_diagnostic": {
-    "n_observations": 11,
-    "kl_to_prior": 0.3795,
+    "n_observations": 14,
+    "kl_to_prior": 0.4768,
     "last_vfe": null,
     "q_dist": {
-      "silent": 0.062,
-      "exploring": 0.5,
-      "reflecting": 0.312,
-      "planning": 0.062,
-      "perceiving": 0.062
+      "silent": 0.053,
+      "exploring": 0.579,
+      "reflecting": 0.263,
+      "planning": 0.053,
+      "perceiving": 0.053
     }
   }
 }
