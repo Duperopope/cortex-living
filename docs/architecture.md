@@ -22,6 +22,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_dialogue` |  |
 | `cortex_emergence` |  |
 | `cortex_friston_belief` |  |
+| `cortex_game_autonomy_lab` |  |
 | `cortex_hjepa` |  |
 | `cortex_homeostasis` |  |
 | `cortex_iag_test` |  |
@@ -56,6 +57,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_thought_graph` |  |
 | `cortex_tools` |  |
 | `cortex_vision` |  |
+| `cortex_web_builder_lab` |  |
 | `cortex_world_model` |  |
 | `cortex_x4_faction_lab` |  |
 

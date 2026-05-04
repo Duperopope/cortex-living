@@ -3748,7 +3748,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
            parsed.path.startswith("/api/cortex/anti_fake") or \
            parsed.path.startswith("/api/cortex/body_health") or \
            parsed.path.startswith("/api/cortex/iag") or \
-           parsed.path.startswith("/api/cortex/x4"):
+           parsed.path.startswith("/api/cortex/x4") or \
+           parsed.path.startswith("/api/cortex/web") or \
+           parsed.path.startswith("/api/cortex/game"):
             try:
                 import sys as _sys
                 if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
@@ -3817,6 +3819,33 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 elif p == "/api/cortex/x4/evidence":
                     import cortex_x4_faction_lab as _x4
                     self._send_json(_x4.collect_evidence()); return
+                elif p == "/api/cortex/x4/diagnose":
+                    import cortex_x4_faction_lab as _x4
+                    self._send_json(_x4.diagnose_x4_result()); return
+                elif p == "/api/cortex/web/status":
+                    import cortex_web_builder_lab as _wb
+                    self._send_json(_wb.status()); return
+                elif p == "/api/cortex/web/audit":
+                    import cortex_web_builder_lab as _wb
+                    self._send_json(_wb.audit_site_quality()); return
+                elif p == "/api/cortex/web/diagnose":
+                    import cortex_web_builder_lab as _wb
+                    self._send_json(_wb.diagnose_site_issues()); return
+                elif p == "/api/cortex/web/manifest":
+                    import cortex_web_builder_lab as _wb
+                    self._send_json(_wb.export_delivery_package()); return
+                elif p == "/api/cortex/game/status":
+                    import cortex_game_autonomy_lab as _gl
+                    self._send_json(_gl.status()); return
+                elif p == "/api/cortex/game/benchmark":
+                    import cortex_game_autonomy_lab as _gl
+                    self._send_json(_gl.create_game_iag_benchmark()); return
+                elif p == "/api/cortex/game/transfer_lessons":
+                    import cortex_game_autonomy_lab as _gl
+                    self._send_json(_gl.extract_transfer_lessons()); return
+                elif p == "/api/cortex/game/next_task":
+                    import cortex_game_autonomy_lab as _gl
+                    self._send_json(_gl.propose_next_game_task()); return
                 elif p == "/api/cortex/memory_audit":
                     import cortex_memory_audit as _ma
                     self._send_json(_ma.audit()); return
@@ -4072,6 +4101,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     rep = _x4.patch_extension()
                 elif sub == "diagnose":
                     rep = _x4.diagnose_x4_result()
+                elif sub == "play":
+                    if not body.get("confirm"):
+                        rep = {"ok": False, "error": "confirm_required",
+                                "msg": "POST avec {confirm:true, duration_minutes, mode}"}
+                    else:
+                        rep = _x4.play_x4_session(
+                            duration_minutes=int(body.get("duration_minutes", 15)),
+                            poll_interval_s=int(body.get("poll_interval_s", 10)),
+                            mode=str(body.get("mode", "continue")),
+                            debug=bool(body.get("debug", True)),
+                            auto_launch=bool(body.get("auto_launch", True)))
+                elif sub == "terminate":
+                    rep = _x4.terminate_x4_session()
                 else:
                     self.send_error(404, f"unknown x4 sub: {sub}")
                     return
@@ -4085,6 +4127,82 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(data)
             except Exception as e:
                 self.send_error(500, f"x4 {sub} POST error: {e}")
+            return
+
+        # Routes POST Web Builder Lab
+        if parsed.path.startswith("/api/cortex/web/"):
+            sub = parsed.path.split("/api/cortex/web/", 1)[-1]
+            try:
+                import sys as _sys
+                if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+                    _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                import cortex_web_builder_lab as _wb
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length).decode("utf-8-sig")) if length else {}
+                if sub == "generate":
+                    rep = _wb.generate_site_project()
+                elif sub == "validate":
+                    rep = _wb.static_validate_site()
+                elif sub == "audit":
+                    rep = _wb.audit_site_quality()
+                elif sub == "patch":
+                    rep = _wb.patch_site()
+                elif sub == "run_cycle":
+                    rep = _wb.run_autonomous_web_cycle(
+                        max_attempts=int(body.get("max_attempts", 3)))
+                elif sub == "preview":
+                    rep = _wb.run_local_preview()
+                elif sub == "export":
+                    rep = _wb.export_delivery_package()
+                else:
+                    self.send_error(404, f"unknown web sub: {sub}")
+                    return
+                data = json.dumps(rep, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"web {sub} POST error: {e}")
+            return
+
+        # Routes POST Game IAG Lab
+        if parsed.path.startswith("/api/cortex/game/"):
+            sub = parsed.path.split("/api/cortex/game/", 1)[-1]
+            try:
+                import sys as _sys
+                if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+                    _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                import cortex_game_autonomy_lab as _gl
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length).decode("utf-8-sig")) if length else {}
+                if sub == "init_benchmark":
+                    rep = _gl.create_game_iag_benchmark()
+                elif sub == "create_profile":
+                    rep = _gl.create_game_profile(body.get("game", "X4 Foundations"))
+                elif sub == "register_run":
+                    rep = _gl.register_test_run(body.get("game", "X4 Foundations"),
+                                                body.get("report", {}))
+                elif sub == "compare_runs":
+                    rep = _gl.compare_runs(body.get("game", "X4 Foundations"))
+                elif sub == "evaluate_dominance":
+                    rep = _gl.evaluate_dominance(body.get("game", "X4 Foundations"))
+                else:
+                    self.send_error(404, f"unknown game sub: {sub}")
+                    return
+                data = json.dumps(rep, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"game {sub} POST error: {e}")
             return
 
         # Toggle vision mute (le frontend appelle en POST, on était en GET only)
@@ -4272,7 +4390,9 @@ except Exception:
            parsed.path.startswith("/api/cortex/anti_fake") or \
            parsed.path.startswith("/api/cortex/body_health") or \
            parsed.path.startswith("/api/cortex/iag") or \
-           parsed.path.startswith("/api/cortex/x4"):
+           parsed.path.startswith("/api/cortex/x4") or \
+           parsed.path.startswith("/api/cortex/web") or \
+           parsed.path.startswith("/api/cortex/game"):
             try:
                 import sys as _sys
                 if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
@@ -5949,12 +6069,38 @@ def main():
         print("[serve] all bg loops started", flush=True)
     except Exception as e:
         print(f"[serve] cortex bg init err: {e}", flush=True)
-    print(f"[serve] binding port {PORT}", flush=True)
-    with socketserver.ThreadingTCPServer(("127.0.0.1", PORT), Handler) as srv:
+    # DEBUG : signal handler pour identifier qui kill le process
+    import signal as _sig, traceback as _tb_sig, threading as _th_sig
+    def _sig_handler(signum, frame):
+        msg = f"\n[serve] !!!! SIGNAL {signum} ({_sig.Signals(signum).name}) RECEIVED !!!!"
+        msg += f"\n[serve] thread: {_th_sig.current_thread().name}"
+        msg += f"\n[serve] frame:\n{''.join(_tb_sig.format_stack(frame))}"
+        print(msg, flush=True)
         try:
-            srv.serve_forever()
-        except KeyboardInterrupt:
-            srv.shutdown()
+            with open(r"<CORTEX_REPO>\scripts\brain\dashboard\state\serve_signal_trace.log", "a", encoding="utf-8") as fp:
+                import time as _t
+                fp.write(f"\n=== {_t.strftime('%Y-%m-%d %H:%M:%S')} ===\n{msg}\n")
+        except Exception: pass
+    for _s in (_sig.SIGINT, _sig.SIGTERM, _sig.SIGBREAK):
+        try: _sig.signal(_s, _sig_handler)
+        except Exception: pass
+
+    print(f"[serve] binding port {PORT}", flush=True)
+    try:
+        with socketserver.ThreadingTCPServer(("127.0.0.1", PORT), Handler) as srv:
+            print(f"[serve] BIND OK, serve_forever starting...", flush=True)
+            try:
+                srv.serve_forever()
+            except KeyboardInterrupt:
+                srv.shutdown()
+            print(f"[serve] serve_forever returned normally", flush=True)
+    except SystemExit as e:
+        print(f"[serve] !!!! SystemExit code={e.code} caught at main bind level !!!!", flush=True)
+        raise
+    except BaseException as e:
+        print(f"[serve] !!!! {type(e).__name__}: {e}", flush=True)
+        print(_tb_sig.format_exc(), flush=True)
+        raise
 
 
 if __name__ == "__main__":

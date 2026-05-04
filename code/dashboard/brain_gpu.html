@@ -493,7 +493,10 @@ body > canvas { display:block; position:fixed; inset:0; z-index:0; background:#0
         <button onclick="x4Action('install','POST')" style="background:#241b46;border:1px solid #3f2a5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">installer dans X4</button>
         <button onclick="x4Action('rollback','POST')" style="background:#3f1b2a;border:1px solid #5f2a3f;color:#fcc;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">rollback mod</button>
         <button onclick="x4Action('run_test_cycle','POST',{allow_launch:false,max_minutes:5})" style="background:#241b46;border:1px solid #3f2a5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">cycle de test (sans lancer X4)</button>
-        <button onclick="if(confirm('Lancer X4.exe ? Process lourd, ferme tes autres jeux.')) x4Action('launch','POST',{confirm:true})" style="background:#3f2a1b;border:1px solid #5f4a2a;color:#fc9;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">lancer X4 (avec confirmation)</button>
+        <button onclick="if(confirm('Lancer X4.exe ? Process lourd, ferme tes autres jeux.')) x4Action('launch','POST',{confirm:true})" style="background:#3f2a1b;border:1px solid #5f4a2a;color:#fc9;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">lancer X4 (menu, avec confirmation)</button>
+        <button onclick="if(confirm('▶ Jouer 15 min : lance X4 -continue (charge ta dernière save) avec debug.log + poll markers toutes les 10s. Ferme tes autres jeux.')) x4Action('play','POST',{confirm:true,duration_minutes:15,mode:'continue'})" style="background:#1b3f2a;border:1px solid #2a5f3f;color:#cfc;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">▶ jouer 15 min (mode -continue, zéro clic)</button>
+        <button onclick="if(confirm('▶ Nouvelle partie : lance X4 -skipintro. Tu devras cliquer New Game → Cortex Faction Start manuellement (1ère fois).')) x4Action('play','POST',{confirm:true,duration_minutes:20,mode:'newgame'})" style="background:#2a3f1b;border:1px solid #4a5f2a;color:#fcc;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">▶ nouvelle partie 20 min (1 clic manuel)</button>
+        <button onclick="if(confirm('Fermer X4 proprement ?')) x4Action('terminate','POST',{})" style="background:#3f1b2a;border:1px solid #5f2a3f;color:#fcc;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">terminer session X4</button>
         <button onclick="x4Action('evidence','GET')" style="background:#1b2746;border:1px solid #2a3f5f;color:#7a89aa;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">collecter preuves (logs MD)</button>
       </div>
       <div id="cb-x4-output" style="margin-top:8px;color:#9bb;font-size:9.5px;line-height:1.4;max-height:140px;overflow-y:auto;font-family:ui-monospace,monospace;display:none;background:#0a0e14;padding:6px;border-radius:3px"></div>
@@ -532,7 +535,19 @@ body > canvas { display:block; position:fixed; inset:0; z-index:0; background:#0
           opts.body = JSON.stringify(body || {});
         }
         const r = await fetch('/api/cortex/x4/'+sub, opts);
-        const d = await r.json();
+        const txt = await r.text();
+        let d;
+        try { d = JSON.parse(txt); }
+        catch(e) {
+          out.innerHTML = '<span style="color:#ff7766">HTTP '+r.status+' '+r.statusText+'</span>'
+                        + '<div style="color:#aab;font-size:9px;margin-top:4px">Route absente du serveur ? Relance serve.py pour charger les nouvelles routes (play/terminate/web/game).</div>'
+                        + '<div style="color:#557;font-size:9px;margin-top:4px">'+(txt||'').slice(0,160).replace(/</g,'&lt;')+'</div>';
+          return;
+        }
+        if (!r.ok) {
+          out.innerHTML = '<span style="color:#ff7766">HTTP '+r.status+'</span><div style="color:#aab">'+(d.error||d.msg||'erreur')+'</div>';
+          return;
+        }
         let html = '';
         if (sub === 'evidence') {
           html += '<div style="color:#c084fc">Preuves collectées :</div>';
@@ -546,6 +561,28 @@ body > canvas { display:block; position:fixed; inset:0; z-index:0; background:#0
           html += '<div>verdict: <span style="color:'+(d.final_verdict==='verified'?'#55ff99':d.final_verdict==='partial'?'#ffcc66':'#ff7766')+'">'+d.final_verdict+'</span></div>';
           html += '<div>generated: '+d.extension_generated+' · validated: '+d.static_validated+' · installed: '+d.installed+'</div>';
           if (d.next_action) html += '<div style="color:#aab">→ '+d.next_action+'</div>';
+        } else if (sub === 'play') {
+          const v = d.verdict;
+          const col = v==='telemetry_observed'?'#55ff99':(v==='running_no_telemetry'?'#ffcc66':'#ff7766');
+          html += '<div style="color:#c084fc">Session de jeu :</div>';
+          html += '<div>verdict: <span style="color:'+col+'">'+v+'</span></div>';
+          html += '<div>polls: '+(d.polls||0)+' · durée: '+(d.duration_minutes||0)+' min · mode: '+(d.mode||'?')+'</div>';
+          html += '<div>X4 actif fin de session: '+(d.x4_running_at_end?'<span style="color:#55ff99">oui</span>':'<span style="color:#ff7766">non</span>')+'</div>';
+          if (d.markers_seen && Object.keys(d.markers_seen).length){
+            html += '<div style="color:#9bb">markers vus :</div>';
+            for (const k in d.markers_seen){
+              const m = d.markers_seen[k];
+              html += '<div>· <span style="color:#55ff99">'+k+'</span> ×'+(m.count||1)+'</div>';
+            }
+          } else {
+            html += '<div style="color:#ff7766">aucun marker (mod inactif ou flags debug ignorés)</div>';
+          }
+          if (d.early_exit) html += '<div style="color:#55ff99">→ '+d.early_exit+'</div>';
+          if (d.next_action) html += '<div style="color:#aab">→ '+d.next_action+'</div>';
+          if (d.launch && d.launch.manual_step) html += '<div style="color:#ffcc66">⚠ '+d.launch.manual_step+'</div>';
+        } else if (sub === 'terminate') {
+          html += '<div style="color:'+(d.ok?'#55ff99':'#ff7766')+'">terminate: '+(d.ok?'OK':'FAIL')+'</div>';
+          if (d.close_stdout) html += '<div>PID fermés: '+d.close_stdout+'</div>';
         } else if (sub === 'create' || sub === 'validate' || sub === 'install' || sub === 'rollback' || sub === 'launch' || sub === 'patch') {
           html += '<div style="color:'+(d.ok?'#55ff99':'#ff7766')+'">'+sub+': '+(d.ok?'OK':'FAIL')+'</div>';
           if (d.stage) html += '<div>stage: '+d.stage+'</div>';
@@ -571,6 +608,171 @@ body > canvas { display:block; position:fixed; inset:0; z-index:0; background:#0
       det.addEventListener('toggle', () => { if (det.open) refreshX4Status(); });
     }
     refreshX4Status();
+  })();
+  </script>
+
+  <!-- Web Builder Lab : Cortex construit des sites pros (Cortex Studio MVP) -->
+  <details id="cb-web-details" style="border:1px solid #1b3f3f;border-left:3px solid #34d399;border-radius:8px;background:linear-gradient(90deg,rgba(52,211,153,0.06),rgba(7,10,20,0.58));padding:8px 10px;margin-bottom:10px">
+    <summary style="cursor:pointer;color:#bfeed1;font-size:10px;font-weight:700;letter-spacing:.4px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <span>◇ Web Builder Lab</span>
+      <span id="cb-web-meta" style="color:#4f8d6e;font-size:9px;font-weight:400">Cortex Studio MVP</span>
+    </summary>
+    <div style="padding-top:8px;font-size:10px">
+      <div id="cb-web-status" style="font-family:ui-monospace,monospace;font-size:9.5px;color:#cdf;margin-bottom:8px">—</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <button onclick="webAction('generate','POST')" style="background:#1b332b;border:1px solid #2a5f4a;color:#cef;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">générer site</button>
+        <button onclick="webAction('validate','POST')" style="background:#1b332b;border:1px solid #2a5f4a;color:#cef;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">valider statique</button>
+        <button onclick="webAction('audit','POST')" style="background:#1b332b;border:1px solid #2a5f4a;color:#cef;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">audit qualité</button>
+        <button onclick="webAction('patch','POST')" style="background:#1b332b;border:1px solid #2a5f4a;color:#cef;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">patch ciblé</button>
+        <button onclick="webAction('run_cycle','POST',{max_attempts:3})" style="background:#1b332b;border:1px solid #2a5f4a;color:#cef;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">cycle autonome (3 essais)</button>
+        <button onclick="webAction('export','POST')" style="background:#162f3f;border:1px solid #2a4f5f;color:#7acdcd;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">exporter livraison</button>
+      </div>
+      <div id="cb-web-output" style="margin-top:8px;color:#9bb;font-size:9.5px;line-height:1.4;max-height:140px;overflow-y:auto;font-family:ui-monospace,monospace;display:none;background:#0a0e14;padding:6px;border-radius:3px"></div>
+    </div>
+  </details>
+  <script>
+  (function(){
+    async function refreshWebStatus(){
+      try {
+        const r = await fetch('/api/cortex/web/status', {cache:'no-store'});
+        if (!r.ok) return;
+        const s = await r.json();
+        const el = document.getElementById('cb-web-status');
+        if (!el) return;
+        let html = '';
+        html += '<div>projet: <span style="color:'+(s.project_exists?'#55ff99':'#7a89aa')+'">'+(s.project_exists?'généré':'absent')+'</span>'
+              + (s.n_files?(' · '+s.n_files+' fichiers') :'') + '</div>';
+        if (s.last_audit_scores) {
+          const sc = s.last_audit_scores;
+          html += '<div>scores: SEO '+sc.seo+' · A11y '+sc.accessibility+' · Sec '+sc.security+' · Perf '+sc.performance+'</div>';
+        }
+        if (s.lighthouse_available !== undefined) {
+          html += '<div>Lighthouse: '+(s.lighthouse_available?'<span style="color:#55ff99">dispo</span>':'<span style="color:#7a89aa">fallback statique</span>')+'</div>';
+        }
+        el.innerHTML = html;
+      } catch(e){}
+    }
+    window.webAction = async function(sub, method, body){
+      const out = document.getElementById('cb-web-output');
+      out.style.display = 'block';
+      out.innerHTML = '<span style="color:#557">⏳ '+sub+' en cours...</span>';
+      try {
+        const opts = {method: method || 'GET', cache:'no-store'};
+        if (method === 'POST') {
+          opts.headers = {'Content-Type': 'application/json'};
+          opts.body = JSON.stringify(body || {});
+        }
+        const r = await fetch('/api/cortex/web/'+sub, opts);
+        const txt = await r.text();
+        let d;
+        try { d = JSON.parse(txt); }
+        catch(e) {
+          out.innerHTML = '<span style="color:#ff7766">HTTP '+r.status+' '+r.statusText+'</span>'
+                        + '<div style="color:#aab;font-size:9px;margin-top:4px">Route absente : relance serve.py pour charger /api/cortex/web/*.</div>';
+          return;
+        }
+        if (!r.ok) { out.innerHTML = '<span style="color:#ff7766">HTTP '+r.status+'</span>'; return; }
+        let html = '';
+        html += '<div style="color:#34d399">'+sub+': '+(d.ok?'<span style="color:#55ff99">OK</span>':'<span style="color:#ff7766">FAIL</span>')+'</div>';
+        if (d.scores) {
+          for (const k in d.scores) html += '<div>'+k+': '+d.scores[k]+'/100</div>';
+        }
+        if (d.errors && d.errors.length) html += '<div style="color:#ff7766">'+d.errors.slice(0,5).join('<br>')+'</div>';
+        if (d.attempts) html += '<div>tentatives: '+d.attempts+'</div>';
+        if (d.delivered_to) html += '<div style="color:#7acdcd">livré: '+d.delivered_to+'</div>';
+        if (d.error) html += '<div style="color:#ff7766">erreur: '+d.error+'</div>';
+        out.innerHTML = html;
+        refreshWebStatus();
+      } catch(e) {
+        out.innerHTML = '<span style="color:#ff7766">erreur: '+e.message+'</span>';
+      }
+    };
+    const det = document.getElementById('cb-web-details');
+    if (det){ det.addEventListener('toggle', () => { if (det.open) refreshWebStatus(); }); }
+    refreshWebStatus();
+  })();
+  </script>
+
+  <!-- Game IAG Lab : benchmark central multi-jeux (X4 prioritaire) -->
+  <details id="cb-game-details" style="border:1px solid #3f1b3a;border-left:3px solid #f472b6;border-radius:8px;background:linear-gradient(90deg,rgba(244,114,182,0.06),rgba(7,10,20,0.58));padding:8px 10px;margin-bottom:10px">
+    <summary style="cursor:pointer;color:#fbcfe8;font-size:10px;font-weight:700;letter-spacing:.4px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <span>▣ Game IAG Lab</span>
+      <span id="cb-game-meta" style="color:#aa4f8d;font-size:9px;font-weight:400">benchmark multi-jeux · X4 prio</span>
+    </summary>
+    <div style="padding-top:8px;font-size:10px">
+      <div id="cb-game-status" style="font-family:ui-monospace,monospace;font-size:9.5px;color:#cdf;margin-bottom:8px">—</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <button onclick="gameAction('init_benchmark','POST')" style="background:#3f1b35;border:1px solid #5f2a4a;color:#fdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">init benchmark</button>
+        <button onclick="gameAction('benchmark','GET')" style="background:#3f1b35;border:1px solid #5f2a4a;color:#fdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">voir benchmark</button>
+        <button onclick="gameAction('next_task','GET')" style="background:#3f1b35;border:1px solid #5f2a4a;color:#fdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">prochaine tâche</button>
+        <button onclick="gameAction('transfer_lessons','GET')" style="background:#3f1b35;border:1px solid #5f2a4a;color:#fdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">leçons cross-jeu</button>
+        <button onclick="gameAction('compare_runs','POST',{game:'X4 Foundations'})" style="background:#3f1b35;border:1px solid #5f2a4a;color:#fdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">comparer runs X4</button>
+        <button onclick="gameAction('evaluate_dominance','POST',{game:'X4 Foundations'})" style="background:#2a2f3f;border:1px solid #3f4a5f;color:#cef;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">évaluer dominance X4</button>
+      </div>
+      <div id="cb-game-output" style="margin-top:8px;color:#9bb;font-size:9.5px;line-height:1.4;max-height:160px;overflow-y:auto;font-family:ui-monospace,monospace;display:none;background:#0a0e14;padding:6px;border-radius:3px"></div>
+    </div>
+  </details>
+  <script>
+  (function(){
+    async function refreshGameStatus(){
+      try {
+        const r = await fetch('/api/cortex/game/status', {cache:'no-store'});
+        if (!r.ok) return;
+        const s = await r.json();
+        const el = document.getElementById('cb-game-status');
+        if (!el) return;
+        let html = '';
+        html += '<div>jeux supportés: '+s.n_supported_games+' · actifs: '+(s.n_active_games||0)+'</div>';
+        html += '<div>runs total: '+(s.n_runs_total||0)+'</div>';
+        if (Array.isArray(s.games)) {
+          for (const g of s.games) {
+            const col = g.status==='active'?'#55ff99':'#7a89aa';
+            html += '<div>· <span style="color:'+col+'">'+g.game+'</span> (p'+g.priority+') · '+g.status+'</div>';
+          }
+        }
+        el.innerHTML = html;
+      } catch(e){}
+    }
+    window.gameAction = async function(sub, method, body){
+      const out = document.getElementById('cb-game-output');
+      out.style.display = 'block';
+      out.innerHTML = '<span style="color:#557">⏳ '+sub+' en cours...</span>';
+      try {
+        const opts = {method: method || 'GET', cache:'no-store'};
+        if (method === 'POST') {
+          opts.headers = {'Content-Type': 'application/json'};
+          opts.body = JSON.stringify(body || {});
+        }
+        const r = await fetch('/api/cortex/game/'+sub, opts);
+        const txt = await r.text();
+        let d;
+        try { d = JSON.parse(txt); }
+        catch(e) {
+          out.innerHTML = '<span style="color:#ff7766">HTTP '+r.status+' '+r.statusText+'</span>'
+                        + '<div style="color:#aab;font-size:9px;margin-top:4px">Route absente : relance serve.py pour charger /api/cortex/game/*.</div>';
+          return;
+        }
+        if (!r.ok) { out.innerHTML = '<span style="color:#ff7766">HTTP '+r.status+'</span>'; return; }
+        let html = '<div style="color:#f472b6">'+sub+': '+(d.ok?'<span style="color:#55ff99">OK</span>':'<span style="color:#ff7766">FAIL</span>')+'</div>';
+        if (d.action) html += '<div>→ action proposée: <span style="color:#fbcfe8">'+d.action+'</span></div>';
+        if (d.reason) html += '<div style="color:#aab">'+d.reason+'</div>';
+        if (d.dominance) html += '<div>dominance: <span style="color:'+(d.dominance==='verified'?'#55ff99':d.dominance==='preliminary'?'#ffcc66':'#7a89aa')+'">'+d.dominance+'</span></div>';
+        if (d.lessons && d.lessons.length) {
+          html += '<div style="color:#fbcfe8">leçons:</div>';
+          for (const l of d.lessons.slice(0,5)) html += '<div>· '+l.lesson+'</div>';
+        }
+        if (Array.isArray(d.games)) html += '<div>jeux benchmark: '+d.games.length+'</div>';
+        if (d.level_last !== undefined) html += '<div>niveau atteint: '+d.level_last+'/7</div>';
+        if (d.error) html += '<div style="color:#ff7766">'+d.error+'</div>';
+        out.innerHTML = html;
+        refreshGameStatus();
+      } catch(e) {
+        out.innerHTML = '<span style="color:#ff7766">erreur: '+e.message+'</span>';
+      }
+    };
+    const det = document.getElementById('cb-game-details');
+    if (det){ det.addEventListener('toggle', () => { if (det.open) refreshGameStatus(); }); }
+    refreshGameStatus();
   })();
   </script>
 

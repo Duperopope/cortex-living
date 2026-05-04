@@ -345,8 +345,12 @@ def health_check_and_act() -> dict:
         if r["rotated"]: actions_taken.append({"action": "rotate_logs", **r})
         c = clean_temp_files()
         if c["files_cleaned"]: actions_taken.append({"action": "clean_temp", **c})
-        z = kill_duplicates()
-        if z.get("killed"): actions_taken.append({"action": "kill_zombies", **z})
+        # DÉSACTIVÉ : kill_duplicates tuait serve.py lui-même (psutil voit le shim
+        # Microsoft Store alias + le vrai interpréteur tous deux comme "serve.py"
+        # → kill_zombies considère le plus récent comme doublon et le tue → boucle infinie).
+        # À ré-activer après fix de list_cortex_procs pour ne pas matcher serve.py.
+        # z = kill_duplicates()
+        # if z.get("killed"): actions_taken.append({"action": "kill_zombies", **z})
 
     # Niveau 3 : critical (signal aux loops de pause)
     if cpu > CPU_CRIT or ram > CPU_CRIT:

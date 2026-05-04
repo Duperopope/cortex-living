@@ -1,12 +1,12 @@
 {
-  "ts": 1777917222.551713,
+  "ts": 1777925990.0752788,
   "min_samples": 8,
   "window": 30,
   "n_actions_observed": 3,
   "empirical_predictions_count": 3,
   "heuristic_fallback_count": 0,
   "empirical_ratio": 1.0,
-  "prediction_error_avg_global": 2.52778,
+  "prediction_error_avg_global": 3.06185,
   "actions": {
     "explore_graph": {
       "n_examples": 30,
@@ -51,8 +51,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": 1.46667,
-          "std": 6.71681,
+          "mean": 2.53333,
+          "std": 8.24513,
           "n": 30
         },
         "compression_error": {
@@ -61,17 +61,17 @@
           "n": 30
         },
         "cpu": {
-          "mean": 1.14667,
-          "std": 11.47405,
+          "mean": -2.56333,
+          "std": 15.01041,
           "n": 30
         },
         "ram": {
-          "mean": 0.51,
-          "std": 1.39818,
+          "mean": -2.4,
+          "std": 9.18626,
           "n": 30
         }
       },
-      "prediction_error_avg": 2.44667,
+      "prediction_error_avg": 3.30444,
       "observability": "high"
     },
     "map_knowledge": {
@@ -119,8 +119,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": -0.4,
-          "std": 9.27937,
+          "mean": -2.73333,
+          "std": 9.46549,
           "n": 30
         },
         "compression_error": {
@@ -129,28 +129,28 @@
           "n": 30
         },
         "cpu": {
-          "mean": 1.72667,
-          "std": 13.61827,
+          "mean": 3.63333,
+          "std": 13.82356,
           "n": 30
         },
         "ram": {
-          "mean": 0.10667,
-          "std": 0.84496,
+          "mean": -0.35,
+          "std": 2.61046,
           "n": 30
         }
       },
-      "prediction_error_avg": 2.65333,
-      "observability": "medium"
+      "prediction_error_avg": 3.39778,
+      "observability": "high"
     }
   },
   "top_overoptimistic_actions": [
-    "audit_ui",
     "explore_graph",
+    "audit_ui",
     "map_knowledge"
   ],
   "top_reliable_actions": [
     "map_knowledge",
-    "explore_graph",
-    "audit_ui"
+    "audit_ui",
+    "explore_graph"
   ]
 }
