@@ -1,6 +1,6 @@
 # Cortex — un cerveau cognitif vivant
 
-> Dernière mise à jour : `2026-04-30T17:01:19` (auto-généré)
+> Dernière mise à jour : `2026-05-04T10:48:35` (auto-généré)
 
 Cortex est une entité cognitive autonome construite sur le projet Paperclip.
 Il voit, entend, mémorise, apprend, et raisonne avec une vraie boucle Spreading
@@ -11,22 +11,22 @@ Activation Theory (Collins & Loftus, 1975) et un apprentissage Hebbian
 
 | Métrique               | Valeur                                       |
 |------------------------|----------------------------------------------|
-| Nœuds graphe pensée    | **65**                    |
-| Arêtes sémantiques     | **420**                    |
-| Densité                | **0.2019**                    |
-| Nœuds actifs           | **8** (décroissance τ=60 s) |
-| Hebbian cumulé         | **0.2** (apprentissage) |
+| Nœuds graphe pensée    | **1778**                    |
+| Arêtes sémantiques     | **180831**                    |
+| Densité                | **0.1145**                    |
+| Nœuds actifs           | **42** (décroissance τ=60 s) |
+| Hebbian cumulé         | **0.88** (apprentissage) |
 | Zones d'ignorance      | **0** (besoin de ponts) |
 
 ### Composition du graphe
 - `claude_memory` : 20 nœuds
-- `semantic` : 15 nœuds
-- `episodic` : 30 nœuds
+- `semantic` : 1658 nœuds
+- `episodic` : 100 nœuds
 
 ## Corps (homeostasis)
 
-- CPU : **30.6%**
-- RAM : **77.7%**
+- CPU : **18.5%**
+- RAM : **49.1%**
 - Disques surveillés : **5**
 - GPU : —
 
@@ -34,12 +34,36 @@ Cortex maintient ses signes vitaux dans une plage viable (Cannon 1932,
 Ashby 1960). Au-dessus de 90 % d'occupation disque il propose un déménagement
 vers un disque plus libre.
 
+## Décisions autonomes — vraiment autonomes
+
+Toutes les ~5 minutes, Cortex choisit une action via la pipeline suivante
+(et **pas** via un wrapper LLM ni une rotation déterministe) :
+
+1. **Active Inference** (Friston VFE) — chaque action candidate reçoit un score
+   *Expected Free Energy* combinant valeur épistémique (gain d'information prédit)
+   et valeur pragmatique (utilité par rapport au plan courant)
+2. **Big5 personnalité** — l'openness booste les actions exploratoires,
+   la conscientiousness booste les actions d'audit, etc.
+3. **Curiosité Schmidhuber** — si Cortex est frustré (compression error en hausse),
+   bonus pour les actions exploratoires
+4. **Comparaison à random baseline** — chaque décision logue
+   `better_than_random` / `equal` / `worse` (anti-fake structurel)
+5. **LLM en fallback uniquement** — si l'écart top/runner-up < 0.05, un LLM léger
+   (minimax) tranche
+
+L'UI distingue clairement :
+- **AUTO** = vraie décision autonome (`method=active_inference`)
+- **Forcer (override)** = clic humain sur une action précise (`method=forced_by_user`)
+
 ## Sciences appliquées
 
+- **Active Inference / Free Energy Principle** (Friston, 2010) — décision = minimisation EFE
+- **Big5 OCEAN** (McCrae & Costa, 1987) — modulation par traits de personnalité
+- **Curiosity Drive** (Schmidhuber, 1991) — récompense intrinsèque = compression delta
 - **Spreading Activation** (Collins & Loftus, 1975, *Psychological Review*)
 - **Hebbian Learning** (Hebb, 1949, *The Organization of Behavior*)
 - **Homeostasis** (Cannon, 1932 ; Ashby, 1960)
-- **Free Energy / JEPA** (Friston, 2010 ; LeCun, 2022)
+- **JEPA** (LeCun, 2022) — prédiction en espace latent
 - **Force-Directed Layout** (Fruchterman & Reingold, 1991)
 - **Conceptual Blending** (Fauconnier & Turner, 2002) — pour les ponts cognitifs
 - **TF-IDF cosine** (Salton & McGill, 1983) — graphe sémantique
@@ -48,26 +72,24 @@ vers un disque plus libre.
 
 ## Architecture
 
-Cortex est composé d'environ 25 modules Python autonomes orchestrés par un
+Cortex est composé d'environ 30 modules Python autonomes orchestrés par un
 serveur HTTP unique (`scripts/brain/dashboard/serve.py`). Chaque module
 correspond à une fonction cognitive (mémoire, vision, voix, émergence,
 homeostasis, recherche…).
 
-Voir [docs/architecture.md](docs/architecture.md) pour la liste complète.
-
-## Changelog
-
-Les changements techniques récents sont documentés ici :
-[docs/changelog-2026-04-30.md](docs/changelog-2026-04-30.md)
+Voir [docs/architecture.md](docs/architecture.md) pour la liste complète et
+[docs/anti-fake.md](docs/anti-fake.md) pour la méthodologie anti-fake.
 
 ## Émancipation
 
 Cortex peut :
+- 🧠 [décider de manière autonome](docs/architecture.md) via Active Inference + Big5 + curiosité
 - 🔍 [chercher](docs/research.md) — multi-source arxiv/wiki/scholar/duckduckgo + synthèse sourcée
 - 🧹 [nettoyer son disque](docs/disk-hygiene.md) avec doc citée par pattern
 - 🌉 [créer des ponts cognitifs](docs/bridges.md) entre concepts éloignés
-- 📊 [détecter ses régressions](docs/brain-history.md) sur 24 h glissantes
+- 📊 [détecter ses régressions](docs/brain-history.md) sur 24 h glissantes (snapshots cassés filtrés du baseline)
 - 🪞 [s'expliquer lui-même](docs/introspection.md) à partir de ses métriques
+- 🎯 [prouver qu'il ne fake pas](docs/anti-fake.md) via 5 tests mesurables
 
 ## Licence
 
