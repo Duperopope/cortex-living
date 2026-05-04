@@ -1,9 +1,9 @@
 {
-  "ts": 1777880684.8204374,
-  "iso": "2026-05-04T09:44:44",
+  "ts": 1777881101.4132836,
+  "iso": "2026-05-04T09:51:41",
   "brain": {
-    "ts": 1777880685.0123608,
-    "iso": "2026-05-04T09:44:45",
+    "ts": 1777881101.4203398,
+    "iso": "2026-05-04T09:51:41",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,152 +13,27 @@
     "n_edges": 180530,
     "n_isolated": 0,
     "density": 0.1143,
-    "n_active": 23,
-    "hebbian_total": 0.62
+    "n_active": 0,
+    "hebbian_total": 0
   },
   "activation": {
-    "active_nodes": {
-      "08 - Semantic\\starfield-hud-test\\ca700e7dd3-Expected-HUD-behavior-during-testing.md": 0.829,
-      "08 - Semantic\\starfield-hud-testing\\772f9be381-Expected-HUD-behavior-with-current-config.md": 0.829,
-      "08 - Semantic\\starfield-hud-fix\\c8ff777445-Custom-INI-verified-as-pure-ASCII.md": 0.829,
-      "08 - Semantic\\starfield-hud-test-plan\\6abe80de97-Test-HUD-fix-using-exterior-save-and-weapon-draw.md": 0.829,
-      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md": 0.532,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md": 0.532,
-      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md": 0.532,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-failed-_0-s_.md": 0.532,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md": 0.532,
-      "06 - Agents/model-capabilities/claude-opus-4-7.md": 0.829,
-      "08 - Semantic\\starfield-hud-testing\\45cbc283e5-HUD-fix-testing-procedure-and-expected-result.md": 0.342,
-      "08 - Semantic\\starfield-ini-state\\8e7e77e61b-Custom-INI-file-verified-as-pure-ASCII.md": 0.741,
-      "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md": 0.342,
-      "07 - Ingested/claude-code/2026-03-04/09-19-14 - Claude_-_analysis_-Let-me-chronologically-analyze-the-conv.md": 0.342,
-      "07 - Ingested/claude-code/2026-04-25/18-44-10 - User_-In-the-repo-at-_c_Users_Smedj_AppData_Local_Temp_kairo.md": 0.342,
-      "07 - Ingested/claude-code/2026-04-23/00-42-15 - Claude_-Inbox-empty_-no-assignments.-Atlas-still-has-an-acti.md": 0.342,
-      "05 - Daily Log/2026-04-29.md": 0.342,
-      "08 - Semantic\\starfield-mods\\a963e79324-Custom-INI-converted-to-pure-ASCII.md": 0.741,
-      "07 - Ingested/claude-code/2026-04-28/08-04-27 - Claude_-Perfect_-Now-I-have-enough-information.-Let-me-compi.md": 0.829,
-      "07 - Ingested/claude-code/2026-04-28/08-21-22 - Claude_-Perfect_-Now-I-have-a-complete-picture.-Let-me-compi.md": 0.829,
-      "07 - Ingested/claude-code/2026-03-17/18-53-57 - Claude_-The-__professions_-folder-doesn_t-exist-_404-error_..md": 0.829,
-      "06 - Agents/model-capabilities/gpt-5-5-codex.md": 0.829,
-      "07 - Ingested/claude-code/2026-03-04/21-14-54 - Claude_-Le-téléchargement-a-échoué.-Télécharge-le-manuelleme.md": 0.829
-    },
-    "n_active": 23,
-    "top_hebbian_edges": [
-      {
-        "a": "08 - Semantic\\starfield-hud-fix\\c8ff777445-Custom-INI-verified-as-pure-ASCII.md",
-        "b": "08 - Semantic\\starfield-hud-test\\ca700e7dd3-Expected-HUD-behavior-during-testing.md",
-        "strength": 0.07
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-test-plan\\6abe80de97-Test-HUD-fix-using-exterior-save-and-weapon-draw.md",
-        "b": "08 - Semantic\\starfield-hud-test\\ca700e7dd3-Expected-HUD-behavior-during-testing.md",
-        "strength": 0.05
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-test\\ca700e7dd3-Expected-HUD-behavior-during-testing.md",
-        "b": "08 - Semantic\\starfield-hud-testing\\772f9be381-Expected-HUD-behavior-with-current-config.md",
-        "strength": 0.04
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-fix\\c8ff777445-Custom-INI-verified-as-pure-ASCII.md",
-        "b": "08 - Semantic\\starfield-hud-testing\\772f9be381-Expected-HUD-behavior-with-current-config.md",
-        "strength": 0.04
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-test-plan\\6abe80de97-Test-HUD-fix-using-exterior-save-and-weapon-draw.md",
-        "b": "08 - Semantic\\starfield-hud-testing\\772f9be381-Expected-HUD-behavior-with-current-config.md",
-        "strength": 0.04
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-fix\\c8ff777445-Custom-INI-verified-as-pure-ASCII.md",
-        "b": "08 - Semantic\\starfield-hud-test-plan\\6abe80de97-Test-HUD-fix-using-exterior-save-and-weapon-draw.md",
-        "strength": 0.04
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-test\\ca700e7dd3-Expected-HUD-behavior-during-testing.md",
-        "b": "08 - Semantic\\starfield-ini-state\\8e7e77e61b-Custom-INI-file-verified-as-pure-ASCII.md",
-        "strength": 0.04
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-fix\\c8ff777445-Custom-INI-verified-as-pure-ASCII.md",
-        "b": "08 - Semantic\\starfield-mods\\a963e79324-Custom-INI-converted-to-pure-ASCII.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-fix\\c8ff777445-Custom-INI-verified-as-pure-ASCII.md",
-        "b": "08 - Semantic\\starfield-ini-state\\8e7e77e61b-Custom-INI-file-verified-as-pure-ASCII.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\starfield-ini-state\\8e7e77e61b-Custom-INI-file-verified-as-pure-ASCII.md",
-        "b": "08 - Semantic\\starfield-mods\\a963e79324-Custom-INI-converted-to-pure-ASCII.md",
-        "strength": 0.03
-      },
-      {
-        "a": "08 - Semantic\\starfield-hud-test\\ca700e7dd3-Expected-HUD-behavior-during-testing.md",
-        "b": "08 - Semantic\\starfield-mods\\a963e79324-Custom-INI-converted-to-pure-ASCII.md",
-        "strength": 0.03
-      },
-      {
-        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
-        "strength": 0.02
-      },
-      {
-        "a": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md",
-        "strength": 0.02
-      },
-      {
-        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-failed-_0-s_.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
-        "strength": 0.02
-      },
-      {
-        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
-        "strength": 0.02
-      },
-      {
-        "a": "06 - Agents/model-capabilities/claude-opus-4-7.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
-        "strength": 0.02
-      },
-      {
-        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md",
-        "strength": 0.02
-      },
-      {
-        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-failed-_0-s_.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
-        "strength": 0.02
-      },
-      {
-        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
-        "strength": 0.02
-      },
-      {
-        "a": "06 - Agents/model-capabilities/claude-opus-4-7.md",
-        "b": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
-        "strength": 0.02
-      }
-    ],
-    "ts": 1777880686.1574585,
-    "cum_activations": 88,
-    "cum_pulses": 68,
-    "cum_hebbian_ticks": 108,
-    "last_activation_ts": 1777880652.36518,
-    "last_pulse_ts": 1777880652.3671818,
-    "last_hebbian_ts": 1777880652.36518,
-    "last_wander_ts": 1777880652.305551,
-    "n_edges_total": 60,
+    "active_nodes": {},
+    "n_active": 0,
+    "top_hebbian_edges": [],
+    "ts": 1777881107.2505004,
+    "cum_activations": 0,
+    "cum_pulses": 0,
+    "cum_hebbian_ticks": 0,
+    "last_activation_ts": 0.0,
+    "last_pulse_ts": 0.0,
+    "last_hebbian_ts": 0.0,
+    "last_wander_ts": 0.0,
+    "n_edges_total": 0,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 12.7,
-    "ram_percent": 43.6,
+    "cpu_percent": 19.3,
+    "ram_percent": 44.4,
     "n_disks": 5,
     "gpu": []
   }
