@@ -47,6 +47,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_sam_model` |  |
 | `cortex_self_dev` |  |
 | `cortex_skills` |  |
+| `cortex_smoke_check` |  |
 | `cortex_synthesis` |  |
 | `cortex_thought_graph` |  |
 | `cortex_tools` |  |

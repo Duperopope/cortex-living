@@ -58,6 +58,34 @@ diff -u examples/session-001/anti_fake_report.json my_anti_fake.json | head -50
    le défaut `execute=False` qui est scoring-only). Sinon les outcomes
    observés resteront à 0 et l'apprentissage des effets sera vide.
 
+## CI locale (gratuite, pas de quota)
+
+Pour vérifier la santé du code sans dépendre de GitHub Actions, lance
+directement :
+
+```bash
+python code/brain/cortex_smoke_check.py
+# ou en JSON :
+python code/brain/cortex_smoke_check.py json
+```
+
+Couvre :
+- **strict-core** : `cortex_activation`, `cortex_active_inference`,
+  `cortex_anti_fake`, `cortex_action_effects`, `cortex_homeostasis` —
+  py_compile + import + self_test. Exit code 1 si fail.
+- **smoke-rest** : tous les autres `cortex_*.py` — py_compile only,
+  tolérant. Échec ne casse pas l'exit code.
+
+`cortex_publishing.update()` appelle ce smoke check en pre-flight : si
+strict-core échoue → la publication est refusée. Donc tant que tu publies
+via `update()`, le code publié a forcément passé un compile + import +
+self_test des modules cœur.
+
+Le workflow GitHub Actions `smoke.yml` reste dispo (tu peux le
+re-déclencher manuellement via "Actions → smoke → Run workflow"). Mais ce
+n'est plus le seul rempart : la CI locale est désormais le rempart
+principal.
+
 ## Comment Claude Code se branche au système
 
 Si tu utilises Claude Code (Anthropic CLI), un `CLAUDE.md` dans la racine

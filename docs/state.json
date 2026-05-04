@@ -1,9 +1,9 @@
 {
-  "ts": 1777892248.2721949,
-  "iso": "2026-05-04T12:57:28",
+  "ts": 1777892712.548722,
+  "iso": "2026-05-04T13:05:12",
   "brain": {
-    "ts": 1777892248.28057,
-    "iso": "2026-05-04T12:57:28",
+    "ts": 1777892712.55748,
+    "iso": "2026-05-04T13:05:12",
     "n_nodes": 1782,
     "by_kind": {
       "claude_memory": 23,
@@ -13,180 +13,196 @@
     "n_edges": 182580,
     "n_isolated": 0,
     "density": 0.1151,
-    "n_active": 51,
-    "hebbian_total": 10.43
+    "n_active": 67,
+    "hebbian_total": 11.26
   },
   "activation": {
     "active_nodes": {
-      "node_f372c72e": 0.924,
-      "node_b6cedfa1": 0.924,
-      "node_c8ff194a": 0.924,
-      "node_89174306": 0.924,
-      "node_fd366d20": 0.585,
-      "node_75670dab": 0.318,
-      "node_abdc6a5f": 0.24,
-      "node_4733380f": 0.585,
-      "node_84d56813": 0.011,
-      "node_2b5fac05": 0.011,
-      "node_f2e10635": 0.011,
-      "node_2ef85887": 0.011,
-      "node_8655715d": 0.24,
-      "node_68b6c0dd": 0.24,
-      "node_cd936738": 0.24,
-      "node_57b92bff": 0.24,
-      "node_9206aa46": 0.241,
-      "node_a57e4846": 0.026,
-      "node_3b1218b4": 0.026,
-      "node_91b3b958": 0.026,
-      "node_ad1eac5e": 0.026,
-      "node_abd479d8": 0.026,
-      "node_0746a98e": 0.023,
-      "node_d6644f3c": 0.023,
-      "node_9551fc6c": 0.023,
-      "node_7f35cf55": 0.023,
-      "node_a75bbf2f": 0.023,
-      "node_273581a8": 0.023,
-      "node_3e3e20ca": 0.023,
-      "node_ffed4e80": 0.023,
-      "node_781bb599": 0.023,
-      "node_ffb890b8": 0.023,
-      "node_33518d61": 0.023,
-      "node_e863f7c8": 0.023,
-      "node_632dcf6a": 0.023,
-      "node_7e6ddfbb": 0.023,
-      "node_fd47b3c6": 0.376,
-      "node_9e7c3216": 0.376,
-      "node_d2b32def": 0.376,
-      "node_10b25767": 0.376,
-      "node_62227c76": 0.376,
-      "node_35fc2165": 0.585,
-      "node_d4414dbb": 0.585,
-      "node_e7b77f9b": 0.585,
-      "node_ffba87d5": 0.585,
-      "node_075e37ad": 0.924,
-      "node_4049155b": 0.924,
-      "node_a18f5acc": 0.924,
-      "node_52097a1c": 0.924,
-      "node_62a280b1": 0.924,
-      "node_7186cc6c": 0.924
+      "node_f372c72e": 0.706,
+      "node_b6cedfa1": 0.706,
+      "node_c8ff194a": 0.706,
+      "node_89174306": 0.706,
+      "node_fd366d20": 0.706,
+      "node_75670dab": 0.281,
+      "node_abdc6a5f": 0.184,
+      "node_4733380f": 0.184,
+      "node_8655715d": 0.018,
+      "node_68b6c0dd": 0.018,
+      "node_cd936738": 0.018,
+      "node_57b92bff": 0.018,
+      "node_9206aa46": 0.018,
+      "node_a57e4846": 0.706,
+      "node_3b1218b4": 0.706,
+      "node_91b3b958": 0.706,
+      "node_ad1eac5e": 0.706,
+      "node_abd479d8": 0.706,
+      "node_fd47b3c6": 0.448,
+      "node_9e7c3216": 0.448,
+      "node_d2b32def": 0.448,
+      "node_10b25767": 0.448,
+      "node_62227c76": 0.448,
+      "node_35fc2165": 0.044,
+      "node_d4414dbb": 0.044,
+      "node_e7b77f9b": 0.044,
+      "node_ffba87d5": 0.044,
+      "node_075e37ad": 0.07,
+      "node_4049155b": 0.07,
+      "node_a18f5acc": 0.07,
+      "node_52097a1c": 0.07,
+      "node_62a280b1": 0.07,
+      "node_7186cc6c": 0.07,
+      "node_ba20a320": 0.076,
+      "node_7fc0ae72": 0.076,
+      "node_7103ad54": 0.076,
+      "node_eb156ff9": 0.076,
+      "node_f7ba2826": 0.076,
+      "node_8264f6c6": 0.076,
+      "node_4f9b629c": 0.113,
+      "node_cee598a7": 0.113,
+      "node_0e31286e": 0.113,
+      "node_2cb4013e": 0.113,
+      "node_43eb2fda": 0.113,
+      "node_b2eea72e": 0.113,
+      "node_a9297298": 0.113,
+      "node_1ccb66bd": 0.113,
+      "node_43564ec4": 0.113,
+      "node_2ea69659": 0.113,
+      "node_4b97b4ca": 0.113,
+      "node_redacted_29834a1d": 0.113,
+      "node_12da8668": 0.113,
+      "node_0cffba7f": 0.113,
+      "node_redacted_3ac57062": 0.113,
+      "node_1fad8c80": 0.113,
+      "node_f935b644": 0.113,
+      "node_84d56813": 0.184,
+      "node_2b5fac05": 0.184,
+      "node_f2e10635": 0.184,
+      "node_2ef85887": 0.184,
+      "node_5ad64cac": 0.782,
+      "node_7efa4b5c": 0.782,
+      "node_f6d2128c": 0.782,
+      "node_30e10ed1": 0.782,
+      "node_ae4f61e7": 0.782,
+      "node_fe0177bb": 0.782,
+      "node_b2183be5": 0.782
     },
-    "n_active": 51,
+    "n_active": 67,
     "top_hebbian_edges": [
       {
         "a": "node_f372c72e",
         "b": "node_b6cedfa1",
-        "strength": 1.5
+        "strength": 1.62
       },
       {
         "a": "node_c8ff194a",
         "b": "node_f372c72e",
-        "strength": 1.5
+        "strength": 1.62
       },
       {
         "a": "node_c8ff194a",
         "b": "node_b6cedfa1",
-        "strength": 1.5
+        "strength": 1.62
       },
       {
         "a": "node_f372c72e",
         "b": "node_89174306",
-        "strength": 0.94
+        "strength": 1.01
       },
       {
         "a": "node_b6cedfa1",
         "b": "node_89174306",
-        "strength": 0.94
+        "strength": 1.01
       },
       {
         "a": "node_c8ff194a",
         "b": "node_89174306",
-        "strength": 0.94
+        "strength": 1.01
       },
       {
         "a": "node_c8ff194a",
         "b": "node_75670dab",
-        "strength": 0.56
+        "strength": 0.61
       },
       {
         "a": "node_f372c72e",
         "b": "node_75670dab",
-        "strength": 0.56
+        "strength": 0.61
       },
       {
         "a": "node_75670dab",
         "b": "node_b6cedfa1",
-        "strength": 0.56
+        "strength": 0.61
       },
       {
         "a": "node_7fc0ae72",
         "b": "node_ba20a320",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_ba20a320",
         "b": "node_7103ad54",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_ba20a320",
         "b": "node_f7ba2826",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_eb156ff9",
         "b": "node_ba20a320",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_8264f6c6",
         "b": "node_ba20a320",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_7fc0ae72",
         "b": "node_7103ad54",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_7fc0ae72",
         "b": "node_f7ba2826",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_eb156ff9",
         "b": "node_7fc0ae72",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_8264f6c6",
         "b": "node_7fc0ae72",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_7103ad54",
         "b": "node_f7ba2826",
-        "strength": 0.13
+        "strength": 0.14
       },
       {
         "a": "node_eb156ff9",
         "b": "node_7103ad54",
-        "strength": 0.13
+        "strength": 0.14
       }
     ],
-    "ts": 1777892253.097778,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 1983,
+    "ts": 1777892717.2879236,
+    "cum_activations": 156,
+    "cum_pulses": 124,
+    "cum_hebbian_ticks": 319,
+    "last_activation_ts": 1777892673.069841,
+    "last_pulse_ts": 1777892673.0783834,
+    "last_hebbian_ts": 1777892673.0763726,
+    "last_wander_ts": 1777892654.4615884,
+    "n_edges_total": 2103,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 27.7,
-    "ram_percent": 70.8,
+    "cpu_percent": 8.8,
+    "ram_percent": 74.9,
     "n_disks": 5,
     "gpu": []
   }

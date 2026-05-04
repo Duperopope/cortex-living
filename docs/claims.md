@@ -34,6 +34,7 @@ fichier de preuve. Trois niveaux :
 | Apprentissage des effets d'action  | implémenté v1   | `cortex_action_effects.py` — moyenne empirique des deltas observés, fenêtre glissante 30 ex. ; remplace progressivement les heuristiques hardcodées dans `_predict_state` (mode `empirical` quand n>=8/action) |
 | Boucle décision unifiée            | implémenté      | `cortex_emergence._emergence_loop` appelle `drive_step(execute=True)` — scoring EFE + exécution réelle via TOOLS + apprentissage des effets en un seul cycle |
 | Bridge Claude Code (contexte vivant) | implémenté    | `cortex_claude_code.py` génère `.cortex-claude-context.md` ; `CLAUDE.md` du repo Paperclip pointe dessus ; refresh auto tous les 6 cycles dans la boucle |
+| CI locale bloquante                | implémenté      | `cortex_smoke_check.py` : compile + import + self_test sur 5 modules cœur ; appelé en pre-flight par `cortex_publishing.update()` → abort si fail. Indépendant de GitHub Actions (quota). Le workflow `smoke.yml` reste dispo pour quand le compte GH sera débloqué |
 
 ## Méthodologie anti-fake recommandée pour auditer
 

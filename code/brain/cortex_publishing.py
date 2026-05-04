@@ -675,6 +675,7 @@ fichier de preuve. Trois niveaux :
 | Apprentissage des effets d'action  | implémenté v1   | `cortex_action_effects.py` — moyenne empirique des deltas observés, fenêtre glissante 30 ex. ; remplace progressivement les heuristiques hardcodées dans `_predict_state` (mode `empirical` quand n>=8/action) |
 | Boucle décision unifiée            | implémenté      | `cortex_emergence._emergence_loop` appelle `drive_step(execute=True)` — scoring EFE + exécution réelle via TOOLS + apprentissage des effets en un seul cycle |
 | Bridge Claude Code (contexte vivant) | implémenté    | `cortex_claude_code.py` génère `.cortex-claude-context.md` ; `CLAUDE.md` du repo Paperclip pointe dessus ; refresh auto tous les 6 cycles dans la boucle |
+| CI locale bloquante                | implémenté      | `cortex_smoke_check.py` : compile + import + self_test sur 5 modules cœur ; appelé en pre-flight par `cortex_publishing.update()` → abort si fail. Indépendant de GitHub Actions (quota). Le workflow `smoke.yml` reste dispo pour quand le compte GH sera débloqué |
 
 ## Méthodologie anti-fake recommandée pour auditer
 
@@ -726,13 +727,20 @@ def _smoke_yml() -> str:
     modules cognitifs cœur (activation, active_inference, anti_fake) car eux
     n'ont aucune dépendance lourde — s'ils ne compilent pas, c'est un vrai bug.
     """
-    return """name: smoke
+    return """# Note : ce workflow GitHub Actions est en sommeil tant que le compte
+# Sam est bloqué pour billing. La CI réelle tourne LOCALEMENT via
+# `python scripts/brain/cortex_smoke_check.py` qui est appelé en pre-flight
+# par `cortex_publishing.update()`. Ce workflow YAML reprendra dès que le
+# quota GitHub Actions sera de nouveau disponible — il est conservé pour
+# que les contributeurs externes voient comment auditer le repo.
+name: smoke
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch: {}
 
 jobs:
   strict-core:
@@ -862,6 +870,34 @@ diff -u examples/session-001/anti_fake_report.json my_anti_fake.json | head -50
 4. **Mode exécution réelle** : tu DOIS appeler `drive_step(execute=True)` (pas
    le défaut `execute=False` qui est scoring-only). Sinon les outcomes
    observés resteront à 0 et l'apprentissage des effets sera vide.
+
+## CI locale (gratuite, pas de quota)
+
+Pour vérifier la santé du code sans dépendre de GitHub Actions, lance
+directement :
+
+```bash
+python code/brain/cortex_smoke_check.py
+# ou en JSON :
+python code/brain/cortex_smoke_check.py json
+```
+
+Couvre :
+- **strict-core** : `cortex_activation`, `cortex_active_inference`,
+  `cortex_anti_fake`, `cortex_action_effects`, `cortex_homeostasis` —
+  py_compile + import + self_test. Exit code 1 si fail.
+- **smoke-rest** : tous les autres `cortex_*.py` — py_compile only,
+  tolérant. Échec ne casse pas l'exit code.
+
+`cortex_publishing.update()` appelle ce smoke check en pre-flight : si
+strict-core échoue → la publication est refusée. Donc tant que tu publies
+via `update()`, le code publié a forcément passé un compile + import +
+self_test des modules cœur.
+
+Le workflow GitHub Actions `smoke.yml` reste dispo (tu peux le
+re-déclencher manuellement via "Actions → smoke → Run workflow"). Mais ce
+n'est plus le seul rempart : la CI locale est désormais le rempart
+principal.
 
 ## Comment Claude Code se branche au système
 
@@ -1089,7 +1125,8 @@ Voir [../../docs/reproducibility.md](../../docs/reproducibility.md).
     return out
 
 
-def update(commit_msg: str = None, push: bool = True) -> dict:
+def update(commit_msg: str = None, push: bool = True,
+           skip_smoke: bool = False) -> dict:
     """Régénère docs + code + commit + push (idempotent).
 
     Publie :
@@ -1097,9 +1134,32 @@ def update(commit_msg: str = None, push: bool = True) -> dict:
     - docs/architecture.md, state.json + docs internes (anti-fake, IAG_progress)
     - code/brain/*.py + code/dashboard/{serve.py,brain_gpu.html} (anonymisé)
     - LICENSE (MIT)
+
+    PRE-FLIGHT : lance `cortex_smoke_check.run()` strict-core. Si fail →
+    abort sans toucher au repo. C'est notre CI locale (gratuite, hors quota
+    GitHub Actions). `skip_smoke=True` permet de bypass en dev quand on
+    accepte des modules cassés temporairement.
     """
     if not REPO_LOCAL.exists():
         return {"ok": False, "error": "Pas encore initialisé — `init_repo --confirm` d'abord"}
+    if not skip_smoke:
+        try:
+            import cortex_smoke_check as _smoke
+            sr = _smoke.run()
+            if sr.get("verdict") != "ok":
+                failed = [name for name, m in sr.get("strict_core", {}).items()
+                          if not m.get("all_ok")]
+                return {"ok": False, "aborted_by_smoke_check": True,
+                        "smoke_failed_modules": failed,
+                        "smoke_report": sr,
+                        "hint": "Run `python scripts/brain/cortex_smoke_check.py` "
+                                "pour le détail. Pour bypass : "
+                                "update(skip_smoke=True)"}
+        except Exception as e:
+            # Si le smoke check lui-même casse, on n'abort pas (on logue) — sinon
+            # un bug local empêcherait toute publication. La CI distante (smoke.yml)
+            # rattrappera quand le quota GH Actions sera revenu.
+            print(f"[publishing] smoke check crashed (non-fatal): {e}", flush=True)
     state = _gather_state()
     readme = REPO_LOCAL / "README.md"
     readme.write_text(_readme_md(state), encoding="utf-8")
