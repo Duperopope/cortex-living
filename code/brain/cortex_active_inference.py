@@ -62,7 +62,7 @@ def _load_state() -> dict:
         try: return json.loads(STATE.read_text(encoding="utf-8"))
         except Exception: pass
     return {
-        "version": "active-inference-1",
+        "version": "active-inference-2",
         "n_steps": 0,
         "surprise_history": [],
         "vfe_history": [],
@@ -71,6 +71,25 @@ def _load_state() -> dict:
         "n_equal_to_random": 0,
         "last_observed_state": None,
         "last_predicted_state": None,
+        # NOUVEAU : tracking outcome réel + win-rate par baseline naïve
+        # baselines : random, always_reflect, always_explore, round_robin, last_best
+        "baselines": {
+            "random":         {"wins": 0, "losses": 0, "ties": 0,
+                                "outcome_score_sum": 0.0},
+            "always_reflect": {"wins": 0, "losses": 0, "ties": 0,
+                                "outcome_score_sum": 0.0},
+            "always_explore": {"wins": 0, "losses": 0, "ties": 0,
+                                "outcome_score_sum": 0.0},
+            "round_robin":    {"wins": 0, "losses": 0, "ties": 0,
+                                "outcome_score_sum": 0.0},
+            "last_best":      {"wins": 0, "losses": 0, "ties": 0,
+                                "outcome_score_sum": 0.0},
+        },
+        "cortex_outcome_score_sum": 0.0,
+        "n_outcome_evaluated": 0,
+        # Pour évaluer l'outcome au cycle suivant : on garde l'obs pré-action
+        "pending_eval": None,  # {pre_obs, chosen_action, baseline_choices}
+        "history_actions": [],  # liste des actions choisies par Cortex
     }
 
 
@@ -235,27 +254,74 @@ def expected_free_energy(action: str) -> float:
     return round(efe, 5)
 
 
+def _baseline_choice(name: str, actions: list[str], state: dict) -> str:
+    """Politiques naïves pour benchmarker Cortex contre quelque chose de bête."""
+    history = state.get("history_actions", [])
+    if name == "random":
+        return random.choice(actions)
+    if name == "always_reflect":
+        return "reflect" if "reflect" in actions else actions[0]
+    if name == "always_explore":
+        return "explore_graph" if "explore_graph" in actions else actions[0]
+    if name == "round_robin":
+        return actions[len(history) % len(actions)]
+    if name == "last_best":
+        # Action ayant donné le meilleur outcome_score historiquement
+        scored: dict[str, list[float]] = {}
+        for h in state.get("vfe_history", []):
+            a = h.get("chosen")
+            o = h.get("outcome_score")
+            if a is not None and isinstance(o, (int, float)):
+                scored.setdefault(a, []).append(o)
+        if scored:
+            ranked = sorted(scored.items(),
+                            key=lambda kv: sum(kv[1]) / len(kv[1]),
+                            reverse=True)
+            for a, _ in ranked:
+                if a in actions: return a
+        return random.choice(actions)
+    return random.choice(actions)
+
+
 def select_action(actions: list[str] | None = None) -> dict:
-    """Choisit l'action via Active Inference, avec comparaison à random baseline."""
+    """Choisit l'action via le scoring EFE-like, et logue le choix de chaque baseline.
+
+    NOTE — pourquoi un banc de baselines au lieu d'un seul random :
+    comparer Cortex à un seul random est trompeur, parce que le score Cortex est
+    défini sur la même fonction qu'on minimise — Cortex bat presque toujours
+    random sur les *prédictions* EFE. Le vrai test, c'est :
+    - chaque baseline naïve (random, always-X, round-robin, last-best) propose
+      AUSSI son action
+    - on note les actions de tout le monde
+    - au cycle SUIVANT on évalue l'*outcome observé* (delta compression_error,
+      delta n_active) du choix Cortex et on le compare à ce qu'aurait donné
+      chaque baseline (en utilisant le modèle de prédiction comme proxy)
+    """
     actions = actions or ["audit_ui", "explore_graph", "map_knowledge",
                           "discovery_report", "reflect", "propose_goal",
                           "look_around", "silent"]
-    # Score chaque action
+    state = _load_state()
+    # Score chaque action via EFE
     scored = [(a, expected_free_energy(a)) for a in actions]
     scored.sort(key=lambda x: x[1])  # plus bas = mieux
     chosen = scored[0][0]
     chosen_efe = scored[0][1]
-    # Baseline random : qu'est-ce qu'un random aurait choisi ?
-    random_action = random.choice(actions)
+    # Choix de chaque baseline naïve
+    baseline_choices = {
+        name: _baseline_choice(name, actions, state)
+        for name in ("random", "always_reflect", "always_explore",
+                     "round_robin", "last_best")
+    }
+    # Comparaison legacy à random sur l'EFE prédite (conservée pour compat)
+    random_action = baseline_choices["random"]
     random_efe = expected_free_energy(random_action)
-    # Comparaison : l'agent fait-il mieux que random ?
     if chosen_efe < random_efe - 0.001:
         comparison = "better_than_random"
     elif chosen_efe > random_efe + 0.001:
         comparison = "worse_than_random"
     else:
         comparison = "equal_to_random"
-    out = {
+    return {
         "ok": True,
         "ts": _now(),
         "chosen_action": chosen,
@@ -263,26 +329,114 @@ def select_action(actions: list[str] | None = None) -> dict:
         "random_action": random_action,
         "random_efe": random_efe,
         "comparison": comparison,
+        "baseline_choices": baseline_choices,
         "ranked": [{"action": a, "efe": e} for a, e in scored[:5]],
     }
-    return out
+
+
+def _outcome_score(pre_obs: dict, post_obs: dict) -> float:
+    """Score de qualité d'outcome observé : réduction compression_error +
+    activations gagnées (capées). Plus c'est haut, mieux c'est."""
+    score = 0.0
+    if isinstance(pre_obs.get("compression_error"), (int, float)) and \
+       isinstance(post_obs.get("compression_error"), (int, float)):
+        # réduction de compression_error → bon
+        score += (pre_obs["compression_error"] - post_obs["compression_error"]) * 10
+    if isinstance(pre_obs.get("n_active"), (int, float)) and \
+       isinstance(post_obs.get("n_active"), (int, float)):
+        delta = post_obs["n_active"] - pre_obs["n_active"]
+        # Activations gagnées (capées à 1.0 pour éviter qu'une explosion domine)
+        score += max(min(delta / 5.0, 1.0), -0.5)
+    if isinstance(pre_obs.get("n_pulses_cum"), (int, float)) and \
+       isinstance(post_obs.get("n_pulses_cum"), (int, float)):
+        delta = post_obs["n_pulses_cum"] - pre_obs["n_pulses_cum"]
+        # Pulses gagnés = un peu d'activité, bon signal mais marginal
+        score += max(min(delta / 20.0, 0.5), 0.0)
+    return round(score, 4)
+
+
+def _proxy_outcome_for_baseline(baseline_action: str, pre_obs: dict) -> float:
+    """Approxime l'outcome qu'aurait eu une baseline en utilisant la prédiction.
+
+    Limite assumée : on ne peut pas exécuter contrefactuellement chaque baseline.
+    On utilise donc le modèle de prédiction `_predict_state` comme proxy. Si le
+    modèle est mauvais, ça pénalise Cortex de la même façon que les baselines,
+    donc le ratio reste informatif pour comparer les politiques entre elles.
+    """
+    pred = _predict_state(baseline_action)
+    return _outcome_score(pre_obs, pred)
 
 
 def drive_step() -> dict:
-    """UN cycle complet d'Active Inference : observe + measure surprise + select + log."""
+    """UN cycle complet : observe + évalue l'outcome du cycle précédent +
+    nouvelle décision + logue le choix de chaque baseline pour évaluation au
+    cycle suivant.
+    """
     state = _load_state()
     surprise = measure_surprise()
+    current_obs = surprise.get("observed") or _observe_state()
+
+    # 1) Si un cycle précédent a laissé une éval pendante, on calcule :
+    #    - cortex_outcome_observed  : delta réel post-action (mesure honnêteté
+    #                                 du modèle prédictif vs réalité)
+    #    - cortex_outcome_proxy     : delta prédit par le modèle, apples-to-apples
+    #                                 avec les baselines pour comparer les politiques
+    #    Les win/losses contre baselines utilisent le proxy (apples-to-apples).
+    #    Le observed vs proxy donne la dérive prédiction-vs-réalité (anti-fake bonus).
+    eval_report = None
+    pending = state.get("pending_eval")
+    if pending and isinstance(pending, dict):
+        pre_obs = pending.get("pre_obs") or {}
+        cortex_action = pending.get("chosen_action")
+        cortex_outcome_observed = _outcome_score(pre_obs, current_obs)
+        cortex_outcome_proxy = _proxy_outcome_for_baseline(cortex_action, pre_obs) \
+            if cortex_action else 0.0
+        baselines_state = state.setdefault("baselines", {})
+        per_baseline = {}
+        for bname, baction in (pending.get("baseline_choices") or {}).items():
+            b_proxy = _proxy_outcome_for_baseline(baction, pre_obs)
+            per_baseline[bname] = {"action": baction,
+                                   "outcome_proxy": b_proxy}
+            entry = baselines_state.setdefault(
+                bname, {"wins": 0, "losses": 0, "ties": 0,
+                        "outcome_score_sum": 0.0})
+            # Apples-to-apples : Cortex proxy vs baseline proxy
+            if cortex_outcome_proxy > b_proxy + 0.01:
+                entry["wins"] = entry.get("wins", 0) + 1
+            elif cortex_outcome_proxy < b_proxy - 0.01:
+                entry["losses"] = entry.get("losses", 0) + 1
+            else:
+                entry["ties"] = entry.get("ties", 0) + 1
+            entry["outcome_score_sum"] = entry.get("outcome_score_sum", 0.0) + b_proxy
+        state["cortex_outcome_score_sum"] = (
+            state.get("cortex_outcome_score_sum", 0.0) + cortex_outcome_proxy)
+        state["cortex_outcome_observed_sum"] = (
+            state.get("cortex_outcome_observed_sum", 0.0) + cortex_outcome_observed)
+        state["n_outcome_evaluated"] = state.get("n_outcome_evaluated", 0) + 1
+        # Tag le dernier vfe_history avec le score réel (utile pour last_best)
+        vh = state.get("vfe_history", [])
+        if vh:
+            vh[-1]["outcome_score"] = cortex_outcome_observed
+            vh[-1]["outcome_proxy"] = cortex_outcome_proxy
+        eval_report = {
+            "cortex_action": cortex_action,
+            "cortex_outcome_proxy": cortex_outcome_proxy,
+            "cortex_outcome_observed": cortex_outcome_observed,
+            "prediction_error": round(
+                abs(cortex_outcome_proxy - cortex_outcome_observed), 4),
+            "baselines": per_baseline,
+        }
+
+    # 2) Nouvelle sélection d'action
     selection = select_action()
-    # Calcule la VFE actuelle = surprise observée
     vfe = surprise.get("surprise", 0)
-    # Mémorise la prédiction pour le prochain cycle
     new_prediction = _predict_state(selection["chosen_action"])
-    state["last_observed_state"] = surprise.get("observed")
+    state["last_observed_state"] = current_obs
     state["last_predicted_state"] = new_prediction
     state["n_steps"] = state.get("n_steps", 0) + 1
-    history = state.get("surprise_history", [])
-    history.append({"ts": _now(), "surprise": vfe})
-    state["surprise_history"] = history[-30:]
+    hist = state.get("surprise_history", [])
+    hist.append({"ts": _now(), "surprise": vfe})
+    state["surprise_history"] = hist[-30:]
     vfe_history = state.get("vfe_history", [])
     vfe_history.append({"ts": _now(), "vfe": vfe,
                         "chosen": selection["chosen_action"],
@@ -294,6 +448,18 @@ def drive_step() -> dict:
         state["n_worse_than_random"] = state.get("n_worse_than_random", 0) + 1
     else:
         state["n_equal_to_random"] = state.get("n_equal_to_random", 0) + 1
+    # 3) Pose l'éval pendante pour le prochain cycle
+    state["pending_eval"] = {
+        "pre_obs": current_obs,
+        "chosen_action": selection["chosen_action"],
+        "baseline_choices": selection.get("baseline_choices", {}),
+        "ts": _now(),
+    }
+    # 4) Historique des actions Cortex (pour round_robin baseline)
+    actions_hist = state.get("history_actions", [])
+    actions_hist.append(selection["chosen_action"])
+    state["history_actions"] = actions_hist[-100:]
+
     _save_state(state)
     rep = {
         "ok": True,
@@ -302,6 +468,8 @@ def drive_step() -> dict:
         "chosen_action": selection["chosen_action"],
         "chosen_efe": selection["chosen_efe"],
         "comparison_to_random": selection["comparison"],
+        "baseline_choices": selection.get("baseline_choices", {}),
+        "outcome_eval_prev_cycle": eval_report,
         "n_steps": state["n_steps"],
     }
     _log_event({"type": "drive_step", **{k: v for k, v in rep.items() if k != "ts"}})
@@ -320,6 +488,23 @@ def stats() -> dict:
     n_total = (s.get("n_better_than_random", 0) +
                s.get("n_worse_than_random", 0) +
                s.get("n_equal_to_random", 0))
+    # Win-rate Cortex contre chaque baseline naïve, sur les outcomes observés
+    baselines = s.get("baselines", {}) or {}
+    n_eval = s.get("n_outcome_evaluated", 0) or 0
+    cortex_avg_outcome = (s.get("cortex_outcome_score_sum", 0.0) / n_eval
+                          if n_eval > 0 else None)
+    cortex_avg_observed = (s.get("cortex_outcome_observed_sum", 0.0) / n_eval
+                           if n_eval > 0 else None)
+    baseline_summary = {}
+    for bname, b in baselines.items():
+        nw = b.get("wins", 0); nl = b.get("losses", 0); nt = b.get("ties", 0)
+        ntot = nw + nl + nt
+        avg_out = (b.get("outcome_score_sum", 0.0) / ntot) if ntot > 0 else None
+        baseline_summary[bname] = {
+            "wins": nw, "losses": nl, "ties": nt, "n": ntot,
+            "win_rate": round(nw / ntot, 3) if ntot > 0 else None,
+            "avg_outcome_proxy": round(avg_out, 4) if avg_out is not None else None,
+        }
     return {
         "n_steps": s.get("n_steps", 0),
         "n_better_than_random": s.get("n_better_than_random", 0),
@@ -330,6 +515,17 @@ def stats() -> dict:
         "late_avg_surprise": round(late, 4) if late is not None else None,
         "surprise_trend": round(surprise_trend, 4) if surprise_trend is not None else None,
         "is_learning": (surprise_trend is not None and surprise_trend < 0),
+        # NOUVEAU : banc de baselines (apples-to-apples sur prédiction)
+        "n_outcome_evaluated": n_eval,
+        "cortex_avg_outcome_proxy": (round(cortex_avg_outcome, 4)
+                                      if cortex_avg_outcome is not None else None),
+        "cortex_avg_outcome_observed": (round(cortex_avg_observed, 4)
+                                         if cortex_avg_observed is not None else None),
+        "model_calibration_note": "outcome_observed << outcome_proxy → modèle "
+                                   "de prédiction trop optimiste (effets d'action "
+                                   "sur-évalués) ; outcome_observed ≈ proxy → bonne "
+                                   "calibration",
+        "vs_baselines": baseline_summary,
     }
 
 

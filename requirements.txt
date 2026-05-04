@@ -1,0 +1,15 @@
+# Dépendances Python pour Cortex (testées sur Python 3.11, Windows 10/11)
+# numpy < 2 car sklearn 1.5.x compatible numpy 1.26 — voir feedback dépendance
+numpy<2.0
+scikit-learn>=1.4,<1.6
+opencv-python>=4.9
+psutil>=5.9
+pillow>=10.0
+requests>=2.31
+
+# Optionnels (LLM local)
+# Charger LM Studio + un modèle 7B-35B sur localhost:1234
+# Pas de dépendance pip car Cortex parle HTTP/OpenAI-compat directement
+
+# Optionnels (vision sémantique)
+# Charger qwen2-vl ou llava dans LM Studio — pas de pip

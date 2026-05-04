@@ -38,9 +38,13 @@ code/
    ```
 3. Optionnel : LM Studio + qwen3.6-35b-a3b sur localhost:1234 (pour LLM local)
    ou `OPENROUTER_API_KEY` env var (fallback).
-4. Lance le serveur :
+4. Lance le serveur (depuis `code/`) :
    ```
-   python brain/dashboard/serve.py
+   python dashboard/serve.py
+   ```
+   ou depuis la racine du repo :
+   ```
+   python code/dashboard/serve.py
    ```
 5. Ouvre `http://127.0.0.1:8765/gpu`
 

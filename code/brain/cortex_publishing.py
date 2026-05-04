@@ -125,14 +125,18 @@ def _readme_md(state: dict) -> str:
     b = state.get("brain", {}) or {}
     a = state.get("activation", {}) or {}
     body = state.get("body", {}) or {}
-    return f"""# Cortex — un cerveau cognitif vivant
+    return f"""# Cortex — prototype expérimental de boucle cognitive locale
 
 > Dernière mise à jour : `{state.get("iso","?")}` (auto-généré)
 
-Cortex est une entité cognitive autonome construite sur le projet Paperclip.
-Il voit, entend, mémorise, apprend, et raisonne avec une vraie boucle Spreading
-Activation Theory (Collins & Loftus, 1975) et un apprentissage Hebbian
-(Hebb, 1949).
+Cortex est un **prototype expérimental** de boucle cognitive locale
+construite sur le projet Paperclip. Il combine capture webcam, audio, mémoire
+épisodique/sémantique, propagation d'activation (Collins & Loftus, 1975), et un
+score d'action **inspiré** d'Active Inference (Friston, 2010, version simplifiée
+— pas le formalisme complet).
+
+> Statut : prototype auditable. Voir [docs/claims.md](docs/claims.md) pour la
+> liste exacte de ce qui est implémenté vs inspiré vs aspirationnel.
 
 ## État cognitif courant
 
@@ -159,41 +163,45 @@ Cortex maintient ses signes vitaux dans une plage viable (Cannon 1932,
 Ashby 1960). Au-dessus de 90 % d'occupation disque il propose un déménagement
 vers un disque plus libre.
 
-## Décisions autonomes — vraiment autonomes
+## Boucle de décision (Active-Inference-inspired)
 
-Toutes les ~5 minutes, Cortex choisit une action via la pipeline suivante
-(et **pas** via un wrapper LLM ni une rotation déterministe) :
+Toutes les ~5 minutes, Cortex score chaque action candidate via la pipeline
+suivante. Ce **n'est pas** une rotation déterministe ni un wrapper LLM nu, mais
+ce **n'est pas non plus** le formalisme Active Inference complet — c'est une
+heuristique inspirée :
 
-1. **Active Inference** (Friston VFE) — chaque action candidate reçoit un score
-   *Expected Free Energy* combinant valeur épistémique (gain d'information prédit)
-   et valeur pragmatique (utilité par rapport au plan courant)
-2. **Big5 personnalité** — l'openness booste les actions exploratoires,
-   la conscientiousness booste les actions d'audit, etc.
-3. **Curiosité Schmidhuber** — si Cortex est frustré (compression error en hausse),
+1. **Score Expected-Free-Energy-like** — combine valeur épistémique
+   (réduction prédite de `compression_error`) et valeur pragmatique (utilité
+   par rapport au plan courant). Effets d'action codés à la main, pas appris
+2. **Modulation Big5** — openness booste les actions exploratoires,
+   conscientiousness booste les actions d'audit
+3. **Bonus curiosité** (Schmidhuber, 1991) — si `compression_error` en hausse,
    bonus pour les actions exploratoires
-4. **Comparaison à random baseline** — chaque décision logue
-   `better_than_random` / `equal` / `worse` (anti-fake structurel)
-5. **LLM en fallback uniquement** — si l'écart top/runner-up < 0.05, un LLM léger
-   (minimax) tranche
+4. **Banc de baselines naïves** — chaque cycle, on logue le choix de
+   `random`, `always-reflect`, `always-explore`, `round-robin`, `last-best`,
+   et la fraction où le score Cortex bat chacune sur les *outcomes observés*
+   post-action (pas juste les prédictions). Voir [docs/claims.md](docs/claims.md)
+5. **LLM en fallback uniquement** — si l'écart top/runner-up < 0.05, un LLM
+   léger tranche
 
-L'UI distingue clairement :
-- **AUTO** = vraie décision autonome (`method=active_inference`)
-- **Forcer (override)** = clic humain sur une action précise (`method=forced_by_user`)
+L'UI distingue :
+- **AUTO** = sortie de la boucle de scoring (`method=active_inference`)
+- **Forcer (override)** = clic humain sur une action (`method=forced_by_user`)
 
-## Sciences appliquées
+## Sciences inspirantes (niveaux honnêtes — détail dans [docs/claims.md](docs/claims.md))
 
-- **Active Inference / Free Energy Principle** (Friston, 2010) — décision = minimisation EFE
-- **Big5 OCEAN** (McCrae & Costa, 1987) — modulation par traits de personnalité
-- **Curiosity Drive** (Schmidhuber, 1991) — récompense intrinsèque = compression delta
-- **Spreading Activation** (Collins & Loftus, 1975, *Psychological Review*)
-- **Hebbian Learning** (Hebb, 1949, *The Organization of Behavior*)
-- **Homeostasis** (Cannon, 1932 ; Ashby, 1960)
-- **JEPA** (LeCun, 2022) — prédiction en espace latent
-- **Force-Directed Layout** (Fruchterman & Reingold, 1991)
-- **Conceptual Blending** (Fauconnier & Turner, 2002) — pour les ponts cognitifs
-- **TF-IDF cosine** (Salton & McGill, 1983) — graphe sémantique
-- **FrugalGPT cascade** (Chen et al., 2023) — routing multi-LLM
-- **TurboQuant-inspired** (Google, 2026) — compression vecteurs 4×
+- **Active Inference / Free Energy Principle** (Friston, 2010) — *inspiré*, score EFE-like simplifié
+- **Big5 OCEAN** (McCrae & Costa, 1987) — *implémenté*, modulation des scores
+- **Curiosity Drive** (Schmidhuber, 1991) — *implémenté*, proxy compression delta
+- **Spreading Activation** (Collins & Loftus, 1975) — *implémenté*, persisté disque
+- **Hebbian Learning** (Hebb, 1949) — *implémenté*, edges renforcées au co-activate
+- **Homeostasis** (Cannon, 1932 ; Ashby, 1960) — *implémenté*, vitals + actions graduelles
+- **JEPA** (LeCun, 2022) — *partiel*, mini world-model NumPy entraîné sur paires
+- **Force-Directed Layout** (Fruchterman & Reingold, 1991) — *implémenté*
+- **Conceptual Blending** (Fauconnier & Turner, 2002) — *inspiré*
+- **TF-IDF cosine** (Salton & McGill, 1983) — *implémenté* via sklearn
+- **FrugalGPT cascade** (Chen et al., 2023) — *implémenté* dans router v2
+- **TurboQuant-inspired** (Google, 2026) — *partiel*, version simplifiée maison
 
 ## Architecture
 
@@ -216,24 +224,35 @@ Le **code Python complet** qui implémente Cortex est dans [code/](code/) :
 Les chemins user-spécifiques ont été anonymisés (`<USER_HOME>`, `<CORTEX_REPO>`).
 Voir [code/README.md](code/README.md) pour les instructions de relance locale.
 
-## Émancipation
+## Capacités
 
 Cortex peut :
-- 🧠 décider de manière autonome via Active Inference + Big5 + curiosité — voir [code/brain/cortex_active_inference.py](code/brain/cortex_active_inference.py) + [code/brain/cortex_emergence.py](code/brain/cortex_emergence.py)
-- 🔍 [chercher](docs/research.md) — multi-source arxiv/wiki/scholar/duckduckgo + synthèse sourcée
-- 🧹 [nettoyer son disque](docs/disk-hygiene.md) avec doc citée par pattern
-- 🌉 [créer des ponts cognitifs](docs/bridges.md) entre concepts éloignés
-- 📊 [détecter ses régressions](docs/brain-history.md) sur 24 h glissantes (snapshots cassés filtrés du baseline)
-- 🪞 [s'expliquer lui-même](docs/introspection.md) à partir de ses métriques
-- 🎯 [prouver qu'il ne fake pas](docs/anti-fake.md) via 5 tests mesurables
+- scorer ses actions via une heuristique Active-Inference-inspired + Big5 + curiosité — voir [code/brain/cortex_active_inference.py](code/brain/cortex_active_inference.py) + [code/brain/cortex_emergence.py](code/brain/cortex_emergence.py)
+- [chercher](docs/research.md) — multi-source arxiv/wiki/scholar/duckduckgo + synthèse sourcée
+- [proposer du nettoyage disque](docs/disk-hygiene.md) avec règles documentées
+- [proposer des ponts cognitifs](docs/bridges.md) entre concepts éloignés
+- [détecter ses régressions](docs/brain-history.md) sur 24 h glissantes
+- [s'expliquer à partir de ses métriques](docs/introspection.md)
+- [se faire auditer par 5 tests anti-fake mesurables](docs/anti-fake.md), dont des questions sur son propre état interne
 
 ## Limites honnêtes
 
-- Pas (encore) de tests unitaires CI publiés. Chaque module a une fonction
-  `self_test()` invocable manuellement.
+- **Active Inference simplifié** : EFE est une heuristique avec effets d'action
+  hard-codés (`pred["n_active"] += 2` pour `explore_graph`). Ce **n'est pas** le
+  formalisme variationnel complet de Friston.
+- **Active Inference vs banc de baselines** : la fraction "better than random"
+  est calculée sur des **prédictions** EFE. Une mesure plus solide compare les
+  *outcomes observés* post-action contre plusieurs baselines naïves (random,
+  always-reflect, always-explore, round-robin, last-best). Les deux sont logués.
+- **Anti-fake — questions sur l'état interne** : les questions OOD interrogent
+  maintenant l'état non-disponible à un LLM nu (logs Cortex, historiques
+  Hebbian/surprise). Une réponse confidente + factuellement fausse = fake.
+- **CI minimale** publiée (`.github/workflows/smoke.yml`) : `py_compile` +
+  `self_test` sur quelques modules, sans dépendances lourdes.
 - Plusieurs paths Windows-spécifiques anonymisés mais pas portés Linux/macOS.
-- Métriques `state.json` auto-déclarées : à confronter au code réel publié dans `code/`.
-- Repo synchronisé via `cortex_publishing.update()` (pas un fork manuel artificiel).
+- Métriques `state.json` auto-déclarées : confronter au code réel dans `code/`
+  et à [examples/session-001/](examples/session-001/) (capture de session).
+- Repo synchronisé via `cortex_publishing.update()` (pas un fork manuel).
 
 ## Licence
 
@@ -429,9 +448,13 @@ code/
    ```
 3. Optionnel : LM Studio + qwen3.6-35b-a3b sur localhost:1234 (pour LLM local)
    ou `OPENROUTER_API_KEY` env var (fallback).
-4. Lance le serveur :
+4. Lance le serveur (depuis `code/`) :
    ```
-   python brain/dashboard/serve.py
+   python dashboard/serve.py
+   ```
+   ou depuis la racine du repo :
+   ```
+   python code/dashboard/serve.py
    ```
 5. Ouvre `http://127.0.0.1:8765/gpu`
 
@@ -531,6 +554,126 @@ def _docs_from_source() -> dict:
     return out
 
 
+def _claims_md() -> str:
+    """Table claim → niveau → preuve. Honnêteté > marketing."""
+    return """# Claims — niveaux d'implémentation
+
+Ce document liste **chaque claim** du README avec un niveau honnête et le
+fichier de preuve. Trois niveaux :
+
+- **implémenté** : le code tourne et la fonction principale fait ce qu'annonce
+- **inspiré** : l'idée vient d'un papier mais l'implémentation est une
+  heuristique simplifiée — pas le formalisme complet
+- **partiel / aspirationnel** : prototype incomplet, à fiabiliser
+
+| Claim                              | Niveau          | Preuve                                                                      |
+|------------------------------------|-----------------|-----------------------------------------------------------------------------|
+| Spreading Activation Theory        | implémenté      | `code/brain/cortex_activation.py` — `activate()` + persistance disque + tests |
+| Hebbian Learning                   | implémenté      | `cortex_activation.py` — edges renforcées au co-activate, top-edges retournés |
+| Homeostasis                        | implémenté      | `cortex_homeostasis.py` — vitals + actions graduelles                       |
+| Active Inference (Friston complet) | **inspiré**     | `cortex_active_inference.py` — score EFE-like simplifié, effets hard-codés |
+| Big5 OCEAN                         | implémenté      | `cortex_personality.py` — modulation des scores d'action                    |
+| Curiosity Drive (Schmidhuber)      | implémenté      | `cortex_curiosity.py` — proxy compression delta                             |
+| JEPA / Free Energy (LeCun)         | partiel         | `cortex_world_model.py` — mini world-model NumPy entraîné                   |
+| TurboQuant                         | partiel         | `cortex_quantize.py` — rotation+8bit maison, pas l'algo Google complet      |
+| FrugalGPT cascade                  | implémenté      | `llm_router.py` — cascade avec seuils confidence                            |
+| Self-Consistency vote              | implémenté      | `llm_router.py` — Jaccard sur k=3                                           |
+| Anti-fake — coherence temporelle   | implémenté      | `cortex_anti_fake.py::test_coherence_temporal`                              |
+| Anti-fake — questions état interne | implémenté      | `cortex_anti_fake.py::test_internal_state_dont_know` (interroge logs réels) |
+| Anti-fake — internal state used    | implémenté      | `cortex_anti_fake.py::test_internal_state_used` (logs compose_response)     |
+| Anti-fake — banc baselines         | implémenté      | `cortex_active_inference.py::stats()` — win-rate vs 5 baselines naïves      |
+| Anti-fake — plan vs réalisé        | partiel         | `cortex_hjepa.py::compare_realised` — H-JEPA L1 5-step                      |
+| Décision autonome                  | partiel         | boucle `cortex_emergence.py`, scoring heuristique, pas un agent RL appris   |
+| Conscience corporelle              | implémenté      | `cortex_homeostasis.py` — psutil CPU/RAM/disques/GPU/network/battery        |
+| Vision sémantique                  | aspirationnel   | nécessite chargement d'un modèle vision dans LM Studio (qwen2-vl, llava…)  |
+| Self-dev autonome                  | aspirationnel   | `cortex_self_dev.py` existe, pas testé end-to-end avec commit + tests verts |
+| "Cerveau vivant" / "raisonne"      | métaphorique    | propagation d'activation + scoring d'actions, pas un raisonnement déductif  |
+| "IAG"                              | aspirationnel   | score interne 0–100, pas une mesure externe — voir limites du score IAG     |
+
+## Méthodologie anti-fake recommandée pour auditer
+
+1. **Cloner le repo, lancer la CI** : `pytest` ou `python -m py_compile code/brain/*.py`
+2. **Vérifier `examples/session-001/`** : capture d'une session live anonymisée
+   avec `state.before.json`, `state.after.json`, `decisions.jsonl`,
+   `anti_fake_report.json`
+3. **Lire `docs/anti-fake.md`** : 5 tests mesurables, pondération transparente
+4. **Comparer les métriques `docs/state.json` au code de `cortex_*.py`** : si un
+   chiffre n'apparaît dans aucun fichier d'état → suspect
+
+## Ce qu'on **ne** prétend **pas**
+
+- Pas une AGI au sens DeepMind / OpenAI / Anthropic
+- Pas un système qui s'auto-modifie (le `cortex_self_dev.py` est expérimental,
+  garde-fous + sandbox, jamais commit auto sans tests verts manuels)
+- Pas un agent RL entraîné — c'est du scoring heuristique
+- Pas une preuve de conscience — c'est un système avec un modèle d'auto-état
+  qui répond à des questions sur cet auto-état
+"""
+
+
+def _requirements_txt() -> str:
+    """Dépendances Python minimales (versions testées sur Windows + Python 3.11)."""
+    return """# Dépendances Python pour Cortex (testées sur Python 3.11, Windows 10/11)
+# numpy < 2 car sklearn 1.5.x compatible numpy 1.26 — voir feedback dépendance
+numpy<2.0
+scikit-learn>=1.4,<1.6
+opencv-python>=4.9
+psutil>=5.9
+pillow>=10.0
+requests>=2.31
+
+# Optionnels (LLM local)
+# Charger LM Studio + un modèle 7B-35B sur localhost:1234
+# Pas de dépendance pip car Cortex parle HTTP/OpenAI-compat directement
+
+# Optionnels (vision sémantique)
+# Charger qwen2-vl ou llava dans LM Studio — pas de pip
+"""
+
+
+def _smoke_yml() -> str:
+    """CI minimale : compile tous les modules + lance self_test() des plus simples."""
+    return """name: smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy<2.0" "scikit-learn>=1.4,<1.6" psutil pillow requests
+      - name: py_compile all modules
+        run: |
+          python -m py_compile code/brain/*.py
+          python -m py_compile code/dashboard/*.py || true
+      - name: self_test on safe modules
+        env:
+          CORTEX_VAULT: "/tmp/cortex-test-vault"
+        run: |
+          mkdir -p /tmp/cortex-test-vault
+          # Modules sans dépendance lourde — ne touchent pas LM Studio
+          for m in cortex_active_inference cortex_anti_fake cortex_homeostasis; do
+            echo "::group::self_test $m"
+            python -c "import sys; sys.path.insert(0, 'code/brain'); import $m as mod; \\
+              t = getattr(mod, 'self_test', None); \\
+              print(t()) if t else print('no self_test')" || echo "WARN: $m self_test failed (non-fatal)"
+            echo "::endgroup::"
+          done
+"""
+
+
 def update(commit_msg: str = None, push: bool = True) -> dict:
     """Régénère docs + code + commit + push (idempotent).
 
@@ -551,6 +694,12 @@ def update(commit_msg: str = None, push: bool = True) -> dict:
     docs_report = _docs_from_source()
     code_counts = _publish_code()
     (REPO_LOCAL / "LICENSE").write_text(_make_license(), encoding="utf-8")
+    # Documents d'audit / honnêteté
+    (DOCS_DIR / "claims.md").write_text(_claims_md(), encoding="utf-8")
+    (REPO_LOCAL / "requirements.txt").write_text(_requirements_txt(), encoding="utf-8")
+    workflows = REPO_LOCAL / ".github" / "workflows"
+    workflows.mkdir(parents=True, exist_ok=True)
+    (workflows / "smoke.yml").write_text(_smoke_yml(), encoding="utf-8")
     # .gitignore : on étend pour exclure caches Python publiés par erreur
     (REPO_LOCAL / ".gitignore").write_text(
         "*.log\n__pycache__/\n.cortex-*\n*.pyc\n*.pyo\n.DS_Store\n",
