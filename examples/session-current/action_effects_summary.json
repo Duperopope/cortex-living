@@ -1,12 +1,12 @@
 {
-  "ts": 1777909972.7559378,
+  "ts": 1777910631.0669858,
   "min_samples": 8,
   "window": 30,
   "n_actions_observed": 3,
   "empirical_predictions_count": 3,
   "heuristic_fallback_count": 0,
   "empirical_ratio": 1.0,
-  "prediction_error_avg_global": 2.04791,
+  "prediction_error_avg_global": 2.13659,
   "actions": {
     "explore_graph": {
       "n_examples": 30,
@@ -29,7 +29,7 @@
       ]
     },
     "audit_ui": {
-      "n_examples": 21,
+      "n_examples": 22,
       "status": "learned",
       "fields_with_signal": [
         "compression_error",
@@ -51,8 +51,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": 0.13333,
-          "std": 5.46951,
+          "mean": -0.86667,
+          "std": 3.34398,
           "n": 30
         },
         "compression_error": {
@@ -61,18 +61,18 @@
           "n": 30
         },
         "cpu": {
-          "mean": 0.55,
-          "std": 8.31287,
+          "mean": 1.44333,
+          "std": 7.29725,
           "n": 30
         },
         "ram": {
-          "mean": 0.19667,
-          "std": 1.14324,
+          "mean": 0.15,
+          "std": 1.19324,
           "n": 30
         }
       },
-      "prediction_error_avg": 1.47778,
-      "observability": "medium"
+      "prediction_error_avg": 1.30667,
+      "observability": "high"
     },
     "map_knowledge": {
       "n_examples": 30,
@@ -109,7 +109,7 @@
       "observability": "high"
     },
     "audit_ui": {
-      "n_examples": 21,
+      "n_examples": 22,
       "status": "learned",
       "fields_with_signal": [
         "compression_error",
@@ -119,27 +119,27 @@
       ],
       "means": {
         "n_active": {
-          "mean": -4.09524,
-          "std": 7.07716,
-          "n": 21
+          "mean": -2.77273,
+          "std": 9.19452,
+          "n": 22
         },
         "compression_error": {
           "mean": 0.0,
           "std": 0.0,
-          "n": 21
+          "n": 22
         },
         "cpu": {
-          "mean": 1.35238,
-          "std": 8.62768,
-          "n": 21
+          "mean": 0.55909,
+          "std": 9.1798,
+          "n": 22
         },
         "ram": {
-          "mean": 0.8,
-          "std": 0.93197,
-          "n": 21
+          "mean": 0.78636,
+          "std": 0.91269,
+          "n": 22
         }
       },
-      "prediction_error_avg": 2.24036,
+      "prediction_error_avg": 2.79545,
       "observability": "high"
     }
   },
