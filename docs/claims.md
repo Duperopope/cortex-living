@@ -31,6 +31,9 @@ fichier de preuve. Trois niveaux :
 | Self-dev autonome                  | aspirationnel   | `cortex_self_dev.py` existe, pas testé end-to-end avec commit + tests verts |
 | "Cerveau vivant" / "raisonne"      | métaphorique    | propagation d'activation + scoring d'actions, pas un raisonnement déductif  |
 | "IAG"                              | aspirationnel   | score interne 0–100, pas une mesure externe — voir limites du score IAG     |
+| Apprentissage des effets d'action  | implémenté v1   | `cortex_action_effects.py` — moyenne empirique des deltas observés, fenêtre glissante 30 ex. ; remplace progressivement les heuristiques hardcodées dans `_predict_state` (mode `empirical` quand n>=8/action) |
+| Boucle décision unifiée            | implémenté      | `cortex_emergence._emergence_loop` appelle `drive_step(execute=True)` — scoring EFE + exécution réelle via TOOLS + apprentissage des effets en un seul cycle |
+| Bridge Claude Code (contexte vivant) | implémenté    | `cortex_claude_code.py` génère `.cortex-claude-context.md` ; `CLAUDE.md` du repo Paperclip pointe dessus ; refresh auto tous les 6 cycles dans la boucle |
 
 ## Méthodologie anti-fake recommandée pour auditer
 

@@ -177,6 +177,10 @@ def _heuristic_predict(action: str | None, obs: dict) -> dict:
         pred["compression_error"] = obs.get("compression_error", 0.5) - 0.008
     elif action == "look_around":
         pred["n_active"] = obs.get("n_active", 0) + 1
+    elif action == "update_claude_context":
+        # Petit effet : rafraîchir le contexte de Claude Code est un acte de
+        # synthèse qui structure légèrement l'état. Pas un gros driver.
+        pred["compression_error"] = obs.get("compression_error", 0.5) - 0.003
     elif action == "silent":
         pass  # rien ne change
     return pred
@@ -353,7 +357,7 @@ def select_action(actions: list[str] | None = None) -> dict:
     """
     actions = actions or ["audit_ui", "explore_graph", "map_knowledge",
                           "discovery_report", "reflect", "propose_goal",
-                          "look_around", "silent"]
+                          "look_around", "update_claude_context", "silent"]
     state = _load_state()
     # Score chaque action via EFE
     scored = [(a, expected_free_energy(a)) for a in actions]
@@ -421,10 +425,45 @@ def _proxy_outcome_for_baseline(baseline_action: str, pre_obs: dict) -> float:
     return _outcome_score(pre_obs, pred)
 
 
-def drive_step() -> dict:
+def _execute_action(action: str) -> dict:
+    """Exécute *réellement* l'action choisie via cortex_emergence.TOOLS.
+
+    Sans ça, drive_step ne déclencherait aucun side-effect observable et
+    l'apprentissage des effets dans cortex_action_effects convergerait vers 0.
+    Branché ici plutôt que duppliqué : cortex_emergence définit déjà la table
+    canonique des outils (`explore_graph`, `audit_ui`, etc.).
+    """
+    if not action or action == "silent":
+        return {"ok": True, "result": "silent (no-op)", "executed": False}
+    try:
+        em = _safe_import("cortex_emergence")
+        if not em or not hasattr(em, "TOOLS"):
+            return {"ok": False, "executed": False,
+                    "result": "cortex_emergence.TOOLS unavailable"}
+        tool = em.TOOLS.get(action)
+        if not tool:
+            return {"ok": False, "executed": False,
+                    "result": f"no tool for action {action}"}
+        out = tool() or {}
+        out["executed"] = True
+        return out
+    except Exception as e:
+        return {"ok": False, "executed": False,
+                "result": f"executor exception: {e}"[:200]}
+
+
+def drive_step(execute: bool = False) -> dict:
     """UN cycle complet : observe + évalue l'outcome du cycle précédent +
     nouvelle décision + logue le choix de chaque baseline pour évaluation au
     cycle suivant.
+
+    Args:
+        execute: si True, déclenche réellement l'action choisie via
+                 `cortex_emergence.TOOLS`. Sans ça, drive_step est en mode
+                 "scoring only" — utile pour les tests, dangereux en prod
+                 si on veut un système qui APPREND ses effets réels.
+                 La boucle de production (cortex_emergence._loop ou un
+                 watchdog) doit appeler `drive_step(execute=True)`.
     """
     state = _load_state()
     surprise = measure_surprise()
@@ -523,6 +562,19 @@ def drive_step() -> dict:
     actions_hist.append(selection["chosen_action"])
     state["history_actions"] = actions_hist[-100:]
 
+    # 5) EXÉCUTION RÉELLE de l'action choisie (si execute=True)
+    # Avant ce branchement, drive_step ne déclenchait aucun side-effect → les
+    # outcomes observés convergeaient vers 0 et l'apprentissage des effets
+    # dans cortex_action_effects était vide. En branchant cortex_emergence.TOOLS
+    # comme exécuteur, l'action a un effet réel sur l'état (n_active monte si
+    # explore_graph appelle wander_once, etc.) et le cycle suivant pourra
+    # mesurer le vrai delta.
+    exec_report = None
+    if execute:
+        exec_report = _execute_action(selection["chosen_action"])
+        # On logue dans pending_eval pour traçabilité
+        state["pending_eval"]["execution"] = exec_report
+
     _save_state(state)
     rep = {
         "ok": True,
@@ -533,6 +585,7 @@ def drive_step() -> dict:
         "comparison_to_random": selection["comparison"],
         "baseline_choices": selection.get("baseline_choices", {}),
         "outcome_eval_prev_cycle": eval_report,
+        "execution": exec_report,
         "n_steps": state["n_steps"],
     }
     _log_event({"type": "drive_step", **{k: v for k, v in rep.items() if k != "ts"}})

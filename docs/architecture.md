@@ -16,6 +16,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_brain_history` |  |
 | `cortex_bridge` |  |
 | `cortex_causal` |  |
+| `cortex_claude_code` |  |
 | `cortex_continuous` |  |
 | `cortex_curiosity` |  |
 | `cortex_dialogue` |  |

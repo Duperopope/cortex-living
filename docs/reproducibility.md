@@ -54,3 +54,23 @@ diff -u examples/session-001/anti_fake_report.json my_anti_fake.json | head -50
    vault il sera figé à 0.5
 3. Pour comparer politique-vs-politique, attendre au moins 50 cycles —
    `n_outcome_evaluated=2` ne suffit pas à conclure
+4. **Mode exécution réelle** : tu DOIS appeler `drive_step(execute=True)` (pas
+   le défaut `execute=False` qui est scoring-only). Sinon les outcomes
+   observés resteront à 0 et l'apprentissage des effets sera vide.
+
+## Comment Claude Code se branche au système
+
+Si tu utilises Claude Code (Anthropic CLI), un `CLAUDE.md` dans la racine
+demande à l'agent de lire `.cortex-claude-context.md` au démarrage. Ce
+fichier est régénéré tous les 6 cycles par la boucle d'émergence (constante
+`CONTEXT_REFRESH_EVERY` dans `cortex_emergence.py`). Tu peux aussi le
+forcer à la main :
+
+```bash
+python code/brain/cortex_claude_code.py update
+```
+
+Le contenu : état Active Inference, statut apprentissage par action
+(empirical / fallback), graphe, body, dernier rapport anti-fake, 5 dernières
+décisions. Pas de PII (les noms de nœuds étaient déjà hashés à la
+publication ; ce contexte reste local de toute façon).

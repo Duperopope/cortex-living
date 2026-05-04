@@ -19,9 +19,9 @@ runtime réels.
 ## Chiffres clés
 
 - Cycles observés : 10
-- Steps totaux : 47
-- Fraction "better than random" sur EFE prédit : 0.83
-- Cycles avec outcome évalué : 5
+- Steps totaux : 59
+- Fraction "better than random" sur EFE prédit : 0.814
+- Cycles avec outcome évalué : 8
 
 ## Note honnête sur le score anti-fake
 
@@ -54,6 +54,26 @@ Chaque ligne contient :
 Si `outcome_score << outcome_proxy` systématiquement, ça signale que le
 modèle de prédiction sur-estime les effets d'action — exactement le genre de
 calibration que `docs/claims.md` rappelle d'auditer.
+
+## Architecture unifiée (depuis ce commit)
+
+Avant : `cortex_emergence._loop` faisait scoring + exécution séparément.
+`drive_step` était scoring-only ; aucun apprentissage ne se faisait dans la
+boucle de production.
+
+Maintenant : **un seul point d'entrée** —
+`cortex_active_inference.drive_step(execute=True)` — qui :
+
+1. Calcule la surprise observée (delta prédiction vs réalité du cycle précédent)
+2. Score chaque action via EFE-like + pénalité de répétition
+3. Sélectionne l'action gagnante + logue le choix de chaque baseline naïve
+4. **Exécute réellement** via `cortex_emergence.TOOLS[action]()`
+5. **Enregistre** `(pre_obs, action, post_obs)` pour apprentissage
+6. Tous les 6 cycles, **rafraîchit** `.cortex-claude-context.md` pour Claude Code
+
+`cortex_emergence._emergence_loop` est désormais juste un *throttle + idle
+guard* qui appelle `drive_step(execute=True)`. La logique de décision n'est
+plus dupliquée.
 
 ## Reproduire chez toi
 

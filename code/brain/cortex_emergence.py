@@ -43,10 +43,17 @@ MIN_USER_IDLE_SEC = 30    # ne pas interrompre si user actif < 30s
 
 def _log(msg: str):
     line = f"[{dt.datetime.now().isoformat(timespec='seconds')}] {msg}"
-    print(line, flush=True)
+    # Fichier toujours en utf-8 (peut contenir →, é, etc.)
     try:
         with open(LOG_FILE, "a", encoding="utf-8") as f: f.write(line + "\n")
     except Exception: pass
+    # Stdout : sur Windows cp1252 par défaut, fallback ASCII si nécessaire
+    try:
+        print(line, flush=True)
+    except UnicodeEncodeError:
+        try:
+            print(line.encode("ascii", "replace").decode("ascii"), flush=True)
+        except Exception: pass
 
 
 def _read_recent_exchanges(n: int = 5) -> list[dict]:
@@ -257,14 +264,25 @@ def _tool_discovery_report() -> dict:
         return {"ok": False, "result": f"err: {e}"}
 
 
+def _tool_update_claude_context() -> dict:
+    """Régénère .cortex-claude-context.md pour que Claude Code ait l'état à
+    jour au démarrage de la prochaine session de Sam."""
+    try:
+        import cortex_claude_code as ccc
+        return ccc.tool_update_claude_context()
+    except Exception as e:
+        return {"ok": False, "result": f"err: {e}"}
+
+
 TOOLS = {
-    "explore_graph":     _tool_explore_graph,
-    "look_around":       _tool_look_around,
-    "reflect":           _tool_reflect,
-    "propose_goal":      _tool_propose_goal,
-    "map_knowledge":     _tool_map_knowledge,
-    "discovery_report":  _tool_discovery_report,
-    "audit_ui":          _tool_audit_ui,
+    "explore_graph":         _tool_explore_graph,
+    "look_around":           _tool_look_around,
+    "reflect":               _tool_reflect,
+    "propose_goal":          _tool_propose_goal,
+    "map_knowledge":         _tool_map_knowledge,
+    "discovery_report":      _tool_discovery_report,
+    "audit_ui":              _tool_audit_ui,
+    "update_claude_context": _tool_update_claude_context,
 }
 
 
@@ -428,10 +446,48 @@ def _decide_action() -> dict:
 # ─── Boucle principale ────────────────────────────────────────────────────────
 _running = False
 
+# Tous les CONTEXT_REFRESH_EVERY cycles, on force update_claude_context pour
+# que `.cortex-claude-context.md` reste frais — même si la décision Active
+# Inference du cycle a choisi autre chose. Sam peut ouvrir Claude Code à tout
+# moment, le contexte ne doit pas être périmé.
+CONTEXT_REFRESH_EVERY = 6
+
+
+def _maybe_refresh_claude_context(cycle_idx: int) -> None:
+    """Force un refresh du contexte Claude Code tous les N cycles.
+
+    Indépendant de la décision Active Inference : on appelle directement la
+    tool dédiée. Pas publié dans le chat stream (refresh silencieux).
+    """
+    if cycle_idx > 0 and cycle_idx % CONTEXT_REFRESH_EVERY == 0:
+        try:
+            tool = TOOLS.get("update_claude_context")
+            if tool:
+                r = tool() or {}
+                _log(f"context refresh #cycle={cycle_idx}: {r.get('result', '?')[:120]}")
+        except Exception as e:
+            _log(f"context refresh err: {e}")
+
 
 def _emergence_loop(interval: int):
+    """Refactor : la décision + l'exécution + l'apprentissage des effets se font
+    tous via `cortex_active_inference.drive_step(execute=True)`.
+
+    Avant : `_decide_action()` (Active Inference + Big5 + curio + LLM tiebreak)
+            puis `tool_fn()` séparément. L'apprentissage des effets ne tournait
+            pas car drive_step n'était jamais appelé en mode execute.
+
+    Après : drive_step gère le tout — scoring EFE + sélection + exécution via
+            cortex_emergence.TOOLS + record (pre, action, post) dans
+            cortex_action_effects pour apprentissage empirique.
+
+    On garde `_decide_via_active_inference`, `_decide_via_llm`, `_decide_action`
+    pour `run_one_cycle` (clic bouton Sam) où la sémantique "force exec sans
+    apprentissage" reste utile.
+    """
     global _running
     time.sleep(30)  # cool down court : 1ère décision visible vite
+    cycle_idx = 0
     while _running:
         try:
             # Throttle ressources
@@ -449,26 +505,42 @@ def _emergence_loop(interval: int):
                 _log(f"sam actif (idle {idle:.0f}s), skip")
                 time.sleep(interval); continue
 
-            # Décide
-            decision = _decide_action()
-            action = decision["action"]
-            rationale = decision["rationale"]
-            method = decision.get("method", "unknown")
-            _log(f"action: {action} [{method}] — {rationale[:80]}")
+            # === drive_step unifié : décision + exécution + apprentissage ===
+            try:
+                import cortex_active_inference as ai
+                step = ai.drive_step(execute=True)
+            except Exception as e:
+                _log(f"drive_step err: {e}")
+                time.sleep(interval); continue
+
+            cycle_idx += 1
+            action = step.get("chosen_action", "silent")
+            efe = step.get("chosen_efe")
+            comparison = step.get("comparison_to_random")
+            exec_rep = step.get("execution") or {}
+            result_text = (exec_rep.get("result") or "(no exec result)")
+            method = "active_inference"
+            if not exec_rep.get("ok"):
+                method = "active_inference_exec_failed"
+
+            _log(f"cycle#{cycle_idx} action={action} EFE={efe} comp={comparison} "
+                 f"exec_ok={exec_rep.get('ok')}")
+
+            # Refresh périodique du contexte Claude Code
+            _maybe_refresh_claude_context(cycle_idx)
 
             if action == "silent":
-                # Pas de publication pour rester discret
+                # Pas de publish pour rester discret
                 time.sleep(interval); continue
 
-            # Exécute
-            tool_fn = TOOLS.get(action)
-            if not tool_fn:
-                time.sleep(interval); continue
-            result = tool_fn()
-            _publish(action, rationale, result.get("result", "(vide)"),
-                     meta={"ok": result.get("ok", False),
+            rationale = (f"Active Inference (EFE={efe:+.3f} vs random={comparison}) "
+                         f"+ apprentissage d'effets actif")
+            _publish(action, rationale, result_text,
+                     meta={"ok": exec_rep.get("ok", False),
                            "method": method,
-                           "comparison": decision.get("comparison")})
+                           "comparison": comparison,
+                           "efe": efe,
+                           "n_steps": step.get("n_steps")})
         except Exception as e:
             _log(f"loop err: {e}")
         time.sleep(interval)

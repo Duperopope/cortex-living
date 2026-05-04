@@ -163,16 +163,21 @@ Cortex maintient ses signes vitaux dans une plage viable (Cannon 1932,
 Ashby 1960). Au-dessus de 90 % d'occupation disque il propose un déménagement
 vers un disque plus libre.
 
-## Boucle de décision (Active-Inference-inspired)
+## Boucle de décision (Active-Inference-inspired) — unifiée
 
-Toutes les ~5 minutes, Cortex score chaque action candidate via la pipeline
-suivante. Ce **n'est pas** une rotation déterministe ni un wrapper LLM nu, mais
-ce **n'est pas non plus** le formalisme Active Inference complet — c'est une
-heuristique inspirée :
+Toutes les ~5 minutes, **un seul appel** `cortex_active_inference.drive_step(execute=True)`
+réalise le cycle complet : score EFE des actions, sélection, exécution réelle
+via `cortex_emergence.TOOLS`, enregistrement des deltas observés
+(`cortex_action_effects.record_observation`) pour apprentissage. Ce
+**n'est pas** une rotation déterministe ni un wrapper LLM nu, mais ce
+**n'est pas non plus** le formalisme Active Inference complet — c'est une
+heuristique inspirée qui apprend ses effets au fil des cycles :
 
 1. **Score Expected-Free-Energy-like** — combine valeur épistémique
    (réduction prédite de `compression_error`) et valeur pragmatique (utilité
-   par rapport au plan courant). Effets d'action codés à la main, pas appris
+   par rapport au plan courant). Effets d'action initialement hardcodés,
+   **désormais remplacés par les deltas empiriques** quand l'agent a observé
+   ≥ 8 exemples de l'action (`cortex_action_effects.predict_effect`)
 2. **Modulation Big5** — openness booste les actions exploratoires,
    conscientiousness booste les actions d'audit
 3. **Bonus curiosité** (Schmidhuber, 1991) — si `compression_error` en hausse,
@@ -237,9 +242,12 @@ Cortex peut :
 
 ## Limites honnêtes
 
-- **Active Inference simplifié** : EFE est une heuristique avec effets d'action
-  hard-codés (`pred["n_active"] += 2` pour `explore_graph`). Ce **n'est pas** le
-  formalisme variationnel complet de Friston.
+- **Active Inference simplifié** : EFE est une heuristique. Les effets d'action
+  étaient hard-codés (`pred["n_active"] += 2` pour `explore_graph`) ; ils sont
+  maintenant **appris empiriquement** par `cortex_action_effects.py` à partir
+  des deltas observés post-action (mode `empirical` quand n≥8 exemples par
+  action, fallback heuristique sinon). Ce **n'est pas** le formalisme
+  variationnel complet de Friston, mais ce n'est plus une table fixe.
 - **Active Inference vs banc de baselines** : la fraction "better than random"
   est calculée sur des **prédictions** EFE. Une mesure plus solide compare les
   *outcomes observés* post-action contre plusieurs baselines naïves (random,
@@ -664,6 +672,9 @@ fichier de preuve. Trois niveaux :
 | Self-dev autonome                  | aspirationnel   | `cortex_self_dev.py` existe, pas testé end-to-end avec commit + tests verts |
 | "Cerveau vivant" / "raisonne"      | métaphorique    | propagation d'activation + scoring d'actions, pas un raisonnement déductif  |
 | "IAG"                              | aspirationnel   | score interne 0–100, pas une mesure externe — voir limites du score IAG     |
+| Apprentissage des effets d'action  | implémenté v1   | `cortex_action_effects.py` — moyenne empirique des deltas observés, fenêtre glissante 30 ex. ; remplace progressivement les heuristiques hardcodées dans `_predict_state` (mode `empirical` quand n>=8/action) |
+| Boucle décision unifiée            | implémenté      | `cortex_emergence._emergence_loop` appelle `drive_step(execute=True)` — scoring EFE + exécution réelle via TOOLS + apprentissage des effets en un seul cycle |
+| Bridge Claude Code (contexte vivant) | implémenté    | `cortex_claude_code.py` génère `.cortex-claude-context.md` ; `CLAUDE.md` du repo Paperclip pointe dessus ; refresh auto tous les 6 cycles dans la boucle |
 
 ## Méthodologie anti-fake recommandée pour auditer
 
@@ -848,6 +859,26 @@ diff -u examples/session-001/anti_fake_report.json my_anti_fake.json | head -50
    vault il sera figé à 0.5
 3. Pour comparer politique-vs-politique, attendre au moins 50 cycles —
    `n_outcome_evaluated=2` ne suffit pas à conclure
+4. **Mode exécution réelle** : tu DOIS appeler `drive_step(execute=True)` (pas
+   le défaut `execute=False` qui est scoring-only). Sinon les outcomes
+   observés resteront à 0 et l'apprentissage des effets sera vide.
+
+## Comment Claude Code se branche au système
+
+Si tu utilises Claude Code (Anthropic CLI), un `CLAUDE.md` dans la racine
+demande à l'agent de lire `.cortex-claude-context.md` au démarrage. Ce
+fichier est régénéré tous les 6 cycles par la boucle d'émergence (constante
+`CONTEXT_REFRESH_EVERY` dans `cortex_emergence.py`). Tu peux aussi le
+forcer à la main :
+
+```bash
+python code/brain/cortex_claude_code.py update
+```
+
+Le contenu : état Active Inference, statut apprentissage par action
+(empirical / fallback), graphe, body, dernier rapport anti-fake, 5 dernières
+décisions. Pas de PII (les noms de nœuds étaient déjà hashés à la
+publication ; ce contexte reste local de toute façon).
 """
 
 
@@ -1029,6 +1060,26 @@ Chaque ligne contient :
 Si `outcome_score << outcome_proxy` systématiquement, ça signale que le
 modèle de prédiction sur-estime les effets d'action — exactement le genre de
 calibration que `docs/claims.md` rappelle d'auditer.
+
+## Architecture unifiée (depuis ce commit)
+
+Avant : `cortex_emergence._loop` faisait scoring + exécution séparément.
+`drive_step` était scoring-only ; aucun apprentissage ne se faisait dans la
+boucle de production.
+
+Maintenant : **un seul point d'entrée** —
+`cortex_active_inference.drive_step(execute=True)` — qui :
+
+1. Calcule la surprise observée (delta prédiction vs réalité du cycle précédent)
+2. Score chaque action via EFE-like + pénalité de répétition
+3. Sélectionne l'action gagnante + logue le choix de chaque baseline naïve
+4. **Exécute réellement** via `cortex_emergence.TOOLS[action]()`
+5. **Enregistre** `(pre_obs, action, post_obs)` pour apprentissage
+6. Tous les 6 cycles, **rafraîchit** `.cortex-claude-context.md` pour Claude Code
+
+`cortex_emergence._emergence_loop` est désormais juste un *throttle + idle
+guard* qui appelle `drive_step(execute=True)`. La logique de décision n'est
+plus dupliquée.
 
 ## Reproduire chez toi
 
