@@ -57,6 +57,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_tools` |  |
 | `cortex_vision` |  |
 | `cortex_world_model` |  |
+| `cortex_x4_faction_lab` |  |
 
 ## Endpoints HTTP exposés
 

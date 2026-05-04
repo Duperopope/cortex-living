@@ -478,6 +478,102 @@ body > canvas { display:block; position:fixed; inset:0; z-index:0; background:#0
   })();
   </script>
 
+  <!-- Laboratoire X4 : Cortex apprend X4 Foundations en créant sa faction.
+       Source : /api/cortex/x4/{status, detect, evidence} + POST /api/cortex/x4/{create, validate, install, run_test_cycle, launch, rollback} -->
+  <details id="cb-x4-details" style="border:1px solid #4a3f5f;border-left:3px solid #c084fc;border-radius:8px;background:linear-gradient(90deg,rgba(192,132,252,0.06),rgba(7,10,20,0.58));padding:8px 10px;margin-bottom:10px">
+    <summary style="cursor:pointer;color:#d4b3ff;font-size:10px;font-weight:700;letter-spacing:.4px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <span>⌗ Laboratoire X4 Foundations</span>
+      <span id="cb-x4-meta" style="color:#7a4eaa;font-size:9px;font-weight:400">faction autonome</span>
+    </summary>
+    <div style="padding-top:8px;font-size:10px">
+      <div id="cb-x4-status" style="font-family:ui-monospace,monospace;font-size:9.5px;color:#cdf;margin-bottom:8px">—</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <button onclick="x4Action('create','POST')" style="background:#241b46;border:1px solid #3f2a5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">générer mod</button>
+        <button onclick="x4Action('validate','POST')" style="background:#241b46;border:1px solid #3f2a5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">valider statique</button>
+        <button onclick="x4Action('install','POST')" style="background:#241b46;border:1px solid #3f2a5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">installer dans X4</button>
+        <button onclick="x4Action('rollback','POST')" style="background:#3f1b2a;border:1px solid #5f2a3f;color:#fcc;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">rollback mod</button>
+        <button onclick="x4Action('run_test_cycle','POST',{allow_launch:false,max_minutes:5})" style="background:#241b46;border:1px solid #3f2a5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">cycle de test (sans lancer X4)</button>
+        <button onclick="if(confirm('Lancer X4.exe ? Process lourd, ferme tes autres jeux.')) x4Action('launch','POST',{confirm:true})" style="background:#3f2a1b;border:1px solid #5f4a2a;color:#fc9;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">lancer X4 (avec confirmation)</button>
+        <button onclick="x4Action('evidence','GET')" style="background:#1b2746;border:1px solid #2a3f5f;color:#7a89aa;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">collecter preuves (logs MD)</button>
+      </div>
+      <div id="cb-x4-output" style="margin-top:8px;color:#9bb;font-size:9.5px;line-height:1.4;max-height:140px;overflow-y:auto;font-family:ui-monospace,monospace;display:none;background:#0a0e14;padding:6px;border-radius:3px"></div>
+    </div>
+  </details>
+  <script>
+  (function(){
+    async function refreshX4Status(){
+      try {
+        const r = await fetch('/api/cortex/x4/status', {cache:'no-store'});
+        if (!r.ok) return;
+        const s = await r.json();
+        const el = document.getElementById('cb-x4-status');
+        if (!el) return;
+        let html = '';
+        html += '<div>X4 détecté: <span style="color:'+(s.x4_detected?'#55ff99':'#ff7766')+'">'+(s.x4_detected?'oui':'non')+'</span>'
+              + (s.x4_root?(' · '+s.x4_root.split('\\').slice(-2).join('\\')) :'') + '</div>';
+        html += '<div>Mod local: <span style="color:'+(s.extension_dir_local_exists?'#55ff99':'#7a89aa')+'">'+(s.extension_dir_local_exists?'généré':'absent')+'</span></div>';
+        html += '<div>Mod installé X4: <span style="color:'+(s.extension_installed_in_x4?'#55ff99':'#7a89aa')+'">'+(s.extension_installed_in_x4?'oui':'non')+'</span></div>';
+        if (s.last_test) {
+          const v = s.last_test.final_verdict;
+          const col = v==='verified'?'#55ff99':(v==='partial'?'#ffcc66':'#ff7766');
+          html += '<div>Dernier test: <span style="color:'+col+'">'+v+'</span> · '+s.last_test.next_action+'</div>';
+        }
+        el.innerHTML = html;
+      } catch(e){}
+    }
+    window.x4Action = async function(sub, method, body){
+      const out = document.getElementById('cb-x4-output');
+      out.style.display = 'block';
+      out.innerHTML = '<span style="color:#557">⏳ '+sub+' en cours...</span>';
+      try {
+        const opts = {method: method || 'GET', cache:'no-store'};
+        if (method === 'POST') {
+          opts.headers = {'Content-Type': 'application/json'};
+          opts.body = JSON.stringify(body || {});
+        }
+        const r = await fetch('/api/cortex/x4/'+sub, opts);
+        const d = await r.json();
+        let html = '';
+        if (sub === 'evidence') {
+          html += '<div style="color:#c084fc">Preuves collectées :</div>';
+          html += '<div>game_launched: '+(d.game_launched?'<span style="color:#55ff99">oui</span>':'<span style="color:#ff7766">non</span>')+'</div>';
+          html += '<div>extension_detected: '+(d.extension_detected?'<span style="color:#55ff99">oui</span>':'<span style="color:#ff7766">non</span>')+'</div>';
+          html += '<div>faction_detected: '+(d.faction_detected?'<span style="color:#55ff99">oui</span>':'<span style="color:#ff7766">non</span>')+'</div>';
+          html += '<div>confidence: '+(d.confidence||0)+'</div>';
+          if (d.needs_human_check) html += '<div style="color:#ffcc66">⚠ '+(d.reason_human||'human check needed')+'</div>';
+        } else if (sub === 'run_test_cycle') {
+          html += '<div style="color:#c084fc">Cycle test :</div>';
+          html += '<div>verdict: <span style="color:'+(d.final_verdict==='verified'?'#55ff99':d.final_verdict==='partial'?'#ffcc66':'#ff7766')+'">'+d.final_verdict+'</span></div>';
+          html += '<div>generated: '+d.extension_generated+' · validated: '+d.static_validated+' · installed: '+d.installed+'</div>';
+          if (d.next_action) html += '<div style="color:#aab">→ '+d.next_action+'</div>';
+        } else if (sub === 'create' || sub === 'validate' || sub === 'install' || sub === 'rollback' || sub === 'launch' || sub === 'patch') {
+          html += '<div style="color:'+(d.ok?'#55ff99':'#ff7766')+'">'+sub+': '+(d.ok?'OK':'FAIL')+'</div>';
+          if (d.stage) html += '<div>stage: '+d.stage+'</div>';
+          if (d.target) html += '<div>target: '+d.target+'</div>';
+          if (d.pid) html += '<div style="color:#55ff99">X4 PID: '+d.pid+'</div>';
+          if (d.error) html += '<div style="color:#ff7766">erreur: '+d.error+'</div>';
+          if (d.errors && d.errors.length) html += '<div style="color:#ff7766">'+d.errors.join('<br>')+'</div>';
+          if (d.checks) {
+            for (const k in d.checks) {
+              html += '<div>'+k+': '+(d.checks[k]?'<span style="color:#55ff99">✓</span>':'<span style="color:#ff7766">✗</span>')+'</div>';
+            }
+          }
+        }
+        out.innerHTML = html;
+        refreshX4Status();
+      } catch(e) {
+        out.innerHTML = '<span style="color:#ff7766">erreur: '+e.message+'</span>';
+      }
+    };
+    // Refresh à l'ouverture du details
+    const det = document.getElementById('cb-x4-details');
+    if (det){
+      det.addEventListener('toggle', () => { if (det.open) refreshX4Status(); });
+    }
+    refreshX4Status();
+  })();
+  </script>
+
   <details id="cb-expert-details" style="border:1px solid #1b2746;border-radius:8px;background:rgba(7,10,20,.58);padding:8px 10px;margin-bottom:10px">
     <summary style="cursor:pointer;color:#a9b8d8;font-size:10px;font-weight:700;letter-spacing:.4px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px">
       <span>Mesures expertes</span>

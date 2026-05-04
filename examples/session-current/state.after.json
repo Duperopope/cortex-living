@@ -1,60 +1,60 @@
 {
-  "ts": 1777915906.050771,
-  "n_steps_total": 239,
-  "late_surprise": 2.0768,
-  "n_better_than_random": 204,
-  "n_outcome_evaluated": 186,
+  "ts": 1777916423.3176854,
+  "n_steps_total": 243,
+  "late_surprise": 2.4522,
+  "n_better_than_random": 208,
+  "n_outcome_evaluated": 190,
   "vs_baselines": {
     "random": {
-      "wins": 42,
-      "losses": 76,
-      "ties": 68,
-      "outcome_score_sum": 106.976
+      "wins": 43,
+      "losses": 77,
+      "ties": 70,
+      "outcome_score_sum": 111.1893
     },
     "always_reflect": {
       "wins": 16,
-      "losses": 170,
+      "losses": 174,
       "ties": 0,
-      "outcome_score_sum": 178.29999999999967
+      "outcome_score_sum": 183.59999999999965
     },
     "always_explore": {
       "wins": 4,
-      "losses": 49,
-      "ties": 133,
-      "outcome_score_sum": 115.61740000000005
+      "losses": 51,
+      "ties": 135,
+      "outcome_score_sum": 120.67740000000005
     },
     "round_robin": {
       "wins": 27,
-      "losses": 74,
-      "ties": 85,
-      "outcome_score_sum": 111.19350000000004
+      "losses": 76,
+      "ties": 87,
+      "outcome_score_sum": 116.25350000000005
     },
     "last_best": {
       "wins": 10,
-      "losses": 48,
-      "ties": 128,
-      "outcome_score_sum": 111.51070000000004
+      "losses": 50,
+      "ties": 130,
+      "outcome_score_sum": 116.57070000000004
     }
   },
   "jepa_diagnostic": {
     "n_train_steps": 11,
-    "last_loss": 0.01717250980436802,
-    "loss_avg_recent": 0.01717250980436802,
-    "online_target_W1_diff_mean": 0.000157,
-    "online_target_W2_diff_mean": 0.000273,
+    "last_loss": 0.1398957073688507,
+    "loss_avg_recent": 0.1398957073688507,
+    "online_target_W1_diff_mean": 0.000216,
+    "online_target_W2_diff_mean": 0.000381,
     "ema_tau": 0.99,
     "anti_collapse_ok": true
   },
   "belief_diagnostic": {
-    "n_observations": 26,
-    "kl_to_prior": 0.6649,
+    "n_observations": 31,
+    "kl_to_prior": 0.6737,
     "last_vfe": null,
     "q_dist": {
-      "silent": 0.033,
-      "exploring": 0.67,
-      "reflecting": 0.231,
-      "planning": 0.033,
-      "perceiving": 0.033
+      "silent": 0.029,
+      "exploring": 0.653,
+      "reflecting": 0.26,
+      "planning": 0.029,
+      "perceiving": 0.029
     }
   }
 }

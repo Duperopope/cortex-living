@@ -3747,7 +3747,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
            parsed.path.startswith("/api/cortex/dialogue") or \
            parsed.path.startswith("/api/cortex/anti_fake") or \
            parsed.path.startswith("/api/cortex/body_health") or \
-           parsed.path.startswith("/api/cortex/iag"):
+           parsed.path.startswith("/api/cortex/iag") or \
+           parsed.path.startswith("/api/cortex/x4"):
             try:
                 import sys as _sys
                 if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
@@ -3807,6 +3808,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 elif p == "/api/cortex/proactive/metrics":
                     import cortex_proactive as _pr
                     self._send_json(_pr.proactive_metrics()); return
+                elif p == "/api/cortex/x4/status":
+                    import cortex_x4_faction_lab as _x4
+                    self._send_json(_x4.status()); return
+                elif p == "/api/cortex/x4/detect":
+                    import cortex_x4_faction_lab as _x4
+                    self._send_json(_x4.detect_x4()); return
+                elif p == "/api/cortex/x4/evidence":
+                    import cortex_x4_faction_lab as _x4
+                    self._send_json(_x4.collect_evidence()); return
                 elif p == "/api/cortex/memory_audit":
                     import cortex_memory_audit as _ma
                     self._send_json(_ma.audit()); return
@@ -4028,6 +4038,55 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         import subprocess as _sp
         from urllib.parse import urlparse as _up
         parsed = _up(self.path)
+
+        # Routes POST X4 lab (actions sensibles : install/rollback/run cycle/launch)
+        if parsed.path.startswith("/api/cortex/x4/"):
+            sub = parsed.path.split("/api/cortex/x4/", 1)[-1]
+            try:
+                import sys as _sys
+                if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+                    _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                import cortex_x4_faction_lab as _x4
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length).decode("utf-8-sig")) if length else {}
+                if sub == "create":
+                    rep = _x4.create_cortex_faction_extension()
+                elif sub == "validate":
+                    rep = _x4.static_validate_extension()
+                elif sub == "install":
+                    rep = _x4.install_extension()
+                elif sub == "rollback":
+                    rep = _x4.rollback_extension()
+                elif sub == "launch":
+                    if not body.get("confirm"):
+                        rep = {"ok": False, "error": "confirm_required",
+                                "msg": "Lancement X4 = process lourd. POST avec {confirm:true}"}
+                    else:
+                        rep = _x4.launch_x4()
+                elif sub == "run_test_cycle":
+                    allow_launch = bool(body.get("allow_launch", False))
+                    max_min = int(body.get("max_minutes", 20))
+                    rep = _x4.run_autonomous_test_cycle(max_minutes=max_min,
+                                                          allow_launch=allow_launch)
+                elif sub == "patch":
+                    rep = _x4.patch_extension()
+                elif sub == "diagnose":
+                    rep = _x4.diagnose_x4_result()
+                else:
+                    self.send_error(404, f"unknown x4 sub: {sub}")
+                    return
+                data = json.dumps(rep, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"x4 {sub} POST error: {e}")
+            return
+
         # Toggle vision mute (le frontend appelle en POST, on était en GET only)
         if parsed.path == "/api/cortex/vision_mute":
             qs = parse_qs(parsed.query)
@@ -4212,7 +4271,8 @@ except Exception:
            parsed.path.startswith("/api/cortex/dialogue") or \
            parsed.path.startswith("/api/cortex/anti_fake") or \
            parsed.path.startswith("/api/cortex/body_health") or \
-           parsed.path.startswith("/api/cortex/iag"):
+           parsed.path.startswith("/api/cortex/iag") or \
+           parsed.path.startswith("/api/cortex/x4"):
             try:
                 import sys as _sys
                 if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
