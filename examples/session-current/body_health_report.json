@@ -1,0 +1,107 @@
+{
+  "ts": 1777904366.3647585,
+  "severity": "OK",
+  "critical_disk": {
+    "mount": "C:\\",
+    "percent": 79.3,
+    "free_gb": 65.1,
+    "used_gb": 248.7,
+    "total_gb": 313.7
+  },
+  "all_disks": [
+    {
+      "mount": "C:\\",
+      "percent": 79.3,
+      "free_gb": 65.1,
+      "is_critical": false,
+      "is_warning": false
+    },
+    {
+      "mount": "G:\\",
+      "percent": 58.6,
+      "free_gb": 698.1,
+      "is_critical": false,
+      "is_warning": false
+    },
+    {
+      "mount": "H:\\",
+      "percent": 36.0,
+      "free_gb": 319.9,
+      "is_critical": false,
+      "is_warning": false
+    },
+    {
+      "mount": "E:\\",
+      "percent": 24.2,
+      "free_gb": 364.0,
+      "is_critical": false,
+      "is_warning": false
+    },
+    {
+      "mount": "F:\\",
+      "percent": 16.4,
+      "free_gb": 418.2,
+      "is_critical": false,
+      "is_warning": false
+    }
+  ],
+  "n_junctions_active": 6,
+  "n_junctions_broken": 0,
+  "junctions": [
+    {
+      "name": "Documents\\my games",
+      "path": "<USER_HOME>\\Documents\\my games",
+      "exists": true,
+      "is_junction": true,
+      "target": "G:\\cortex-migrated\\my games",
+      "target_exists": true,
+      "broken": false
+    },
+    {
+      "name": "Larian Studios (BG3)",
+      "path": "<USER_HOME>\\AppData\\Local\\Larian Studios",
+      "exists": true,
+      "is_junction": true,
+      "target": "G:\\cortex-migrated\\Larian Studios",
+      "target_exists": true,
+      "broken": false
+    },
+    {
+      "name": "GensparkSoftware",
+      "path": "<USER_HOME>\\AppData\\Local\\GensparkSoftware",
+      "exists": true,
+      "is_junction": true,
+      "target": "G:\\cortex-migrated\\GensparkSoftware",
+      "target_exists": true,
+      "broken": false
+    },
+    {
+      "name": ".local/share",
+      "path": "<USER_HOME>\\.local\\share",
+      "exists": true,
+      "is_junction": true,
+      "target": "G:\\cortex-migrated\\share",
+      "target_exists": true,
+      "broken": false
+    },
+    {
+      "name": "Claude Desktop data",
+      "path": "<USER_HOME>\\AppData\\Roaming\\Claude",
+      "exists": true,
+      "is_junction": true,
+      "target": "G:\\cortex-migrated\\Claude",
+      "target_exists": true,
+      "broken": false
+    },
+    {
+      "name": "AnythingLLM data",
+      "path": "<USER_HOME>\\AppData\\Roaming\\anythingllm-desktop",
+      "exists": true,
+      "is_junction": true,
+      "target": "G:\\cortex-migrated\\anythingllm-desktop",
+      "target_exists": true,
+      "broken": false
+    }
+  ],
+  "last_auto_exec": null
+}

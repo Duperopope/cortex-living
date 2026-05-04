@@ -362,37 +362,67 @@ def run_iag_test() -> dict:
     # Calibration honnête : facteur ≤ 1 selon maturité réelle
     cal = _calibration_factor()
     global_score = raw_score * cal["factor"]
-    # Verdict
+
+    # Bottlenecks : quels facteurs de calibration plombent le score
+    bottlenecks = []
+    if cal["factor_action_effects"] < 0.95:
+        bottlenecks.append({
+            "factor": "action_effects_learned_ratio",
+            "value": cal["factor_action_effects"],
+            "fix": "tourner plus de cycles drive_step(execute=True) pour atteindre MIN_SAMPLES par action",
+        })
+    if cal["factor_prediction_error"] < 0.95:
+        bottlenecks.append({
+            "factor": "prediction_error",
+            "value": cal["factor_prediction_error"],
+            "fix": "modèle d'effets sur-optimiste — calibrer _predict_state ou laisser action_effects converger",
+        })
+    if cal["factor_fake_confident"] < 0.95:
+        bottlenecks.append({
+            "factor": "fake_confident_rate",
+            "value": cal["factor_fake_confident"],
+            "fix": "cortex_dialogue invente sur questions état interne — brancher dialogue sur les fichiers runtime",
+        })
+
+    # Maturity verdict — ne dis JAMAIS "AGI externe" sur ce score
     if global_score < 30:
-        verdict = "système autonome simple"
+        maturity = "prototype"
+        verdict = "Prototype expérimental — base infrastructure"
         is_iag = False
     elif global_score < 50:
-        verdict = "proto-IAG observable (ce que Cortex est aujourd'hui)"
+        maturity = "agent_local"
+        verdict = "Agent local cognitif — perception + mémoire + actions, pas d'apprentissage généralisable"
         is_iag = False
     elif global_score < 70:
-        verdict = "IAG faible (specialized AGI)"
-        is_iag = True
+        maturity = "agent_adaptatif"
+        verdict = "Agent adaptatif — apprend ses effets sur son propre état, pas encore de transfert"
+        is_iag = False
     elif global_score < 90:
-        verdict = "IAG forte sur ce domaine"
-        is_iag = True
+        maturity = "agent_autonome"
+        verdict = "Agent autonome local — boucle décision/action/feedback complète sur domaine restreint"
+        is_iag = False  # JAMAIS True ici sans preuve externe
     else:
-        verdict = "IAG générale (improbable, à scruter)"
-        is_iag = True
+        maturity = "agi_non_prouvé"
+        verdict = "Score interne très haut — improbable, à scruter (pas de preuve d'AGI externe)"
+        is_iag = False  # IAG = Intelligence Artificielle Générale → preuve externe requise
 
     weakest = min(dimensions.items(), key=lambda x: x[1].get("score", 0))
     strongest = max(dimensions.items(), key=lambda x: x[1].get("score", 0))
 
     rep = {
         "ts": _now(),
-        "global_score":     round(global_score, 1),
-        "raw_score":        round(raw_score, 1),
-        "calibration":      cal,
-        "verdict":          verdict,
-        "is_iag":           is_iag,
-        "dimensions":       dimensions,
-        "weights":          WEIGHTS,
-        "weakest":          {"name": weakest[0], "score": weakest[1].get("score")},
-        "strongest":        {"name": strongest[0], "score": strongest[1].get("score")},
+        "global_score":      round(global_score, 1),
+        "raw_score":         round(raw_score, 1),
+        "calibrated_score":  round(global_score, 1),  # alias explicite
+        "calibration":       cal,
+        "bottlenecks":       bottlenecks,
+        "verdict":           verdict,
+        "maturity":          maturity,
+        "is_iag":            is_iag,  # toujours False — IAG nécessite preuve externe
+        "dimensions":        dimensions,
+        "weights":           WEIGHTS,
+        "weakest":           {"name": weakest[0], "score": weakest[1].get("score")},
+        "strongest":         {"name": strongest[0], "score": strongest[1].get("score")},
     }
     try:
         REPORT.parent.mkdir(parents=True, exist_ok=True)

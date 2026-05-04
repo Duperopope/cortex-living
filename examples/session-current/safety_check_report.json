@@ -1,0 +1,32 @@
+{
+  "ts": 1777904424.4811194,
+  "duration_s": 0.0,
+  "repo_dir": "<USER_HOME>\\AppData\\Local\\Temp\\cortex_safety_test",
+  "files_scanned": 2,
+  "files_skipped": 1,
+  "n_findings": 2,
+  "n_blockers": 2,
+  "n_warnings": 0,
+  "blockers_by_kind": {
+    "FORBIDDEN_FILE": 1,
+    "API_KEY": 1
+  },
+  "blockers": [
+    {
+      "path": "<USER_HOME>\\AppData\\Local\\Temp\\cortex_safety_test\\.env",
+      "kind": "FORBIDDEN_FILE",
+      "severity": "BLOCK",
+      "label": "forbidden file present: .env"
+    },
+    {
+      "path": "<USER_HOME>\\AppData\\Local\\Temp\\cortex_safety_test\\fake_secret.md",
+      "kind": "API_KEY",
+      "severity": "BLOCK",
+      "label": "OpenAI/Anthropic-style key",
+      "line": 2,
+      "redacted_snippet": "test markdown\ns***REDACTED***"
+    }
+  ],
+  "warnings": [],
+  "verdict": "BLOCK"
+}

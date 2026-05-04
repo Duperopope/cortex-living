@@ -322,6 +322,13 @@ _STICKY_TTL_SEC = 90.0
 _LAST_QUERY_TYPE_TS: float = 0.0
 _LAST_QUERY_TYPE: str | None = None
 
+# Mémoire de la dernière vision réussie. Permet de ré-utiliser la description
+# si la capture du tour courant échoue mais une description fraîche existe.
+_LAST_VISION_DESC: str = ""
+_LAST_VISION_TS: float = 0.0
+_LAST_VISION_METHOD: str = ""
+_LAST_VISION_SCREENSHOT: str | None = None
+
 
 def _record_query_type(qt: str | None) -> None:
     """Mémorise le query_type du dernier compose_response pour le sticky context."""
@@ -332,6 +339,17 @@ def _record_query_type(qt: str | None) -> None:
         _LAST_QUERY_TYPE_TS = _t.time()
 
 
+def _record_vision(description: str, method: str, screenshot: str | None) -> None:
+    """Mémorise la dernière vision réussie pour le fallback sticky."""
+    global _LAST_VISION_DESC, _LAST_VISION_TS, _LAST_VISION_METHOD, _LAST_VISION_SCREENSHOT
+    if description and method == "lm_studio_vision":
+        import time as _t
+        _LAST_VISION_DESC = description
+        _LAST_VISION_TS = _t.time()
+        _LAST_VISION_METHOD = method
+        _LAST_VISION_SCREENSHOT = screenshot
+
+
 def _sticky_query_type() -> str | None:
     """Retourne le query_type sticky s'il est encore frais, sinon None."""
     if not _LAST_QUERY_TYPE: return None
@@ -339,6 +357,30 @@ def _sticky_query_type() -> str | None:
     if _t.time() - _LAST_QUERY_TYPE_TS > _STICKY_TTL_SEC:
         return None
     return _LAST_QUERY_TYPE
+
+
+def get_perception_context() -> dict:
+    """API publique : état de la perception visuelle de Cortex.
+
+    Utilisable par UI et Claude code. Indique si la vision est dispo, la
+    fraîcheur de la dernière frame, sa méthode et description.
+    """
+    import time as _t
+    if not _LAST_VISION_DESC:
+        return {
+            "vision_available": False,
+            "last_seen_ts": None, "age_s": None,
+            "description": None, "method": None, "screenshot": None,
+        }
+    age = _t.time() - _LAST_VISION_TS
+    return {
+        "vision_available": age < _STICKY_TTL_SEC,
+        "last_seen_ts": _LAST_VISION_TS,
+        "age_s": round(age, 1),
+        "description": _LAST_VISION_DESC,
+        "method": _LAST_VISION_METHOD,
+        "screenshot": _LAST_VISION_SCREENSHOT,
+    }
 
 
 def should_handle(msg: str) -> str | None:
@@ -366,7 +408,11 @@ def should_handle(msg: str) -> str | None:
 
 
 def _capture_vision_context(prompt: str) -> tuple[str, str | None]:
-    """Capture une frame webcam + description. Retourne (context_str, screenshot_path)."""
+    """Capture une frame webcam + description. Retourne (context_str, screenshot_path).
+
+    Sticky vision : si la capture courante échoue MAIS une vision lm_studio
+    fraîche (<90s) existe, on la ré-utilise et on annote méthode=`lm_studio_sticky`.
+    """
     cv = _safe_import("cortex_vision")
     if not cv:
         return "[Vision : module indisponible]", None
@@ -382,10 +428,26 @@ def _capture_vision_context(prompt: str) -> tuple[str, str | None]:
         if r.get("ok"):
             desc = r.get("description", "").strip()
             method = r.get("method", "?")
+            screenshot = r.get("screenshot")
+            # Mémorise la frame réussie pour le sticky fallback
+            if method == "lm_studio_vision" and desc:
+                _record_vision(desc, method, screenshot)
             return (f"[Vue webcam (capturée live, méthode={method}) : {desc}]",
-                    r.get("screenshot"))
+                    screenshot)
+        # Capture KO : tente le sticky fallback si vision récente
+        sticky = get_perception_context()
+        if sticky.get("vision_available"):
+            return (f"[Vue webcam (sticky {sticky['age_s']:.0f}s, "
+                     f"méthode=lm_studio_sticky) : {sticky['description']}]",
+                    sticky.get("screenshot"))
         return f"[Vision : capture KO — {r.get('error','?')}]", None
     except Exception as e:
+        # Exception : tente sticky aussi
+        sticky = get_perception_context()
+        if sticky.get("vision_available"):
+            return (f"[Vue webcam (sticky {sticky['age_s']:.0f}s, "
+                     f"méthode=lm_studio_sticky) : {sticky['description']}]",
+                    sticky.get("screenshot"))
         return f"[Vision : erreur — {str(e)[:80]}]", None
 
 

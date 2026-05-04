@@ -15,7 +15,7 @@ This page tracks the concrete technical changes made on 2026-04-30.
 
 Files:
 
-- `H:\Code\Paperclip\scripts\brain\dashboard\brain_gpu.html`
+- `<CORTEX_REPO>\scripts\brain\dashboard\brain_gpu.html`
 
 Changes:
 
@@ -37,9 +37,9 @@ Changes:
 
 Files:
 
-- `H:\Code\Paperclip\scripts\brain\cortex_self_dev.py`
-- `H:\Code\Paperclip\scripts\brain\cortex_tools.py`
-- `H:\Code\Paperclip\scripts\brain\cortex_self_dev_guardrails.json`
+- `<CORTEX_REPO>\scripts\brain\cortex_self_dev.py`
+- `<CORTEX_REPO>\scripts\brain\cortex_tools.py`
+- `<CORTEX_REPO>\scripts\brain\cortex_self_dev_guardrails.json`
 
 Changes:
 
@@ -62,7 +62,7 @@ Changes:
 
 Files:
 
-- `H:\Code\Paperclip\scripts\brain\dashboard\serve.py`
+- `<CORTEX_REPO>\scripts\brain\dashboard\serve.py`
 
 Changes:
 
@@ -91,8 +91,8 @@ Changes:
 
 Files:
 
-- `H:\Code\Paperclip\scripts\brain\dashboard\serve.py`
-- `H:\Code\Paperclip\scripts\brain\dashboard\brain_gpu.html`
+- `<CORTEX_REPO>\scripts\brain\dashboard\serve.py`
+- `<CORTEX_REPO>\scripts\brain\dashboard\brain_gpu.html`
 
 Changes:
 
@@ -105,8 +105,8 @@ Changes:
 
 Files:
 
-- `H:\Code\Paperclip\scripts\brain\dashboard\serve.py`
-- `H:\Code\Paperclip\scripts\brain\tests\test_smoke.py`
+- `<CORTEX_REPO>\scripts\brain\dashboard\serve.py`
+- `<CORTEX_REPO>\scripts\brain\tests\test_smoke.py`
 
 Changes:
 
@@ -121,8 +121,8 @@ Changes:
 
 Files:
 
-- `H:\Code\Paperclip\package.json`
-- `H:\Code\Paperclip\pnpm-lock.yaml`
+- `<CORTEX_REPO>\package.json`
+- `<CORTEX_REPO>\pnpm-lock.yaml`
 
 Changes:
 
@@ -130,7 +130,7 @@ Changes:
 - Installed Chromium runtime (`pnpm exec playwright install chromium`).
 - Verified headless preview capture on `/gpu`.
 - Example artifact generated locally:
-  - `H:\Code\Paperclip\.tmp_cortex_playwright_preview.png`
+  - `<CORTEX_REPO>\.tmp_cortex_playwright_preview.png`
 
 ## Validation Performed
 

@@ -5,13 +5,13 @@ This repository is generated from the local Cortex runtime.
 Local publication root:
 
 ```text
-H:\Code\Paperclip\.cortex-publishing
+<CORTEX_REPO>\.cortex-publishing
 ```
 
 Publishing module:
 
 ```text
-H:\Code\Paperclip\scripts\brain\cortex_publishing.py
+<CORTEX_REPO>\scripts\brain\cortex_publishing.py
 ```
 
 ## Commands

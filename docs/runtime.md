@@ -26,18 +26,18 @@ API so that self-development still receives a structured proposal.
 
 The guardrail file is:
 
-`H:\Code\Paperclip\scripts\brain\cortex_self_dev_guardrails.json`
+`<CORTEX_REPO>\scripts\brain\cortex_self_dev_guardrails.json`
 
 ## Important Local Paths
 
 | Path | Purpose |
 | --- | --- |
-| `H:\Code\Paperclip` | Main Paperclip fork and Cortex working tree |
-| `H:\Code\Paperclip\scripts\brain` | Cortex modules |
-| `H:\Code\Paperclip\scripts\voice` | Voice pipeline |
-| `C:\Users\Smedj\Documents\Obsidian Vault` | Memory, state files, graph artifacts |
-| `C:\Users\Smedj\.claude\projects\h--Code-Paperclip\memory` | Claude auto-memory |
-| `H:\Code\Paperclip\.cortex-publishing` | Sanitized GitHub publication repo |
+| `<CORTEX_REPO>` | Main Paperclip fork and Cortex working tree |
+| `<CORTEX_REPO>\scripts\brain` | Cortex modules |
+| `<CORTEX_REPO>\scripts\voice` | Voice pipeline |
+| `<USER_HOME>\Documents\Obsidian Vault` | Memory, state files, graph artifacts |
+| `<USER_HOME>\.claude\projects\h--Code-Paperclip\memory` | Claude auto-memory |
+| `<CORTEX_REPO>\.cortex-publishing` | Sanitized GitHub publication repo |
 
 ## State Files
 

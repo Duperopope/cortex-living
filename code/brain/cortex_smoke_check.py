@@ -29,13 +29,16 @@ CORE_MODULES = [
     "cortex_active_inference",
     "cortex_anti_fake",
     "cortex_action_effects",
+    "cortex_body_health",
     "cortex_homeostasis",
+    "cortex_publish_safety_check",
 ]
 
 # Modules pour lesquels self_test() existe et doit retourner ok=True
 CORE_SELF_TEST = [
     "cortex_active_inference",
     "cortex_action_effects",
+    "cortex_publish_safety_check",
 ]
 
 

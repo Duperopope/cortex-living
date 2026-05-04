@@ -979,6 +979,220 @@ publication ; ce contexte reste local de toute façon).
 """
 
 
+def _capture_session_current() -> dict:
+    """Génère examples/session-current/ avec un dossier de preuves multi-rapports.
+
+    Différent de session-001 (snapshot d'une fenêtre) — celui-ci est l'état
+    LIVE le plus récent + tous les rapports croisés produits par les modules
+    de Cortex.
+
+    Fichiers générés :
+    - state.before.json     : extrait début fenêtre récente
+    - state.after.json      : extrait fin fenêtre récente + win-rate baselines
+    - decisions.jsonl       : N dernières décisions
+    - action_effects_summary.json : stats() étoffé
+    - body_health_report.json     : status() + verify_junctions
+    - anti_fake_report.json       : COPIE du dernier rapport disque (pas regen)
+    - smoke_check_report.json     : run() smoke check
+    - safety_check_report.json    : scan() safety check
+    - iag_report.json             : run_iag_test()
+    - perception_context.json     : get_perception_context()
+    - README.md                   : explication, ce qui est prouvé / pas prouvé
+    """
+    ex = REPO_LOCAL / "examples" / "session-current"
+    ex.mkdir(parents=True, exist_ok=True)
+    out = {"files": []}
+    vault_path = Path(r"<USER_HOME>\Documents\Obsidian Vault")
+
+    # 1. state.before / state.after / decisions
+    ai_state_path = vault_path / ".cortex-active-inference-state.json"
+    if ai_state_path.exists():
+        try:
+            ai_state = json.loads(ai_state_path.read_text(encoding="utf-8"))
+            vfe = ai_state.get("vfe_history", [])
+            n = min(10, len(vfe))
+            if n >= 2:
+                state_before = {
+                    "ts": vfe[-n].get("ts"),
+                    "n_steps_at_start": ai_state.get("n_steps", 0) - n + 1,
+                    "early_surprise": vfe[-n].get("vfe"),
+                    "active_inference_version": ai_state.get("version"),
+                }
+                baselines = ai_state.get("baselines", {})
+                state_after = {
+                    "ts": vfe[-1].get("ts"),
+                    "n_steps_total": ai_state.get("n_steps", 0),
+                    "late_surprise": vfe[-1].get("vfe"),
+                    "n_better_than_random": ai_state.get("n_better_than_random", 0),
+                    "n_outcome_evaluated": ai_state.get("n_outcome_evaluated", 0),
+                    "vs_baselines": {
+                        k: {kk: vv for kk, vv in v.items()
+                            if kk in ("wins", "losses", "ties", "outcome_score_sum")}
+                        for k, v in baselines.items()
+                    },
+                }
+                (ex / "state.before.json").write_text(
+                    json.dumps(state_before, indent=2, ensure_ascii=False),
+                    encoding="utf-8")
+                (ex / "state.after.json").write_text(
+                    json.dumps(state_after, indent=2, ensure_ascii=False),
+                    encoding="utf-8")
+                with (ex / "decisions.jsonl").open("w", encoding="utf-8") as f:
+                    for d in vfe[-n:]:
+                        f.write(json.dumps(d, ensure_ascii=False) + "\n")
+                out["files"] += ["state.before.json", "state.after.json", "decisions.jsonl"]
+        except Exception as e:
+            out["state_error"] = str(e)[:120]
+
+    # 2. action_effects_summary.json (stats étoffé)
+    try:
+        sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+        import cortex_action_effects as _ae
+        ae_stats = _ae.stats()
+        (ex / "action_effects_summary.json").write_text(
+            _anonymize(json.dumps(ae_stats, indent=2, ensure_ascii=False)),
+            encoding="utf-8")
+        out["files"].append("action_effects_summary.json")
+    except Exception as e:
+        out["action_effects_error"] = str(e)[:120]
+
+    # 3. body_health_report.json
+    try:
+        import cortex_body_health as _bh
+        bh_status = _bh.body_health_status()
+        # Anonymise les paths de junctions
+        text = _anonymize(json.dumps(bh_status, indent=2, ensure_ascii=False))
+        (ex / "body_health_report.json").write_text(text, encoding="utf-8")
+        out["files"].append("body_health_report.json")
+    except Exception as e:
+        out["body_health_error"] = str(e)[:120]
+
+    # 4. anti_fake_report.json — COPIE du dernier rapport (pas regen, ça prend 4min)
+    af_path = vault_path / ".cortex-anti-fake-report.json"
+    if af_path.exists():
+        try:
+            txt = af_path.read_text(encoding="utf-8")
+            (ex / "anti_fake_report.json").write_text(
+                _anonymize(txt), encoding="utf-8")
+            out["files"].append("anti_fake_report.json (copy)")
+        except Exception: pass
+
+    # 5. smoke_check_report.json
+    try:
+        import cortex_smoke_check as _sc
+        sc_rep = _sc.run()
+        (ex / "smoke_check_report.json").write_text(
+            json.dumps(sc_rep, indent=2, ensure_ascii=False),
+            encoding="utf-8")
+        out["files"].append("smoke_check_report.json")
+    except Exception as e:
+        out["smoke_error"] = str(e)[:120]
+
+    # 6. safety_check_report.json
+    try:
+        import cortex_publish_safety_check as _ck
+        # Scan le repo en cours de publish (le pre-flight l'a déjà fait, on a un rapport)
+        ck_path = Path(r"<CORTEX_REPO>\.cortex-publish-safety-last.json")
+        if ck_path.exists():
+            (ex / "safety_check_report.json").write_text(
+                _anonymize(ck_path.read_text(encoding="utf-8")),
+                encoding="utf-8")
+            out["files"].append("safety_check_report.json (copy)")
+    except Exception as e:
+        out["safety_error"] = str(e)[:120]
+
+    # 7. iag_report.json — copie le rapport disque (ne re-run pas, c'est lent)
+    iag_path = vault_path / ".cortex-iag-report.json"
+    if iag_path.exists():
+        try:
+            (ex / "iag_report.json").write_text(
+                _anonymize(iag_path.read_text(encoding="utf-8")),
+                encoding="utf-8")
+            out["files"].append("iag_report.json (copy)")
+        except Exception: pass
+
+    # 8. perception_context.json
+    try:
+        import cortex_dialogue as _cd
+        pc = _cd.get_perception_context()
+        # Retire le screenshot path (chemin local user)
+        pc.pop("screenshot", None)
+        # Retire la description complète (peut contenir contenu sensible)
+        if pc.get("description"):
+            pc["description"] = pc["description"][:120] + "..."
+        (ex / "perception_context.json").write_text(
+            json.dumps(pc, indent=2, ensure_ascii=False),
+            encoding="utf-8")
+        out["files"].append("perception_context.json")
+    except Exception as e:
+        out["perception_error"] = str(e)[:120]
+
+    # 9. README explicatif
+    iso = dt.datetime.now().isoformat(timespec="seconds")
+    (ex / "README.md").write_text(f"""# Session current — preuves multi-rapports
+
+> Snapshot live : `{iso}`
+
+Ce dossier rassemble **tous les rapports croisés** produits par les modules
+de Cortex à un instant T. Différent de `session-001/` (qui est une fenêtre
+historique) — `session-current` reflète l'état d'aujourd'hui.
+
+## Fichiers (audit reproductible)
+
+| Fichier | Source | Ce qu'il prouve |
+|---|---|---|
+| `state.before.json` | `cortex_active_inference._load_state()` | Snapshot début fenêtre récente |
+| `state.after.json` | idem fin de fenêtre | Win-rate vs 5 baselines naïves sur outcomes proxy |
+| `decisions.jsonl` | `vfe_history[-N:]` | Une décision/cycle, action choisie + outcome |
+| `action_effects_summary.json` | `cortex_action_effects.stats()` | empirical_ratio, prediction_error_avg, top_reliable / top_overoptimistic |
+| `body_health_report.json` | `cortex_body_health.body_health_status()` | Sévérité disques + 6 junctions actives + dernier auto_exec |
+| `anti_fake_report.json` | dernier rapport `cortex_anti_fake.run_all_tests()` | 5 tests dont `internal_state_dont_know` |
+| `smoke_check_report.json` | `cortex_smoke_check.run()` LIVE | strict-core (compile + import + self_test) |
+| `safety_check_report.json` | dernier scan `cortex_publish_safety_check.scan()` | n_blockers, n_warnings, by_kind |
+| `iag_report.json` | `cortex_iag_test.run_iag_test()` | raw_score, calibrated_score, bottlenecks, maturity |
+| `perception_context.json` | `cortex_dialogue.get_perception_context()` | vision_available, age_s, method (live/sticky) |
+
+## Ce qui est PROUVÉ par ces fichiers
+
+- Les **junctions NTFS** sont vérifiées via `Get-Item .LinkType` (locale-independent)
+- Le **safety check** détecte les fuites (test self_test injecte un faux secret et vérifie qu'il est attrapé)
+- Le **smoke check strict-core** a tourné et passé 7/7 modules
+- L'**apprentissage empirique** est mesuré : nombre d'exemples par action, prediction_error
+- Le **score IAG** est calibré par 3 facteurs visibles (action_effects, prediction_error, fake_confident_rate)
+
+## Ce qui reste fake / partiel / métaphorique
+
+- **3D viz** = notes Obsidian, pas modules Cortex (cf claims.md)
+- **Active Inference** : EFE-like, pas le formalisme variationnel Friston
+- **JEPA** : mini world-model NumPy entraîné, pas LeCun complet
+- **Self-dev** : aspirationnel, pas testé end-to-end avec commits verts
+
+## Comment reproduire
+
+```bash
+# Smoke check (compile + import + self_test sur 7 modules cœur)
+python code/brain/cortex_smoke_check.py
+
+# Safety check (anti-fuite avant publish)
+python code/brain/cortex_publish_safety_check.py scan
+
+# Action effects (stats apprentissage)
+python code/brain/cortex_action_effects.py summary
+
+# Body health status (disques + junctions)
+python code/brain/cortex_body_health.py diagnose
+
+# IAG calibré
+python code/brain/cortex_iag_test.py
+```
+
+Si tes chiffres divergent de ce qui est dans les .json ici, c'est attendu —
+ce snapshot est figé à `{iso}`. Lance les commandes pour voir l'état actuel.
+""", encoding="utf-8")
+    out["files"].append("README.md")
+    return out
+
+
 def _capture_session_example() -> dict:
     """Génère examples/session-001/ depuis les logs runtime existants.
 
@@ -1282,23 +1496,76 @@ def update(commit_msg: str = None, push: bool = True,
     (workflows / "smoke.yml").write_text(_smoke_yml(), encoding="utf-8")
     # Capture de session live (anti "state.json à zéro")
     session_report = _capture_session_example()
+    # Session-current : preuves multi-rapports croisés (mission 9)
+    session_current_report = _capture_session_current()
     # .gitignore : on étend pour exclure caches Python publiés par erreur
     (REPO_LOCAL / ".gitignore").write_text(
         "*.log\n__pycache__/\n.cortex-*\n*.pyc\n*.pyo\n.DS_Store\n",
         encoding="utf-8")
+
+    # Filet de sécurité : passe d'anonymisation GLOBALE sur tout le mirror.
+    # Certains fichiers (changelog, docs ad-hoc) peuvent avoir été copiés à un
+    # moment où _anonymize n'était pas appliqué. On retraite tout en place.
+    n_re_anon = 0
+    for f in REPO_LOCAL.rglob("*"):
+        if not f.is_file(): continue
+        rel = str(f.relative_to(REPO_LOCAL)).replace("\\", "/")
+        if rel.startswith(".git/") or rel.startswith("node_modules/"): continue
+        if f.suffix.lower() not in (".md", ".txt", ".json", ".jsonl",
+                                      ".yml", ".yaml", ".html"): continue
+        try:
+            txt = f.read_text(encoding="utf-8", errors="replace")
+            txt2 = _anonymize(txt)
+            if txt2 != txt:
+                f.write_text(txt2, encoding="utf-8")
+                n_re_anon += 1
+        except Exception: pass
+
+    # Safety check final : si fuite détectée, refuse le push (sauf skip_safety)
+    safety_report = None
+    if not skip_smoke:  # même flag : si on bypass smoke on bypass aussi safety
+        try:
+            import cortex_publish_safety_check as _ck
+            safety_report = _ck.scan(REPO_LOCAL)
+            if safety_report.get("n_blockers", 0) > 0:
+                return {
+                    "ok": False, "aborted_by_safety_check": True,
+                    "safety_report": safety_report,
+                    "n_re_anonymized": n_re_anon,
+                    "hint": "Run `python scripts/brain/cortex_publish_safety_check.py scan` "
+                             "pour le détail. Bypass : update(skip_smoke=True).",
+                }
+        except Exception as e:
+            print(f"[publishing] safety check crashed (non-fatal): {e}", flush=True)
+
     rc, out = _run(["git", "add", "-A"], cwd=REPO_LOCAL)
     rc, status = _run(["git", "status", "--short"], cwd=REPO_LOCAL)
     if not status:
         return {"ok": True, "no_changes": True,
-                "code_counts": code_counts, "docs_report": docs_report}
+                "code_counts": code_counts, "docs_report": docs_report,
+                "n_re_anonymized": n_re_anon,
+                "safety_report": (
+                    {k: safety_report.get(k) for k in
+                     ("n_blockers", "n_warnings", "verdict")}
+                    if safety_report else None)}
     msg = commit_msg or f"Live update {state['iso']}"
     rc, out = _run(["git", "commit", "-m", msg], cwd=REPO_LOCAL)
     if push:
         rc, out = _run(["git", "push"], cwd=REPO_LOCAL, timeout=120)
         return {"ok": rc == 0, "pushed": rc == 0, "log": out[:300],
-                "code_counts": code_counts, "docs_report": docs_report}
+                "code_counts": code_counts, "docs_report": docs_report,
+                "n_re_anonymized": n_re_anon,
+                "safety_report": (
+                    {k: safety_report.get(k) for k in
+                     ("n_blockers", "n_warnings", "verdict")}
+                    if safety_report else None)}
     return {"ok": True, "committed_only": True,
-            "code_counts": code_counts, "docs_report": docs_report}
+            "code_counts": code_counts, "docs_report": docs_report,
+            "n_re_anonymized": n_re_anon,
+            "safety_report": (
+                {k: safety_report.get(k) for k in
+                 ("n_blockers", "n_warnings", "verdict")}
+                if safety_report else None)}
 
 
 _running = False

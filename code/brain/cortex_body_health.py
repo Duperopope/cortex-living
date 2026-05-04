@@ -43,6 +43,7 @@ VAULT = Path(r"<USER_HOME>\Documents\Obsidian Vault")
 PLAN_FILE = VAULT / ".cortex-body-health-plan.json"
 DIAG_FILE = VAULT / ".cortex-body-health-diag.json"
 AUDIT_LOG = VAULT / ".cortex-body-health-audit.jsonl"
+LAST_RUN  = VAULT / ".cortex-body-health-last.json"
 
 DISK_CRITICAL_PCT = 90.0  # > 90 % = zone rouge
 DISK_WARNING_PCT  = 80.0
@@ -287,12 +288,28 @@ def propose_plan() -> dict:
             "diagnose": diag,
         }
     target = spare_disks[0]
+    skipped: list[dict] = []
 
     # 1. Cache cleanups (LOW, action delete_cache, ne nécessite pas de target)
-    actions.extend(_propose_cache_cleanups())
+    cache_actions = _propose_cache_cleanups()
+    actions.extend(cache_actions)
+    # On ajoute aussi les caches absents/petits aux skipped pour traçabilité
+    seen_paths = {a.get("src") for a in cache_actions}
+    for entry in SAFE_CACHE_TARGETS:
+        if entry["path"] in seen_paths: continue
+        p = Path(entry["path"])
+        if not p.exists() or not p.is_dir():
+            skipped.append({"name": entry["name"], "path": entry["path"],
+                             "reason": "missing_path"})
+        else:
+            sz, _ = _measure(p)
+            if sz < 100 * 1024 * 1024:
+                skipped.append({"name": entry["name"], "path": entry["path"],
+                                 "reason": "too_small",
+                                 "size_gb": round(sz/1e9, 4)})
 
     # 2. Migrations huge user dirs (MEDIUM, move + junction NTFS)
-    actions.extend(_propose_huge_user_migrations(target["mount"]))
+    actions.extend(_propose_huge_user_migrations(target["mount"], skipped=skipped))
 
     # 3. Intruders du scan _scan_largest (legacy : LM Studio paths, etc.)
     for mount, info in diag["intruders_by_disk"].items():
@@ -333,6 +350,8 @@ def propose_plan() -> dict:
         "target_disk": target["mount"],
         "target_free_before_gb": target["free_gb"],
         "n_actions": len(actions),
+        "n_skipped": len(skipped),
+        "skipped": skipped,
         "expected_freed_gb_total": expected_freed_gb,
         "expected_required_on_target_gb": expected_required_gb,
         "actions": actions,
@@ -565,30 +584,38 @@ def _propose_cache_cleanups() -> list[dict]:
     return actions
 
 
-def _propose_huge_user_migrations(target_disk: str) -> list[dict]:
+def _propose_huge_user_migrations(target_disk: str,
+                                    skipped: list | None = None) -> list[dict]:
     """Génère les actions `move_with_junction` pour les HUGE_USER_DIRS dispo.
 
     `target_disk` : ex `G:\\` — disque cible avec assez d'espace.
     Junction NTFS conservée au path original pour transparence côté apps.
+
+    Si `skipped` est fourni, on y append les raisons de skip pour traçabilité.
     """
     import subprocess
     actions = []
+    skipped = skipped if skipped is not None else []
     for entry in HUGE_USER_DIRS:
         src_p = Path(entry["path"])
         if not src_p.exists() or not src_p.is_dir():
+            skipped.append({"name": entry.get("name"), "path": str(src_p),
+                             "reason": "missing_path"})
             continue
-        # Vérifie que ce n'est pas déjà une junction (idempotence)
-        try:
-            # Sur Windows, junction = type "REPARSE_POINT"
-            r = subprocess.run(
-                ["fsutil", "reparsepoint", "query", str(src_p)],
-                capture_output=True, text=True, timeout=5)
-            if r.returncode == 0 and "Mount Point" in r.stdout:
-                continue  # déjà migré + junction présente, skip
-        except Exception: pass
+        # Idempotence : si déjà junction NTFS, skip (locale-independent check)
+        is_j, _tgt = _is_junction_via_powershell(src_p)
+        if is_j:
+            skipped.append({"name": entry.get("name"), "path": str(src_p),
+                             "reason": "already_junction",
+                             "target": _tgt})
+            continue
 
         sz, n_files = _measure(src_p)
         if sz < entry["min_gb_to_act"] * 1e9:
+            skipped.append({"name": entry.get("name"), "path": str(src_p),
+                             "reason": "below_min_threshold",
+                             "size_gb": round(sz/1e9, 2),
+                             "min_gb": entry["min_gb_to_act"]})
             continue
 
         target_root = Path(target_disk) / "cortex-migrated"
@@ -755,6 +782,17 @@ def execute(action_id: str, confirm: bool = False) -> dict:
     }
 
 
+def _critical_disk_state(disks: list[dict]) -> dict | None:
+    """Retourne le snapshot du disque le plus critique (% le plus haut)."""
+    if not disks: return None
+    crit = max(disks, key=lambda d: d.get("percent", 0))
+    return {"mount": crit.get("mount"),
+            "percent": crit.get("percent"),
+            "free_gb": crit.get("free_gb"),
+            "used_gb": crit.get("used_gb"),
+            "total_gb": crit.get("total_gb")}
+
+
 def auto_execute_authorized(allow_low: bool = True,
                              allow_medium: bool = True,
                              allow_high: bool = False) -> dict:
@@ -765,11 +803,12 @@ def auto_execute_authorized(allow_low: bool = True,
     etc.) — il faudrait un opt-in explicite pour ça.
 
     Sécurité :
+    - Snapshot disques AVANT et APRÈS pour calculer effective_freed_gb réel
     - Audit log de CHAQUE action (succès / échec) dans `.cortex-body-health-audit.jsonl`
     - HIGH refusé par défaut (override par Sam si vraiment voulu)
     - Échec d'une action n'arrête pas la chaîne (les autres tentent)
-    - Sanity guard : refuse si total prétendu > 90 % de l'espace utilisé
-      du disque source (probable bug de scan)
+    - Sanity guard : refuse si total prétendu > 250 Go (probable bug de scan)
+    - Écrit `.cortex-body-health-last.json` machine-readable pour UI/Claude context
     """
     if not PLAN_FILE.exists():
         propose_plan()
@@ -785,20 +824,31 @@ def auto_execute_authorized(allow_low: bool = True,
     if allow_medium: allowed.add("MEDIUM")
     if allow_high: allowed.add("HIGH")
 
-    actions = [a for a in plan.get("actions", [])
-               if a.get("risk") in allowed]
+    actions_all = plan.get("actions", [])
+    actions = [a for a in actions_all if a.get("risk") in allowed]
+    skipped_by_risk = [{"id": a.get("id"), "name": a.get("name", a.get("src")),
+                         "risk": a.get("risk"), "reason": "risk_not_authorized"}
+                        for a in actions_all if a.get("risk") not in allowed]
     total_gb = sum(a.get("size_gb", 0) for a in actions)
 
-    # Sanity guard : si total > 250 Go, suspect — refuse
     if total_gb > 250:
         return {"ok": False, "error": "suspicious_total_gb",
                 "total_gb": total_gb, "n_actions": len(actions),
                 "msg": "Plus de 250 Go d'actions auto : refus, audit manuel requis."}
 
+    # Snapshot AVANT
+    disks_before = _disk_state()
+    crit_before = _critical_disk_state(disks_before)
+    started_at = _now()
+
     results = []
-    total_freed = 0.0
+    skipped = list(skipped_by_risk)
     for a in actions:
         rep = execute(a["id"], confirm=True)
+        if rep.get("skip"):
+            skipped.append({"id": a["id"], "name": a.get("name", a.get("src")),
+                             "risk": a.get("risk"), "reason": rep["skip"]})
+            continue
         freed = rep.get("gb_freed", a.get("size_gb", 0)) if rep.get("ok") else 0
         results.append({"id": a["id"],
                          "name": a.get("name", a.get("src")),
@@ -806,26 +856,147 @@ def auto_execute_authorized(allow_low: bool = True,
                          "risk": a.get("risk"),
                          "ok": rep.get("ok"),
                          "freed_gb": freed,
-                         "error": rep.get("error")})
-        if rep.get("ok"):
-            total_freed += freed or 0
+                         "error": rep.get("error"),
+                         "kind": rep.get("kind")})
+
+    # Snapshot APRÈS pour mesurer le delta RÉEL côté filesystem
+    disks_after = _disk_state()
+    crit_after = _critical_disk_state(disks_after)
+    n_ok = sum(1 for r in results if r["ok"])
+    n_fail = sum(1 for r in results if not r["ok"])
+    declared_freed = round(sum(r.get("freed_gb", 0) for r in results if r["ok"]), 2)
+    effective_freed = None
+    if crit_before and crit_after and crit_before["mount"] == crit_after["mount"]:
+        effective_freed = round(crit_after["free_gb"] - crit_before["free_gb"], 2)
+
+    summary = {
+        "ts": _now(),
+        "started_at": started_at,
+        "duration_s": round(_now() - started_at, 1),
+        "allowed_risks": sorted(allowed),
+        "n_actions_attempted": len(actions),
+        "n_succeeded": n_ok,
+        "n_failed": n_fail,
+        "n_skipped_by_risk": len(skipped_by_risk),
+        "n_skipped_total": len(skipped),
+        "declared_freed_gb": declared_freed,
+        "effective_freed_gb": effective_freed,
+        "calibration_gap_gb": (round(declared_freed - effective_freed, 2)
+                                if effective_freed is not None else None),
+        "critical_before": crit_before,
+        "critical_after": crit_after,
+        "results": results,
+        "skipped": skipped,
+    }
+
     _log_audit({"type": "auto_execute_authorized_completed",
                  "allowed_risks": sorted(allowed),
                  "n_actions": len(actions),
-                 "n_ok": sum(1 for r in results if r["ok"]),
-                 "total_freed_gb": round(total_freed, 2)})
-    return {"ok": True,
-            "allowed_risks": sorted(allowed),
-            "n_actions_attempted": len(actions),
-            "n_succeeded": sum(1 for r in results if r["ok"]),
-            "total_freed_gb": round(total_freed, 2),
-            "results": results}
+                 "n_ok": n_ok, "n_fail": n_fail,
+                 "n_skipped": len(skipped),
+                 "declared_freed_gb": declared_freed,
+                 "effective_freed_gb": effective_freed})
+    try:
+        LAST_RUN.parent.mkdir(parents=True, exist_ok=True)
+        LAST_RUN.write_text(json.dumps(summary, indent=2, ensure_ascii=False),
+                             encoding="utf-8")
+    except Exception: pass
+    return {"ok": True, **summary}
 
 
 # Compat : ancien nom conservé
 def auto_execute_low() -> dict:
     return auto_execute_authorized(allow_low=True, allow_medium=False,
                                     allow_high=False)
+
+
+def _is_junction_via_powershell(src: Path) -> tuple[bool, str | None]:
+    """Universel : utilise PowerShell Get-Item .LinkType qui marche en EN/FR.
+
+    Retourne (is_junction, target_path_or_None).
+    Plus fiable que fsutil reparsepoint query qui parse différemment selon locale.
+    """
+    import subprocess
+    try:
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-Command",
+             f"$i = Get-Item -LiteralPath '{src}' -Force; "
+             f"if ($i.LinkType -eq 'Junction') {{ Write-Output $i.Target }} "
+             f"else {{ Write-Output '' }}"],
+            capture_output=True, text=True, timeout=8)
+        target = (r.stdout or "").strip()
+        if target:
+            return (True, target)
+    except Exception: pass
+    return (False, None)
+
+
+def verify_junctions() -> dict:
+    """Inspecte chaque path connu de HUGE_USER_DIRS, vérifie si junction NTFS.
+
+    Utilise `Get-Item .LinkType` PowerShell (universel locale-independent)
+    plutôt que fsutil reparsepoint query (output en français vs anglais).
+
+    Pour chaque entrée :
+    - is_junction : True si reparse point Mount Point
+    - target : la cible si junction
+    - target_exists : la cible existe sur disque
+    - broken : junction présente mais target manquant
+    """
+    out = []
+    for entry in HUGE_USER_DIRS:
+        src = Path(entry["path"])
+        rec = {"name": entry.get("name"), "path": str(src),
+               "exists": src.exists(),
+               "is_junction": False, "target": None,
+               "target_exists": None, "broken": False}
+        if src.exists():
+            is_j, target = _is_junction_via_powershell(src)
+            rec["is_junction"] = is_j
+            if target:
+                rec["target"] = target
+                tp = Path(target)
+                rec["target_exists"] = tp.exists()
+                rec["broken"] = not tp.exists()
+        out.append(rec)
+    n_junctions = sum(1 for r in out if r["is_junction"])
+    n_broken = sum(1 for r in out if r["broken"])
+    return {"ts": _now(),
+             "n_total": len(out),
+             "n_junctions": n_junctions,
+             "n_broken": n_broken,
+             "entries": out}
+
+
+def body_health_status() -> dict:
+    """Snapshot machine-readable pour UI / Claude context.
+
+    Légère : retourne juste les chiffres essentiels, ne déclenche pas le scan
+    profond de propose_plan. Lit `.cortex-body-health-last.json` si présent.
+    """
+    disks = _disk_state()
+    crit_now = _critical_disk_state(disks)
+    severity = ("CRITICAL" if any(d.get("is_critical") for d in disks) else
+                "WARNING"  if any(d.get("is_warning")  for d in disks) else
+                "OK")
+    last = None
+    try:
+        if LAST_RUN.exists():
+            last = json.loads(LAST_RUN.read_text(encoding="utf-8"))
+    except Exception: pass
+    j = verify_junctions()
+    return {
+        "ts": _now(),
+        "severity": severity,
+        "critical_disk": crit_now,
+        "all_disks": [{"mount": d["mount"], "percent": d["percent"],
+                        "free_gb": d["free_gb"], "is_critical": d["is_critical"],
+                        "is_warning": d["is_warning"]} for d in disks],
+        "n_junctions_active": j["n_junctions"],
+        "n_junctions_broken": j["n_broken"],
+        "junctions": j["entries"],
+        "last_auto_exec": last,
+    }
 
 
 def speak_if_critical() -> dict:

@@ -38,6 +38,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_pipeline_manager` |  |
 | `cortex_plan` |  |
 | `cortex_proactive` |  |
+| `cortex_publish_safety_check` |  |
 | `cortex_publishing` |  |
 | `cortex_quantize` |  |
 | `cortex_research` |  |

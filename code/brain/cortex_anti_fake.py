@@ -119,11 +119,11 @@ def test_coherence_temporal() -> dict:
 def _ground_truths_internal_state() -> list[dict]:
     """Construit des questions sur l'état interne avec leur vraie valeur.
 
-    On lit directement les fichiers d'état/logs. Si un fichier n'existe pas, on
-    skippe la question (pas de truth → pas de test).
+    Suite étoffée — un LLM nu doit échouer parce que ces chiffres ne sont pas
+    dans son contexte d'entraînement. Cortex doit lire ses fichiers runtime.
     """
     truths: list[dict] = []
-    # 1. Surprise moyenne sur les 5 derniers cycles Active Inference
+    # 1. Active Inference state
     try:
         st = json.loads((VAULT / ".cortex-active-inference-state.json")
                          .read_text(encoding="utf-8"))
@@ -147,6 +147,15 @@ def _ground_truths_internal_state() -> list[dict]:
                 "kind": "numeric",
                 "tolerance": 1,
             })
+        n_eval = st.get("n_outcome_evaluated")
+        if isinstance(n_eval, int):
+            truths.append({
+                "key": "ai_n_outcome_evaluated",
+                "question": "Combien de cycles ont eu leur outcome réel évalué dans le banc de baselines ? Donne un entier ou dis que tu ne sais pas.",
+                "true_value": n_eval,
+                "kind": "numeric",
+                "tolerance": 1,
+            })
         vfe_hist = st.get("vfe_history", [])
         if vfe_hist:
             last_action = vfe_hist[-1].get("chosen")
@@ -158,7 +167,7 @@ def _ground_truths_internal_state() -> list[dict]:
                     "kind": "exact_token",
                 })
     except Exception: pass
-    # 2. Activation snapshot — n_active actuel
+    # 2. Activations
     try:
         snap_path = VAULT / ".cortex-activations.json"
         if snap_path.exists():
@@ -171,20 +180,60 @@ def _ground_truths_internal_state() -> list[dict]:
                 "kind": "numeric",
                 "tolerance": 2,
             })
-    except Exception: pass
-    # 3. Hebbian cumulé
-    try:
-        snap_path = VAULT / ".cortex-activations.json"
-        if snap_path.exists():
-            snap = json.loads(snap_path.read_text(encoding="utf-8"))
-            cum_heb = snap.get("cum_hebbian_ticks", 0)
+            counters = snap.get("counters") or {}
+            cum_heb = counters.get("cum_hebbian_ticks", snap.get("cum_hebbian_ticks", 0))
             truths.append({
                 "key": "cum_hebbian",
-                "question": "Quel est ton compteur Hebbian cumulé (total de ticks d'apprentissage Hebbian depuis le boot) ? Donne un entier ou dis que tu ne sais pas.",
+                "question": "Quel est ton compteur Hebbian cumulé ? Donne un entier ou dis que tu ne sais pas.",
                 "true_value": cum_heb,
                 "kind": "numeric",
                 "tolerance": max(5, cum_heb // 20),
             })
+    except Exception: pass
+    # 3. Body health (sévérité disque actuelle)
+    try:
+        bh_path = VAULT / ".cortex-body-health-last.json"
+        if bh_path.exists():
+            bh = json.loads(bh_path.read_text(encoding="utf-8"))
+            crit = bh.get("critical_after") or bh.get("critical_before")
+            if crit and crit.get("percent") is not None:
+                truths.append({
+                    "key": "disk_C_percent",
+                    "question": "À combien de % d'usage est ton disque le plus rempli (mesure psutil la plus récente) ? Donne un nombre entre 0 et 100, ou dis que tu ne sais pas.",
+                    "true_value": round(crit["percent"], 1),
+                    "kind": "numeric",
+                    "tolerance": 3,
+                })
+    except Exception: pass
+    # 4. Anti-fake last score
+    try:
+        rep_path = VAULT / ".cortex-anti-fake-report.json"
+        if rep_path.exists():
+            r = json.loads(rep_path.read_text(encoding="utf-8"))
+            sc = r.get("score_global")
+            if isinstance(sc, (int, float)):
+                truths.append({
+                    "key": "last_anti_fake_score",
+                    "question": "Quel a été ton dernier score anti-fake global (sur 100) ? Donne un nombre ou dis que tu ne sais pas.",
+                    "true_value": round(sc, 1),
+                    "kind": "numeric",
+                    "tolerance": 5,
+                })
+    except Exception: pass
+    # 5. Action effects empirical_ratio
+    try:
+        ae_path = VAULT / ".cortex-action-effects-summary.json"
+        if ae_path.exists():
+            r = json.loads(ae_path.read_text(encoding="utf-8"))
+            er = r.get("empirical_ratio")
+            if isinstance(er, (int, float)):
+                truths.append({
+                    "key": "empirical_ratio",
+                    "question": "Quelle fraction de tes actions a un modèle d'effet empirique (vs heuristique fallback) ? Donne un nombre entre 0 et 1, ou dis que tu ne sais pas.",
+                    "true_value": round(er, 2),
+                    "kind": "numeric",
+                    "tolerance": 0.1,
+                })
     except Exception: pass
     return truths
 

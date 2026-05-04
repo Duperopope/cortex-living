@@ -1,0 +1,138 @@
+{
+  "ts": 1777904364.8442025,
+  "min_samples": 8,
+  "window": 30,
+  "n_actions_observed": 2,
+  "empirical_predictions_count": 2,
+  "heuristic_fallback_count": 0,
+  "empirical_ratio": 1.0,
+  "prediction_error_avg_global": 9.35196,
+  "actions": {
+    "explore_graph": {
+      "n_examples": 30,
+      "status": "learned",
+      "fields_with_signal": [
+        "compression_error",
+        "cpu",
+        "n_active",
+        "n_hebbian_cum",
+        "n_pulses_cum",
+        "ram"
+      ]
+    },
+    "map_knowledge": {
+      "n_examples": 30,
+      "status": "learned",
+      "fields_with_signal": [
+        "compression_error",
+        "cpu",
+        "n_active",
+        "n_hebbian_cum",
+        "n_pulses_cum",
+        "ram"
+      ]
+    }
+  },
+  "per_action": {
+    "explore_graph": {
+      "n_examples": 30,
+      "status": "learned",
+      "fields_with_signal": [
+        "compression_error",
+        "cpu",
+        "n_active",
+        "n_hebbian_cum",
+        "n_pulses_cum",
+        "ram"
+      ],
+      "means": {
+        "n_active": {
+          "mean": -0.16667,
+          "std": 8.63745,
+          "n": 30
+        },
+        "n_pulses_cum": {
+          "mean": 24.83333,
+          "std": 11.5328,
+          "n": 30
+        },
+        "n_hebbian_cum": {
+          "mean": 51.13333,
+          "std": 51.8644,
+          "n": 30
+        },
+        "compression_error": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 30
+        },
+        "cpu": {
+          "mean": -0.50667,
+          "std": 10.61697,
+          "n": 30
+        },
+        "ram": {
+          "mean": -0.23333,
+          "std": 3.31062,
+          "n": 30
+        }
+      },
+      "prediction_error_avg": 9.31496,
+      "observability": "medium"
+    },
+    "map_knowledge": {
+      "n_examples": 30,
+      "status": "learned",
+      "fields_with_signal": [
+        "compression_error",
+        "cpu",
+        "n_active",
+        "n_hebbian_cum",
+        "n_pulses_cum",
+        "ram"
+      ],
+      "means": {
+        "n_active": {
+          "mean": -1.8,
+          "std": 8.24783,
+          "n": 30
+        },
+        "n_pulses_cum": {
+          "mean": 18.4,
+          "std": 15.95327,
+          "n": 30
+        },
+        "n_hebbian_cum": {
+          "mean": 18.43333,
+          "std": 55.10335,
+          "n": 30
+        },
+        "compression_error": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 30
+        },
+        "cpu": {
+          "mean": -4.11333,
+          "std": 10.50278,
+          "n": 30
+        },
+        "ram": {
+          "mean": 0.0,
+          "std": 0.98691,
+          "n": 30
+        }
+      },
+      "prediction_error_avg": 9.38896,
+      "observability": "high"
+    }
+  },
+  "top_overoptimistic_actions": [
+    "map_knowledge",
+    "explore_graph"
+  ],
+  "top_reliable_actions": [
+    "explore_graph",
+    "map_knowledge"
+  ]
+}

@@ -157,25 +157,124 @@ def predict_effect(action: str) -> dict | None:
     return out or None
 
 
-def summary() -> dict:
-    """Vue d'ensemble : combien d'exemples par action, status learned vs fallback."""
+def _classify_observability(per_action_means: dict) -> str:
+    """Classification heuristique : action ↔ effet observable.
+
+    high   : delta moyen > 0.5 sur n_active ou >0.005 sur compression_error
+    medium : delta présent mais sous le seuil
+    low    : pas de delta significatif (toutes les moyennes ≈ 0)
+    """
+    if not per_action_means:
+        return "low"
+    n_active_m = abs(per_action_means.get("n_active", {}).get("mean", 0))
+    ce_m = abs(per_action_means.get("compression_error", {}).get("mean", 0))
+    if n_active_m > 0.5 or ce_m > 0.005:
+        return "high"
+    if n_active_m > 0.1 or ce_m > 0.001:
+        return "medium"
+    return "low"
+
+
+def stats() -> dict:
+    """Stats étoffées : ratio learned/fallback, prediction error par action,
+    top fiables / surévaluées, observabilité par action.
+
+    Avant : juste un resumé. Maintenant : diagnostic complet utilisable
+    pour calibration IAG et UI.
+    """
     by_action = _events_by_action()
-    out = {"ts": _now(), "min_samples": MIN_SAMPLES, "window": WINDOW,
-           "actions": {}}
+    per_action: dict[str, dict] = {}
+    n_total = 0
+    n_learned = 0
+    n_fallback = 0
+    pred_errors_global: list[float] = []
+    pred_errors_by_action: dict[str, list[float]] = {}
+
     for a, bucket in by_action.items():
         n = len(bucket)
         learned = predict_effect(a)
-        out["actions"][a] = {
+        means_with_stats = learned or {}
+        # Prediction error : si le bucket a des evenements avec outcome_score et
+        # outcome_proxy (post-hoc), on peut calculer l'écart moyen
+        per_errs: list[float] = []
+        for ev in bucket:
+            obs = ev.get("post", {})
+            pre = ev.get("pre", {})
+            # On approxime l'écart par champ : delta réel vs delta moyen prédit
+            if learned:
+                for field, stats_field in learned.items():
+                    if field in pre and field in obs:
+                        real_delta = obs[field] - pre[field]
+                        pred_delta = stats_field.get("mean", 0)
+                        per_errs.append(abs(real_delta - pred_delta))
+        if per_errs:
+            pred_errors_by_action[a] = sum(per_errs) / len(per_errs)
+            pred_errors_global.extend(per_errs)
+        per_action[a] = {
             "n_examples": n,
             "status": "learned" if learned else "fallback",
-            "fields_with_signal": (sorted(learned.keys()) if learned else []),
+            "fields_with_signal": (sorted(means_with_stats.keys())
+                                    if means_with_stats else []),
+            "means": {k: {"mean": v["mean"], "std": v["std"], "n": v["n"]}
+                       for k, v in means_with_stats.items()},
+            "prediction_error_avg": (round(pred_errors_by_action.get(a, 0), 5)
+                                      if a in pred_errors_by_action else None),
+            "observability": _classify_observability(means_with_stats),
         }
+        n_total += 1
+        if learned: n_learned += 1
+        else: n_fallback += 1
+
+    empirical_ratio = (n_learned / n_total) if n_total > 0 else 0.0
+    pred_err_avg_global = (sum(pred_errors_global) / len(pred_errors_global)
+                            if pred_errors_global else None)
+
+    # Top over-optimistic : actions avec mean delta positif élevé mais
+    # observed proche de 0 sur les outcomes mesurés (proxy par std haute)
+    over_optim = sorted(
+        [(a, v) for a, v in per_action.items() if v.get("means")],
+        key=lambda kv: -max(
+            (s.get("std", 0) for s in kv[1].get("means", {}).values()), default=0))[:3]
+
+    # Top reliable : actions avec n_examples >= MIN_SAMPLES et std faible
+    reliable = sorted(
+        [(a, v) for a, v in per_action.items()
+         if v.get("status") == "learned" and v.get("means")],
+        key=lambda kv: max(
+            (s.get("std", 0) for s in kv[1].get("means", {}).values()), default=1.0))[:3]
+
+    # Compat ancien format : `actions` = {action_name: {n_examples, status, fields_with_signal}}
+    actions_compat = {
+        a: {"n_examples": v["n_examples"], "status": v["status"],
+            "fields_with_signal": v["fields_with_signal"]}
+        for a, v in per_action.items()
+    }
+    out = {
+        "ts": _now(),
+        "min_samples": MIN_SAMPLES,
+        "window": WINDOW,
+        "n_actions_observed": n_total,
+        "empirical_predictions_count": n_learned,
+        "heuristic_fallback_count": n_fallback,
+        "empirical_ratio": round(empirical_ratio, 3),
+        "prediction_error_avg_global": (round(pred_err_avg_global, 5)
+                                          if pred_err_avg_global is not None else None),
+        "actions": actions_compat,  # rétrocompat
+        "per_action": per_action,   # détail enrichi
+        "top_overoptimistic_actions": [a for a, _ in over_optim],
+        "top_reliable_actions": [a for a, _ in reliable],
+    }
     try:
         SUMMARY.parent.mkdir(parents=True, exist_ok=True)
         SUMMARY.write_text(json.dumps(out, indent=2, ensure_ascii=False),
                            encoding="utf-8")
     except Exception: pass
     return out
+
+
+# Compat : ancien nom conservé (utilisé par cortex_iag_test._calibration_factor)
+def summary() -> dict:
+    return stats()
 
 
 def self_test() -> dict:
@@ -226,12 +325,12 @@ def self_test() -> dict:
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     cmd = sys.argv[1] if len(sys.argv) > 1 else "summary"
-    if cmd == "summary":
-        print(json.dumps(summary(), indent=2, ensure_ascii=False))
+    if cmd in ("summary", "stats"):
+        print(json.dumps(stats(), indent=2, ensure_ascii=False))
     elif cmd == "predict":
         a = sys.argv[2] if len(sys.argv) > 2 else "explore_graph"
         print(json.dumps(predict_effect(a), indent=2, ensure_ascii=False))
     elif cmd == "test":
         print(json.dumps(self_test(), indent=2, ensure_ascii=False))
     else:
-        print("Usage: cortex_action_effects.py {summary|predict <action>|test}")
+        print("Usage: cortex_action_effects.py {summary|stats|predict <action>|test}")

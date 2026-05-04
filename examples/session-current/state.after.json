@@ -1,0 +1,39 @@
+{
+  "ts": 1777904304.1467917,
+  "n_steps_total": 147,
+  "late_surprise": 0.3836,
+  "n_better_than_random": 126,
+  "n_outcome_evaluated": 94,
+  "vs_baselines": {
+    "random": {
+      "wins": 26,
+      "losses": 37,
+      "ties": 31,
+      "outcome_score_sum": 56.21500000000002
+    },
+    "always_reflect": {
+      "wins": 15,
+      "losses": 79,
+      "ties": 0,
+      "outcome_score_sum": 86.60000000000002
+    },
+    "always_explore": {
+      "wins": 2,
+      "losses": 25,
+      "ties": 67,
+      "outcome_score_sum": 65.9606
+    },
+    "round_robin": {
+      "wins": 24,
+      "losses": 47,
+      "ties": 23,
+      "outcome_score_sum": 60.626700000000014
+    },
+    "last_best": {
+      "wins": 3,
+      "losses": 25,
+      "ties": 66,
+      "outcome_score_sum": 64.5106
+    }
+  }
+}

@@ -39,7 +39,7 @@ actions should remain gated:
 
 The local self-development loop is configured by:
 
-`H:\Code\Paperclip\scripts\brain\cortex_self_dev_guardrails.json`
+`<CORTEX_REPO>\scripts\brain\cortex_self_dev_guardrails.json`
 
 This file is intentionally human-editable. It controls whether self-development
 is enabled, which path prefixes may be modified, blocked path fragments, context
