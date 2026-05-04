@@ -11,6 +11,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_active_inference` |  |
 | `cortex_anti_fake` |  |
 | `cortex_apply_kv_q4` |  |
+| `cortex_body_health` |  |
 | `cortex_brain_history` |  |
 | `cortex_bridge` |  |
 | `cortex_causal` |  |
