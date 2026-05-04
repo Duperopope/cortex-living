@@ -1,9 +1,9 @@
 {
-  "ts": 1777877320.4516094,
-  "iso": "2026-05-04T08:48:40",
+  "ts": 1777877395.8310475,
+  "iso": "2026-05-04T08:49:55",
   "brain": {
-    "ts": 1777877320.4596877,
-    "iso": "2026-05-04T08:48:40",
+    "ts": 1777877395.8382604,
+    "iso": "2026-05-04T08:49:55",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,27 +13,140 @@
     "n_edges": 180530,
     "n_isolated": 0,
     "density": 0.1143,
-    "n_active": 0,
-    "hebbian_total": 0
+    "n_active": 11,
+    "hebbian_total": 0.23
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777877326.0497859,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "active_nodes": {
+      "08 - Semantic\\kaiaa-88\\6b39bbf7fc-Fix-for-KAIAA-88-confirmed.md": 0.94,
+      "08 - Semantic\\character-encoding-issue\\6c5bb711d7-Character-encoding-issue-resolved.md": 0.94,
+      "08 - Semantic\\footer-tsx\\9c172bce1e-Contrast-ratio-check-passed.md": 0.94,
+      "08 - Semantic\\kaiaa-88\\6cb4440bed-Issue-KAIAA-88-Resolved.md": 0.681,
+      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md": 0.681,
+      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md": 0.681,
+      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md": 0.681,
+      "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md": 0.681,
+      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md": 0.681,
+      "06 - Agents/model-capabilities/claude-opus-4-7.md": 0.681,
+      "08 - Semantic\\issue-resolution\\875406ccb0-Issue-KAIAA-86-is-resolved.md": 0.94
+    },
+    "n_active": 11,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\character-encoding-issue\\6c5bb711d7-Character-encoding-issue-resolved.md",
+        "b": "08 - Semantic\\kaiaa-88\\6b39bbf7fc-Fix-for-KAIAA-88-confirmed.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\footer-tsx\\9c172bce1e-Contrast-ratio-check-passed.md",
+        "b": "08 - Semantic\\kaiaa-88\\6b39bbf7fc-Fix-for-KAIAA-88-confirmed.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\character-encoding-issue\\6c5bb711d7-Character-encoding-issue-resolved.md",
+        "b": "08 - Semantic\\footer-tsx\\9c172bce1e-Contrast-ratio-check-passed.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\kaiaa-88\\6b39bbf7fc-Fix-for-KAIAA-88-confirmed.md",
+        "b": "08 - Semantic\\kaiaa-88\\6cb4440bed-Issue-KAIAA-88-Resolved.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\character-encoding-issue\\6c5bb711d7-Character-encoding-issue-resolved.md",
+        "b": "08 - Semantic\\kaiaa-88\\6cb4440bed-Issue-KAIAA-88-Resolved.md",
+        "strength": 0.01
+      },
+      {
+        "a": "08 - Semantic\\footer-tsx\\9c172bce1e-Contrast-ratio-check-passed.md",
+        "b": "08 - Semantic\\kaiaa-88\\6cb4440bed-Issue-KAIAA-88-Resolved.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "06 - Agents/model-capabilities/claude-opus-4-7.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "06 - Agents/model-capabilities/claude-opus-4-7.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "06 - Agents/model-capabilities/claude-opus-4-7.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md",
+        "b": "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "06 - Agents/model-capabilities/claude-opus-4-7.md",
+        "b": "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777877396.121161,
+    "cum_activations": 22,
+    "cum_pulses": 17,
+    "cum_hebbian_ticks": 27,
+    "last_activation_ts": 1777877385.045223,
+    "last_pulse_ts": 1777877385.0512495,
+    "last_hebbian_ts": 1777877385.050246,
+    "last_wander_ts": 1777877385.0114646,
+    "n_edges_total": 24,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 24.1,
-    "ram_percent": 48.8,
+    "cpu_percent": 10.9,
+    "ram_percent": 48.1,
     "n_disks": 5,
     "gpu": []
   }
