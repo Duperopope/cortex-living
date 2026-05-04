@@ -1,10 +1,10 @@
 {
-  "ts": 1777882597.7272515,
-  "iso": "2026-05-04T10:16:37",
+  "ts": 1777882620.3869073,
+  "iso": "2026-05-04T10:17:00",
   "brain": {
-    "ts": 1777882597.7397838,
-    "iso": "2026-05-04T10:16:37",
-    "graph_error": "numpy.core.multiarray failed to import",
+    "ts": 1777882620.394301,
+    "iso": "2026-05-04T10:17:00",
+    "graph_error": "module 'cortex_thought_graph' has no attribute 'build_graph'",
     "n_active": 0,
     "hebbian_total": 0
   },
@@ -12,7 +12,7 @@
     "active_nodes": {},
     "n_active": 0,
     "top_hebbian_edges": [],
-    "ts": 1777882598.0270514,
+    "ts": 1777882622.0192544,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -24,8 +24,8 @@
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 11.9,
-    "ram_percent": 48.6,
+    "cpu_percent": 17.2,
+    "ram_percent": 48.4,
     "n_disks": 5,
     "gpu": []
   }
