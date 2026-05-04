@@ -1,12 +1,12 @@
 {
-  "ts": 1777904364.8442025,
+  "ts": 1777906761.2036917,
   "min_samples": 8,
   "window": 30,
   "n_actions_observed": 2,
   "empirical_predictions_count": 2,
   "heuristic_fallback_count": 0,
   "empirical_ratio": 1.0,
-  "prediction_error_avg_global": 9.35196,
+  "prediction_error_avg_global": 2.58111,
   "actions": {
     "explore_graph": {
       "n_examples": 30,
@@ -15,8 +15,6 @@
         "compression_error",
         "cpu",
         "n_active",
-        "n_hebbian_cum",
-        "n_pulses_cum",
         "ram"
       ]
     },
@@ -27,8 +25,6 @@
         "compression_error",
         "cpu",
         "n_active",
-        "n_hebbian_cum",
-        "n_pulses_cum",
         "ram"
       ]
     }
@@ -41,24 +37,12 @@
         "compression_error",
         "cpu",
         "n_active",
-        "n_hebbian_cum",
-        "n_pulses_cum",
         "ram"
       ],
       "means": {
         "n_active": {
-          "mean": -0.16667,
-          "std": 8.63745,
-          "n": 30
-        },
-        "n_pulses_cum": {
-          "mean": 24.83333,
-          "std": 11.5328,
-          "n": 30
-        },
-        "n_hebbian_cum": {
-          "mean": 51.13333,
-          "std": 51.8644,
+          "mean": 0.06667,
+          "std": 8.70606,
           "n": 30
         },
         "compression_error": {
@@ -67,18 +51,18 @@
           "n": 30
         },
         "cpu": {
-          "mean": -0.50667,
-          "std": 10.61697,
+          "mean": 1.12333,
+          "std": 10.47828,
           "n": 30
         },
         "ram": {
-          "mean": -0.23333,
-          "std": 3.31062,
+          "mean": 0.09667,
+          "std": 0.99749,
           "n": 30
         }
       },
-      "prediction_error_avg": 9.31496,
-      "observability": "medium"
+      "prediction_error_avg": 2.65111,
+      "observability": "low"
     },
     "map_knowledge": {
       "n_examples": 30,
@@ -87,24 +71,12 @@
         "compression_error",
         "cpu",
         "n_active",
-        "n_hebbian_cum",
-        "n_pulses_cum",
         "ram"
       ],
       "means": {
         "n_active": {
-          "mean": -1.8,
-          "std": 8.24783,
-          "n": 30
-        },
-        "n_pulses_cum": {
-          "mean": 18.4,
-          "std": 15.95327,
-          "n": 30
-        },
-        "n_hebbian_cum": {
-          "mean": 18.43333,
-          "std": 55.10335,
+          "mean": -2.16667,
+          "std": 8.32299,
           "n": 30
         },
         "compression_error": {
@@ -113,17 +85,17 @@
           "n": 30
         },
         "cpu": {
-          "mean": -4.11333,
-          "std": 10.50278,
+          "mean": -3.22667,
+          "std": 10.95107,
           "n": 30
         },
         "ram": {
-          "mean": 0.0,
-          "std": 0.98691,
+          "mean": 0.12667,
+          "std": 0.9241,
           "n": 30
         }
       },
-      "prediction_error_avg": 9.38896,
+      "prediction_error_avg": 2.51111,
       "observability": "high"
     }
   },

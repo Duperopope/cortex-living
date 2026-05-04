@@ -21,6 +21,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_curiosity` |  |
 | `cortex_dialogue` |  |
 | `cortex_emergence` |  |
+| `cortex_friston_belief` |  |
 | `cortex_hjepa` |  |
 | `cortex_homeostasis` |  |
 | `cortex_iag_test` |  |
@@ -28,6 +29,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_intent` | Contexte dashboard Cortex: |
 | `cortex_introspection` |  |
 | `cortex_jepa_continual` |  |
+| `cortex_jepa_v2` |  |
 | `cortex_kv_quantize` |  |
 | `cortex_learned_skills` |  |
 | `cortex_memory` |  |

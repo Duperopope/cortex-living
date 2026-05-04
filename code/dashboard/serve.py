@@ -1146,6 +1146,142 @@ def file_mtime(p: Path) -> float:
         return 0.0
 
 
+def _build_system_topology() -> dict:
+    """Topologie système de Cortex : modules + statuts runtime + badges live.
+
+    Retourne :
+    - nodes : un par module Cortex avec status (live/idle/dormant) + couleur
+    - edges : qui appelle qui (importé statiquement par cortex_emergence/serve)
+    - badges : indicateurs runtime (action_effects empirical_ratio, body_health
+      sévérité, vision live/sticky/off, smoke verdict, IAG calibré)
+    - stats : compteurs globaux
+
+    Source de vérité : les fichiers `.cortex-*` sur disque + les modules importables.
+    """
+    import importlib, sys as _sys
+    if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+        _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+
+    nodes = []
+    badges = {}
+    # Modules cœur — status déterminé par leur dernier état runtime
+    CORE = [
+        ("cortex_active_inference", "scoring/decision"),
+        ("cortex_action_effects",   "learning"),
+        ("cortex_activation",       "spreading"),
+        ("cortex_anti_fake",        "audit"),
+        ("cortex_body_health",      "homeostasis"),
+        ("cortex_dialogue",         "perception/output"),
+        ("cortex_emergence",        "orchestrator"),
+        ("cortex_friston_belief",   "active inference (belief)"),
+        ("cortex_jepa_v2",          "world model"),
+        ("cortex_publish_safety_check", "safety"),
+        ("cortex_publishing",       "publication"),
+        ("cortex_smoke_check",      "ci"),
+        ("cortex_thought_graph",    "semantic"),
+        ("cortex_vision",           "perception"),
+    ]
+    for mod_name, role in CORE:
+        node = {"id": mod_name, "role": role, "status": "unknown"}
+        try:
+            m = importlib.import_module(mod_name)
+            node["status"] = "imported"
+            # Hooks : lit fichiers d'état si dispo
+            if hasattr(m, "self_test"):
+                node["has_self_test"] = True
+        except Exception as e:
+            node["status"] = "import_error"
+            node["error"] = str(e)[:120]
+        nodes.append(node)
+
+    # Edges : qui importe qui (introspection statique simple)
+    edges = [
+        {"from": "cortex_emergence", "to": "cortex_active_inference"},
+        {"from": "cortex_emergence", "to": "cortex_body_health"},
+        {"from": "cortex_emergence", "to": "cortex_anti_fake"},
+        {"from": "cortex_emergence", "to": "cortex_action_effects"},
+        {"from": "cortex_active_inference", "to": "cortex_action_effects"},
+        {"from": "cortex_active_inference", "to": "cortex_activation"},
+        {"from": "cortex_dialogue", "to": "cortex_vision"},
+        {"from": "cortex_publishing", "to": "cortex_smoke_check"},
+        {"from": "cortex_publishing", "to": "cortex_publish_safety_check"},
+        {"from": "cortex_publishing", "to": "cortex_anti_fake"},
+        {"from": "cortex_emergence", "to": "cortex_friston_belief"},
+        {"from": "cortex_emergence", "to": "cortex_jepa_v2"},
+    ]
+
+    # Badges live
+    try:
+        import cortex_action_effects as _ae
+        ae_stats = _ae.stats()
+        badges["action_effects"] = {
+            "empirical_ratio": ae_stats.get("empirical_ratio"),
+            "n_observed": ae_stats.get("n_actions_observed"),
+            "prediction_error_avg": ae_stats.get("prediction_error_avg_global"),
+            "label": ("empirical" if (ae_stats.get("empirical_ratio") or 0) > 0.5
+                       else "fallback"),
+        }
+    except Exception: pass
+    try:
+        import cortex_body_health as _bh
+        bh = _bh.body_health_status()
+        badges["body_health"] = {
+            "severity": bh.get("severity"),
+            "n_junctions": bh.get("n_junctions_active"),
+            "n_broken": bh.get("n_junctions_broken"),
+        }
+    except Exception: pass
+    try:
+        import cortex_dialogue as _cd
+        pc = _cd.get_perception_context()
+        badges["vision"] = {
+            "available": pc.get("vision_available"),
+            "method": pc.get("method") or "off",
+            "age_s": pc.get("age_s"),
+        }
+    except Exception: pass
+    try:
+        import cortex_smoke_check as _sc
+        sc = _sc.run()
+        badges["smoke_check"] = {
+            "verdict": sc.get("verdict"),
+            "n_passed": sc.get("n_strict_passed"),
+            "n_failed": sc.get("n_strict_failed"),
+        }
+    except Exception: pass
+    try:
+        from pathlib import Path as _P
+        iag_path = _P(r"<USER_HOME>\Documents\Obsidian Vault") / ".cortex-iag-report.json"
+        if iag_path.exists():
+            iag = json.loads(iag_path.read_text(encoding="utf-8"))
+            badges["iag"] = {
+                "raw_score": iag.get("raw_score"),
+                "calibrated_score": iag.get("calibrated_score"),
+                "maturity": iag.get("maturity"),
+                "is_iag": iag.get("is_iag"),
+            }
+    except Exception: pass
+    try:
+        from pathlib import Path as _P
+        sf_path = _P(r"<CORTEX_REPO>") / ".cortex-publish-safety-last.json"
+        if sf_path.exists():
+            sf = json.loads(sf_path.read_text(encoding="utf-8"))
+            badges["safety_check"] = {
+                "verdict": sf.get("verdict"),
+                "n_blockers": sf.get("n_blockers"),
+                "n_warnings": sf.get("n_warnings"),
+            }
+    except Exception: pass
+
+    return {
+        "ts": time.time(),
+        "n_modules": len(nodes),
+        "nodes": nodes,
+        "edges": edges,
+        "badges": badges,
+    }
+
+
 def load_snapshot() -> dict:
     """Recompute snapshot if any source file changed."""
     sources = [GRAPH_FILE, LAYOUT_FILE, PAGERANK_FILE, COMMUNITIES_FILE, ACTIVITY_STATE, RESOURCES_FILE, JEPA_STATUS]
@@ -3731,6 +3867,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 import traceback as _tb
                 self._send_json({"ok": False, "error": str(e),
                                  "trace": _tb.format_exc()[-400:]}, status=500); return
+
+        if parsed.path == "/api/cortex/system_topology":
+            # Topologie SYSTÈME de Cortex (modules, statuts, badges live)
+            # Différent de /api/state qui montre le graphe sémantique notes.
+            # Ici on montre le système COGNITIF lui-même : modules + état runtime.
+            try:
+                topo = _build_system_topology()
+                data = json.dumps(topo, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"system_topology error: {e}")
+            return
 
         if parsed.path == "/api/state":
             try:

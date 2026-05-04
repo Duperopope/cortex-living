@@ -46,9 +46,23 @@ VAULT = Path(r"<USER_HOME>\Documents\Obsidian Vault")
 LOG = VAULT / ".cortex-action-effects.jsonl"
 SUMMARY = VAULT / ".cortex-action-effects-summary.json"
 
-# Champs numériques qu'on suit dans les obs (les autres sont ignorés)
-TRACKED_FIELDS = ("n_active", "n_pulses_cum", "n_hebbian_cum",
-                  "compression_error", "cpu", "ram")
+# Champs numériques qu'on suit dans les obs.
+# IMPORTANT : seuls les champs *instantanés* sont trackés. On EXCLUT les
+# compteurs cumulatifs (`n_pulses_cum`, `n_hebbian_cum`, `n_steps`) qui montent
+# monotone et faussent les deltas (un delta de 100 entre 2 cycles ne signifie
+# pas qu'une action a eu un effet de 100, juste que le compteur global a
+# avancé). Vu en live : prediction_error_avg=9.49 alors que les outcomes
+# observed/proxy étaient cohérents — bug causé par ces cumulatifs.
+TRACKED_FIELDS = ("n_active", "compression_error", "cpu", "ram")
+# Champs cumulatifs : conservés en lecture pour ne pas casser les events
+# historiques mais EXCLUS de la mesure prediction_error.
+LEGACY_CUMULATIVE_FIELDS = ("n_pulses_cum", "n_hebbian_cum", "n_steps")
+# Champs ENVIRONNEMENT : indépendants des actions Cortex (CPU/RAM bougent
+# selon ce que Sam fait, pas selon `explore_graph` ou `reflect`). Exclus
+# de prediction_error pour ne pas polluer la mesure d'erreur du modèle d'effets.
+ENV_NOISE_FIELDS = ("cpu", "ram")
+# Champs CIBLES : ceux que les actions sont censées affecter.
+ACTION_TARGET_FIELDS = ("n_active", "compression_error")
 
 # Combien d'exemples par action avant d'utiliser la prédiction empirique
 # à la place des heuristiques hardcoded. < ce seuil → return None (fallback).
@@ -194,15 +208,15 @@ def stats() -> dict:
         n = len(bucket)
         learned = predict_effect(a)
         means_with_stats = learned or {}
-        # Prediction error : si le bucket a des evenements avec outcome_score et
-        # outcome_proxy (post-hoc), on peut calculer l'écart moyen
+        # Prediction error : sur les champs CIBLES (n_active, compression_error)
+        # uniquement. On exclut les cumulatifs et le bruit environnement.
         per_errs: list[float] = []
         for ev in bucket:
             obs = ev.get("post", {})
             pre = ev.get("pre", {})
-            # On approxime l'écart par champ : delta réel vs delta moyen prédit
             if learned:
                 for field, stats_field in learned.items():
+                    if field not in ACTION_TARGET_FIELDS: continue
                     if field in pre and field in obs:
                         real_delta = obs[field] - pre[field]
                         pred_delta = stats_field.get("mean", 0)
