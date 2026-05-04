@@ -216,6 +216,105 @@ body > canvas { display:block; position:fixed; inset:0; z-index:0; background:#0
     <div id="m-brain-regs" data-help="brain-regressions" style="margin-top:5px;font-size:9px;color:#ff866a"></div>
   </div>
 
+  <!-- Topologie système Cortex (modules + badges runtime live).
+       Distinct du graphe Obsidian rendu en 3D : ici on voit le système
+       cognitif (modules Python + flux d'appel + status runtime).
+       Source : /api/cortex/system_topology -->
+  <details id="cb-topology-details" style="border:1px solid #1b2746;border-radius:8px;background:rgba(7,10,20,.58);padding:8px 10px;margin-bottom:10px">
+    <summary style="cursor:pointer;color:#a9b8d8;font-size:10px;font-weight:700;letter-spacing:.4px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <span>Topologie système</span>
+      <span style="color:#627294;font-size:9px;font-weight:400">modules · badges live</span>
+    </summary>
+    <div style="padding-top:8px;font-size:10px">
+      <div id="cb-topology-badges" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px"></div>
+      <div data-help="cb-topology-modules" style="color:#aab;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-top:6px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+        <span>Modules cognitifs <span style="color:#55ff99;text-transform:none;letter-spacing:0">réel</span></span>
+        <span id="cb-topology-meta" style="color:#557;font-size:8.5px;text-transform:none;letter-spacing:0;font-family:ui-monospace,monospace">—</span>
+      </div>
+      <div id="cb-topology-modules" style="display:flex;flex-direction:column;gap:2px;max-height:240px;overflow-y:auto;font-family:ui-monospace,monospace"></div>
+    </div>
+  </details>
+  <script>
+  (function(){
+    async function refreshTopology(){
+      try {
+        const r = await fetch('/api/cortex/system_topology', {cache:'no-store'});
+        if (!r.ok) return;
+        const t = await r.json();
+        // Badges live
+        const bc = document.getElementById('cb-topology-badges');
+        if (!bc) return;
+        bc.innerHTML = '';
+        const b = t.badges || {};
+        function add(title, value, meta, state){
+          const colors = {OK:'#55ff99', ok:'#55ff99', pass:'#55ff99',
+                          WARNING:'#ffcc66', WARN:'#ffcc66',
+                          CRITICAL:'#ff7766', BLOCK:'#ff7766', fail:'#ff7766'};
+          const col = colors[state] || '#b0c4de';
+          const div = document.createElement('div');
+          div.style.cssText = 'background:#0a0e14;border-left:2px solid '+col+';padding:5px 7px;border-radius:3px';
+          div.innerHTML = '<div style="color:#627294;font-size:8.5px;text-transform:uppercase;letter-spacing:.06em">'+title+'</div>'
+                        + '<div style="color:'+col+';font-size:11px;font-weight:600">'+value+'</div>'
+                        + (meta?'<div style="color:#7a89aa;font-size:9px;margin-top:1px">'+meta+'</div>':'');
+          bc.appendChild(div);
+        }
+        if (b.action_effects){
+          const ae = b.action_effects;
+          add('Action effects', (ae.label||'?')+' '+((ae.empirical_ratio||0).toFixed(2)),
+              'n='+(ae.n_observed||0)+' err='+(ae.prediction_error_avg||'?'),
+              ae.label==='empirical'?'OK':'WARN');
+        }
+        if (b.body_health){
+          add('Body health', b.body_health.severity||'?',
+              (b.body_health.n_junctions||0)+' junctions / '+(b.body_health.n_broken||0)+' broken',
+              b.body_health.severity);
+        }
+        if (b.vision){
+          add('Vision', b.vision.method||'off',
+              b.vision.available?('age='+b.vision.age_s+'s'):'unavailable',
+              b.vision.available?'OK':'');
+        }
+        if (b.smoke_check){
+          add('Smoke check', b.smoke_check.verdict||'?',
+              (b.smoke_check.n_passed||0)+'/'+((b.smoke_check.n_passed||0)+(b.smoke_check.n_failed||0)),
+              b.smoke_check.verdict==='ok'?'OK':'fail');
+        }
+        if (b.iag){
+          add('IAG (interne)',
+              (b.iag.calibrated_score||b.iag.raw_score||'?')+'/100',
+              'maturity='+(b.iag.maturity||'?'));
+        }
+        if (b.safety_check){
+          add('Safety check', b.safety_check.verdict||'?',
+              (b.safety_check.n_blockers||0)+' bloc / '+(b.safety_check.n_warnings||0)+' warn',
+              b.safety_check.verdict);
+        }
+        // Modules
+        const mc = document.getElementById('cb-topology-modules');
+        mc.innerHTML='';
+        (t.nodes||[]).forEach(n=>{
+          const sCols = {imported:'#55ff99', import_error:'#ff7766', unknown:'#7a89aa'};
+          const c = sCols[n.status]||'#7a89aa';
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex;justify-content:space-between;font-size:10px;padding:2px 0;border-bottom:1px solid #0d1424';
+          row.innerHTML = '<span style="color:#93c5fd">'+n.id+'</span>'
+                        + '<span style="color:#7a89aa;font-size:9px">'+n.role+'</span>'
+                        + '<span style="color:'+c+';font-size:9px">'+n.status+'</span>';
+          mc.appendChild(row);
+        });
+        document.getElementById('cb-topology-meta').textContent =
+          t.n_modules+' modules · '+(t.edges||[]).length+' edges';
+      } catch(e){}
+    }
+    // Refresh à l'ouverture du details + tous les 30s tant que ouvert
+    const det = document.getElementById('cb-topology-details');
+    if (det){
+      det.addEventListener('toggle', () => { if (det.open) refreshTopology(); });
+      setInterval(() => { if (det && det.open) refreshTopology(); }, 30000);
+    }
+  })();
+  </script>
+
   <details id="cb-expert-details" style="border:1px solid #1b2746;border-radius:8px;background:rgba(7,10,20,.58);padding:8px 10px;margin-bottom:10px">
     <summary style="cursor:pointer;color:#a9b8d8;font-size:10px;font-weight:700;letter-spacing:.4px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px">
       <span>Mesures expertes</span>

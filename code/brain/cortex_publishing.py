@@ -1011,7 +1011,7 @@ def _capture_session_current() -> dict:
     out = {"files": []}
     vault_path = Path(r"<USER_HOME>\Documents\Obsidian Vault")
 
-    # 1. state.before / state.after / decisions
+    # 1. state.before / state.after / decisions + diagnostics JEPA/Belief LIVE
     ai_state_path = vault_path / ".cortex-active-inference-state.json"
     if ai_state_path.exists():
         try:
@@ -1026,6 +1026,16 @@ def _capture_session_current() -> dict:
                     "active_inference_version": ai_state.get("version"),
                 }
                 baselines = ai_state.get("baselines", {})
+                # state.after enrichi avec JEPA + Belief diagnostics live
+                jepa_diag = None
+                belief_diag = None
+                try:
+                    sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                    import cortex_active_inference as _ai
+                    s = _ai.stats()
+                    jepa_diag = s.get("jepa")
+                    belief_diag = s.get("belief")
+                except Exception: pass
                 state_after = {
                     "ts": vfe[-1].get("ts"),
                     "n_steps_total": ai_state.get("n_steps", 0),
@@ -1037,6 +1047,9 @@ def _capture_session_current() -> dict:
                             if kk in ("wins", "losses", "ties", "outcome_score_sum")}
                         for k, v in baselines.items()
                     },
+                    # NOUVEAU : preuve d'intégration JEPA + Friston en runtime
+                    "jepa_diagnostic": jepa_diag,
+                    "belief_diagnostic": belief_diag,
                 }
                 (ex / "state.before.json").write_text(
                     json.dumps(state_before, indent=2, ensure_ascii=False),

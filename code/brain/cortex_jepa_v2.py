@@ -182,6 +182,18 @@ class JEPA:
         d_W1 = ((d_h1 * _drelu(h1)).T @ x_pre).T
         d_b1 = (d_h1 * _drelu(h1)).sum(axis=0)
 
+        # Gradient clipping anti-explosion (norme L2 max=1.0)
+        # Sans clip, des obs hors-distribution font diverger en NaN dès le 4e step.
+        def _clip(g, max_norm=1.0):
+            n = float(np.linalg.norm(g))
+            if n > max_norm:
+                return g * (max_norm / n)
+            return g
+        d_W1 = _clip(d_W1); d_b1 = _clip(d_b1)
+        d_W2 = _clip(d_W2); d_b2 = _clip(d_b2)
+        d_Wp1 = _clip(d_Wp1); d_bp1 = _clip(d_bp1)
+        d_Wp2 = _clip(d_Wp2); d_bp2 = _clip(d_bp2)
+
         # SGD step
         self.W1 -= self.lr * d_W1
         self.b1 -= self.lr * d_b1
@@ -191,6 +203,16 @@ class JEPA:
         self.bp1 -= self.lr * d_bp1
         self.Wp2 -= self.lr * d_Wp2
         self.bp2 -= self.lr * d_bp2
+
+        # NaN guard : si la loss devient NaN, reset les poids du predictor
+        # (l'encoder online est plus stable, on le garde)
+        if not (loss == loss):  # NaN check
+            rng = np.random.default_rng(int(self.n_train_steps))
+            self.Wp1 = _xavier(rng, self.latent_dim + self.n_actions, self.hidden_dim)
+            self.bp1 = np.zeros(self.hidden_dim, dtype=np.float32)
+            self.Wp2 = _xavier(rng, self.hidden_dim, self.latent_dim)
+            self.bp2 = np.zeros(self.latent_dim, dtype=np.float32)
+            loss = 0.0  # reset pour ne pas propager le NaN
 
         # EMA update du target encoder (τ=0.99 par défaut)
         tau = self.ema_tau

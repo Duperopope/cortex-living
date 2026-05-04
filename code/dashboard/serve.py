@@ -2414,11 +2414,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(data)
             return
-        if parsed.path == "/" or parsed.path == "/index.html":
-            self._serve_static(HERE / "brain_live.html", "text/html; charset=utf-8")
-            return
-        if parsed.path == "/3d":
-            self._serve_static(HERE / "brain_3d.html", "text/html; charset=utf-8")
+        # Routes legacy redirigées vers /gpu (Sam veut UNE seule UI).
+        # `brain_live.html` et `brain_3d.html` sont du code mort d'anciennes
+        # itérations ; `topology.html` était un essai séparé. La topologie
+        # système est maintenant un panneau intégré dans brain_gpu.html.
+        if parsed.path in ("/", "/index.html", "/3d", "/3D", "/topology"):
+            self.send_response(302)
+            self.send_header("Location", "/gpu")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
             return
         if parsed.path == "/gpu":
             self._serve_static(HERE / "brain_gpu.html", "text/html; charset=utf-8")

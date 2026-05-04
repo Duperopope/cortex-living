@@ -1,12 +1,12 @@
 {
-  "ts": 1777906761.2036917,
+  "ts": 1777909972.7559378,
   "min_samples": 8,
   "window": 30,
-  "n_actions_observed": 2,
-  "empirical_predictions_count": 2,
+  "n_actions_observed": 3,
+  "empirical_predictions_count": 3,
   "heuristic_fallback_count": 0,
   "empirical_ratio": 1.0,
-  "prediction_error_avg_global": 2.58111,
+  "prediction_error_avg_global": 2.04791,
   "actions": {
     "explore_graph": {
       "n_examples": 30,
@@ -20,6 +20,16 @@
     },
     "map_knowledge": {
       "n_examples": 30,
+      "status": "learned",
+      "fields_with_signal": [
+        "compression_error",
+        "cpu",
+        "n_active",
+        "ram"
+      ]
+    },
+    "audit_ui": {
+      "n_examples": 21,
       "status": "learned",
       "fields_with_signal": [
         "compression_error",
@@ -41,8 +51,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": 0.06667,
-          "std": 8.70606,
+          "mean": 0.13333,
+          "std": 5.46951,
           "n": 30
         },
         "compression_error": {
@@ -51,18 +61,18 @@
           "n": 30
         },
         "cpu": {
-          "mean": 1.12333,
-          "std": 10.47828,
+          "mean": 0.55,
+          "std": 8.31287,
           "n": 30
         },
         "ram": {
-          "mean": 0.09667,
-          "std": 0.99749,
+          "mean": 0.19667,
+          "std": 1.14324,
           "n": 30
         }
       },
-      "prediction_error_avg": 2.65111,
-      "observability": "low"
+      "prediction_error_avg": 1.47778,
+      "observability": "medium"
     },
     "map_knowledge": {
       "n_examples": 30,
@@ -75,8 +85,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": -2.16667,
-          "std": 8.32299,
+          "mean": -2.5,
+          "std": 8.22901,
           "n": 30
         },
         "compression_error": {
@@ -85,26 +95,62 @@
           "n": 30
         },
         "cpu": {
-          "mean": -3.22667,
-          "std": 10.95107,
+          "mean": -2.17,
+          "std": 10.49321,
           "n": 30
         },
         "ram": {
-          "mean": 0.12667,
-          "std": 0.9241,
+          "mean": 0.06,
+          "std": 0.8954,
           "n": 30
         }
       },
-      "prediction_error_avg": 2.51111,
+      "prediction_error_avg": 2.48333,
+      "observability": "high"
+    },
+    "audit_ui": {
+      "n_examples": 21,
+      "status": "learned",
+      "fields_with_signal": [
+        "compression_error",
+        "cpu",
+        "n_active",
+        "ram"
+      ],
+      "means": {
+        "n_active": {
+          "mean": -4.09524,
+          "std": 7.07716,
+          "n": 21
+        },
+        "compression_error": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 21
+        },
+        "cpu": {
+          "mean": 1.35238,
+          "std": 8.62768,
+          "n": 21
+        },
+        "ram": {
+          "mean": 0.8,
+          "std": 0.93197,
+          "n": 21
+        }
+      },
+      "prediction_error_avg": 2.24036,
       "observability": "high"
     }
   },
   "top_overoptimistic_actions": [
     "map_knowledge",
+    "audit_ui",
     "explore_graph"
   ],
   "top_reliable_actions": [
     "explore_graph",
+    "audit_ui",
     "map_knowledge"
   ]
 }

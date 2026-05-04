@@ -45,6 +45,92 @@ VAULT = Path(r"<USER_HOME>\Documents\Obsidian Vault")
 STATE = VAULT / ".cortex-active-inference-state.json"
 LOG = VAULT / ".cortex-active-inference-log.jsonl"
 
+# Liste fixe des actions (ordre stable → action_id pour JEPA one-hot).
+# Cette liste DOIT correspondre à l'ordre dans select_action(actions).
+ACTIONS_ORDER = ["audit_ui", "explore_graph", "map_knowledge",
+                 "discovery_report", "reflect", "propose_goal",
+                 "look_around", "update_claude_context", "silent"]
+
+
+def _action_id(name: str) -> int:
+    """Retourne l'index stable d'une action pour le one-hot encoding JEPA."""
+    try: return ACTIONS_ORDER.index(name)
+    except ValueError: return len(ACTIONS_ORDER) - 1  # silent par défaut
+
+
+# Lazy-loaded singletons pour JEPA + BeliefState (évite charge au moindre import)
+_JEPA_SINGLETON = None
+_BELIEF_SINGLETON = None
+
+
+def _get_jepa():
+    """Charge ou crée le JEPA singleton (obs_dim=2 sur n_active+compression_error)."""
+    global _JEPA_SINGLETON
+    if _JEPA_SINGLETON is not None: return _JEPA_SINGLETON
+    try:
+        sys.path.insert(0, str(REPO))
+        import cortex_jepa_v2 as _j
+        if _j.np is None: return None
+        # Tente de charger depuis disque
+        loaded = _j.JEPA.load()
+        if loaded is not None:
+            _JEPA_SINGLETON = loaded
+        else:
+            _JEPA_SINGLETON = _j.JEPA(obs_dim=2,
+                                       n_actions=len(ACTIONS_ORDER),
+                                       latent_dim=8, hidden_dim=16,
+                                       lr=0.005)  # lr modéré pour ne pas instabiliser
+        return _JEPA_SINGLETON
+    except Exception:
+        return None
+
+
+def _get_belief():
+    """Charge ou crée le BeliefState singleton."""
+    global _BELIEF_SINGLETON
+    if _BELIEF_SINGLETON is not None: return _BELIEF_SINGLETON
+    try:
+        sys.path.insert(0, str(REPO))
+        import cortex_friston_belief as _fb
+        loaded = _fb.BeliefState.load()
+        if loaded is not None:
+            _BELIEF_SINGLETON = loaded
+        else:
+            _BELIEF_SINGLETON = _fb.BeliefState()
+        return _BELIEF_SINGLETON
+    except Exception:
+        return None
+
+
+# Mapping action → mode cognitif (pour BeliefState)
+ACTION_TO_MODE = {
+    "audit_ui":              "reflecting",
+    "explore_graph":         "exploring",
+    "map_knowledge":         "exploring",
+    "discovery_report":      "perceiving",
+    "reflect":               "reflecting",
+    "propose_goal":          "planning",
+    "look_around":           "perceiving",
+    "update_claude_context": "perceiving",
+    "silent":                "silent",
+}
+
+
+def _obs_to_vector(obs: dict) -> list:
+    """Convertit l'observation dict en vecteur 2D NORMALISÉ pour JEPA.
+
+    Sans normalisation, les gradients explosent (n_active peut atteindre 100,
+    compression_error 0-1 → mismatch d'échelle → loss → NaN). Vu en live :
+    cycle 1 loss=368, cycle 3 loss=1.2e26, cycle 4 = inf.
+
+    Normalisation conservatrice :
+    - n_active / 50 (typique 0-2 après /50, max ~2 si pic à 100)
+    - compression_error tel quel (déjà ∈ [0,1])
+    """
+    n_active = (obs.get("n_active", 0) or 0) / 50.0
+    ce = obs.get("compression_error", 0.5) or 0.5
+    return [float(n_active), float(ce)]
+
 
 def _now() -> float: return time.time()
 
@@ -306,9 +392,33 @@ def expected_free_energy(action: str) -> float:
             repetition_penalty = 0.10 * (n_recent_same - 2)
     except Exception: pass
 
-    # EFE : on minimise donc -epistemic - pragmatic + repetition_penalty
-    # (penalty positive monte EFE → action moins favorisée)
-    efe = -epistemic - pragmatic + repetition_penalty
+    # FRISTON EFE : KL(q_hyp||p) − predicted_log_lik calculée via le module
+    # cortex_friston_belief. C'est la VRAIE EFE selon le formalisme Friston
+    # (information gain pur en espace des modes cognitifs).
+    # On l'AJOUTE à l'EFE-like comme bonus/malus modéré, pour ne pas
+    # déstabiliser la politique apprise sur les outcomes.
+    friston_efe = 0.0
+    try:
+        bs = _get_belief()
+        if bs is not None:
+            mode = ACTION_TO_MODE.get(action, "silent")
+            # Evidence prédite : si l'action est cette mode, evidence=1.0
+            pred_evidence = {mode: 1.0}
+            # Predicted log-likelihood : utility liée à la pertinence courante
+            # (si compression_error élevée, on gagne plus en explorant)
+            pred_log_lik = 0.0
+            if mode == "exploring":
+                pred_log_lik = obs.get("compression_error", 0.5) * 0.5
+            elif mode == "reflecting":
+                pred_log_lik = 0.2
+            friston_efe = bs.expected_free_energy_for(pred_evidence, pred_log_lik)
+    except Exception: pass
+
+    # EFE finale : combine l'EFE-like (heuristique outcomes) avec EFE Friston
+    # (information gain belief). Poids modeste sur Friston pour ne pas dominer
+    # alors que l'EFE-like est validée par les baselines.
+    efe = (-epistemic - pragmatic + repetition_penalty
+           + 0.15 * friston_efe)
     return round(efe, 5)
 
 
@@ -529,6 +639,48 @@ def drive_step(execute: bool = False) -> dict:
                 ae.record_observation(cortex_action, pre_obs, current_obs)
         except Exception: pass
 
+        # JEPA TRAIN STEP : apprend la transition latente (pre, action) → post
+        # dans l'espace des embeddings. Pas le formalisme LeCun complet mais
+        # contrat JEPA respecté : online encoder + target EMA + predictor.
+        try:
+            if cortex_action:
+                jepa = _get_jepa()
+                if jepa is not None:
+                    aid = _action_id(cortex_action)
+                    pre_vec = _obs_to_vector(pre_obs)
+                    post_vec = _obs_to_vector(current_obs)
+                    jepa_rep = jepa.train_step(pre_vec, aid, post_vec)
+                    eval_report["jepa_loss"] = round(jepa_rep.get("loss", 0), 5)
+                    eval_report["jepa_n_train_steps"] = jepa_rep.get("n_train_steps")
+                    # Save tous les 10 steps pour ne pas thrash le disque
+                    if jepa_rep.get("n_train_steps", 0) % 10 == 0:
+                        try: jepa.save()
+                        except Exception: pass
+        except Exception as e:
+            eval_report["jepa_err"] = str(e)[:100]
+
+        # BELIEF UPDATE : observe l'evidence dérivée de l'action prise.
+        # Si action=explore_graph → evidence forte pour mode "exploring".
+        try:
+            if cortex_action:
+                bs = _get_belief()
+                if bs is not None:
+                    mode = ACTION_TO_MODE.get(cortex_action, "silent")
+                    # Evidence pondérée par succès de l'exécution réelle
+                    weight = 1.0
+                    exec_rep = pending.get("execution") if isinstance(pending, dict) else None
+                    if exec_rep and not exec_rep.get("ok"):
+                        weight = 0.3  # evidence affaiblie si exec a échoué
+                    bs.observe({mode: weight})
+                    eval_report["belief_kl"] = round(bs.kl_to_prior(), 4)
+                    eval_report["belief_n_obs"] = bs.n_observations
+                    # Save tous les 5 obs
+                    if bs.n_observations % 5 == 0:
+                        try: bs.save()
+                        except Exception: pass
+        except Exception as e:
+            eval_report["belief_err"] = str(e)[:100]
+
     # 2) Nouvelle sélection d'action
     selection = select_action()
     vfe = surprise.get("surprise", 0)
@@ -621,6 +773,25 @@ def stats() -> dict:
             "win_rate": round(nw / ntot, 3) if ntot > 0 else None,
             "avg_outcome_proxy": round(avg_out, 4) if avg_out is not None else None,
         }
+    # JEPA + BeliefState diagnostics LIVE (intégration prod, mission AUTONOMIE 3)
+    jepa_diag = None
+    belief_diag = None
+    try:
+        jepa = _get_jepa()
+        if jepa is not None:
+            jepa_diag = jepa.diagnostic()
+    except Exception: pass
+    try:
+        bs = _get_belief()
+        if bs is not None:
+            belief_diag = {
+                "n_observations": bs.n_observations,
+                "kl_to_prior": round(bs.kl_to_prior(), 4),
+                "last_vfe": (round(bs.last_vfe, 4) if bs.last_vfe is not None else None),
+                "q_dist": {m: round(v, 3) for m, v in zip(bs.modes, bs.q_dist())},
+            }
+    except Exception: pass
+
     return {
         "n_steps": s.get("n_steps", 0),
         "n_better_than_random": s.get("n_better_than_random", 0),
@@ -631,7 +802,7 @@ def stats() -> dict:
         "late_avg_surprise": round(late, 4) if late is not None else None,
         "surprise_trend": round(surprise_trend, 4) if surprise_trend is not None else None,
         "is_learning": (surprise_trend is not None and surprise_trend < 0),
-        # NOUVEAU : banc de baselines (apples-to-apples sur prédiction)
+        # Banc de baselines (apples-to-apples sur prédiction)
         "n_outcome_evaluated": n_eval,
         "cortex_avg_outcome_proxy": (round(cortex_avg_outcome, 4)
                                       if cortex_avg_outcome is not None else None),
@@ -642,6 +813,12 @@ def stats() -> dict:
                                    "sur-évalués) ; outcome_observed ≈ proxy → bonne "
                                    "calibration",
         "vs_baselines": baseline_summary,
+        # JEPA v2 (encoder + target EMA + predictor) — appris sur les transitions
+        # (pre_obs, action, post_obs) capturées par drive_step
+        "jepa": jepa_diag,
+        # BeliefState (Friston posterior + KL) — alimenté par chaque action
+        # via ACTION_TO_MODE mapping
+        "belief": belief_diag,
     }
 
 
