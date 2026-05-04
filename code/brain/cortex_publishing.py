@@ -674,6 +674,139 @@ jobs:
 """
 
 
+def _capture_session_example() -> dict:
+    """Génère examples/session-001/ depuis les logs runtime existants.
+
+    Pas de drive_step nouveau (on touche pas à l'état Cortex). On extrait :
+    - state.before.json : N-10ᵉ entrée de vfe_history en l'état
+    - state.after.json  : dernière entrée + état courant
+    - decisions.jsonl   : 10 dernières entrées de vfe_history
+    - anti_fake_report.json : .cortex-anti-fake-report.json s'il existe
+    - active_inference_state.json : .cortex-active-inference-state.json
+
+    Tous anonymisés. But : montrer une session VIVANTE, pas un repo à zéro.
+    """
+    ex = REPO_LOCAL / "examples" / "session-001"
+    ex.mkdir(parents=True, exist_ok=True)
+    out = {"files": []}
+    vault_path = Path(r"<USER_HOME>\Documents\Obsidian Vault")
+    ai_state_path = vault_path / ".cortex-active-inference-state.json"
+    af_report_path = vault_path / ".cortex-anti-fake-report.json"
+
+    if not ai_state_path.exists():
+        # Repo n'a jamais tourné → on ne crée pas de faux exemple
+        (ex / "README.md").write_text(
+            "# Session example — pas encore disponible\n\n"
+            "Active Inference state file absent (`.cortex-active-inference-state.json`).\n"
+            "Lance d'abord quelques cycles `python code/brain/cortex_active_inference.py step`\n"
+            "pour avoir un historique à publier.\n",
+            encoding="utf-8")
+        out["files"].append("README.md (placeholder)")
+        return out
+
+    try:
+        ai_state = json.loads(ai_state_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        return {"error": f"can't read AI state: {e}"}
+
+    vfe = ai_state.get("vfe_history", [])
+    if len(vfe) < 2:
+        (ex / "README.md").write_text(
+            f"# Session example — historique trop court ({len(vfe)} cycles)\n\n"
+            "Lance plus de cycles avant de regénérer.\n", encoding="utf-8")
+        out["files"].append("README.md (insufficient_history)")
+        return out
+
+    # Slice : les 10 derniers cycles, ou tout si moins de 10
+    n = min(10, len(vfe))
+    snapshot = vfe[-n:]
+
+    # state.before : state minimal au début de la fenêtre
+    state_before = {
+        "ts": snapshot[0].get("ts"),
+        "n_steps_at_start": ai_state.get("n_steps", 0) - n + 1,
+        "early_surprise": snapshot[0].get("vfe"),
+        "active_inference_version": ai_state.get("version"),
+    }
+    # state.after : state après la fenêtre
+    baselines = ai_state.get("baselines", {})
+    state_after = {
+        "ts": snapshot[-1].get("ts"),
+        "n_steps_total": ai_state.get("n_steps", 0),
+        "late_surprise": snapshot[-1].get("vfe"),
+        "n_better_than_random": ai_state.get("n_better_than_random", 0),
+        "n_worse_than_random": ai_state.get("n_worse_than_random", 0),
+        "n_outcome_evaluated": ai_state.get("n_outcome_evaluated", 0),
+        "vs_baselines": {
+            k: {kk: vv for kk, vv in v.items()
+                if kk in ("wins", "losses", "ties", "outcome_score_sum")}
+            for k, v in baselines.items()
+        },
+    }
+
+    (ex / "state.before.json").write_text(
+        json.dumps(state_before, indent=2, ensure_ascii=False), encoding="utf-8")
+    (ex / "state.after.json").write_text(
+        json.dumps(state_after, indent=2, ensure_ascii=False), encoding="utf-8")
+    out["files"] += ["state.before.json", "state.after.json"]
+
+    # decisions.jsonl : une ligne par cycle
+    with (ex / "decisions.jsonl").open("w", encoding="utf-8") as f:
+        for d in snapshot:
+            f.write(json.dumps(d, ensure_ascii=False) + "\n")
+    out["files"].append("decisions.jsonl")
+
+    # anti_fake_report.json (anonymisé)
+    if af_report_path.exists():
+        try:
+            af_text = af_report_path.read_text(encoding="utf-8")
+            (ex / "anti_fake_report.json").write_text(
+                _anonymize(af_text), encoding="utf-8")
+            out["files"].append("anti_fake_report.json")
+        except Exception: pass
+
+    # README explicatif
+    fbr = (ai_state.get("n_better_than_random", 0) /
+           max(1, ai_state.get("n_better_than_random", 0) +
+                  ai_state.get("n_worse_than_random", 0) +
+                  ai_state.get("n_equal_to_random", 0)))
+    (ex / "README.md").write_text(f"""# Session 001 — capture live d'une session Cortex
+
+Snapshot anonymisé des **{n} derniers cycles** d'Active Inference observés
+sur la machine de dev. Pas un mock, pas un test scripté — extrait des logs
+runtime réels.
+
+## Fichiers
+
+- `state.before.json` — état au début de la fenêtre observée
+- `state.after.json`  — état après les {n} cycles + win-rate vs 5 baselines naïves
+- `decisions.jsonl`   — une décision par ligne (action choisie + EFE + outcome)
+- `anti_fake_report.json` — dernier rapport anti-fake complet (5 tests)
+
+## Chiffres clés
+
+- Cycles observés : {n}
+- Steps totaux : {ai_state.get('n_steps', 0)}
+- Fraction "better than random" sur EFE prédit : {round(fbr, 3)}
+- Cycles avec outcome évalué : {ai_state.get('n_outcome_evaluated', 0)}
+
+## Comment lire `decisions.jsonl`
+
+Chaque ligne contient :
+- `chosen` — l'action choisie par le score Active-Inference-inspired
+- `vfe` — surprise observée à ce cycle
+- `outcome_score` — delta réel post-action (peut être 0 si l'action n'a pas
+  d'effet observable mesurable)
+- `outcome_proxy` — delta prédit par le modèle (apples-to-apples avec baselines)
+
+Si `outcome_score << outcome_proxy` systématiquement, ça signale que le modèle
+de prédiction sur-estime les effets d'action — exactement le genre de
+calibration que `docs/claims.md` rappelle d'auditer.
+""", encoding="utf-8")
+    out["files"].append("README.md")
+    return out
+
+
 def update(commit_msg: str = None, push: bool = True) -> dict:
     """Régénère docs + code + commit + push (idempotent).
 
@@ -700,6 +833,8 @@ def update(commit_msg: str = None, push: bool = True) -> dict:
     workflows = REPO_LOCAL / ".github" / "workflows"
     workflows.mkdir(parents=True, exist_ok=True)
     (workflows / "smoke.yml").write_text(_smoke_yml(), encoding="utf-8")
+    # Capture de session live (anti "state.json à zéro")
+    session_report = _capture_session_example()
     # .gitignore : on étend pour exclure caches Python publiés par erreur
     (REPO_LOCAL / ".gitignore").write_text(
         "*.log\n__pycache__/\n.cortex-*\n*.pyc\n*.pyo\n.DS_Store\n",

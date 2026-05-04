@@ -1,6 +1,6 @@
 # Cortex — prototype expérimental de boucle cognitive locale
 
-> Dernière mise à jour : `2026-05-04T11:52:07` (auto-généré)
+> Dernière mise à jour : `2026-05-04T11:53:15` (auto-généré)
 
 Cortex est un **prototype expérimental** de boucle cognitive locale
 construite sur le projet Paperclip. Il combine capture webcam, audio, mémoire
@@ -19,7 +19,7 @@ score d'action **inspiré** d'Active Inference (Friston, 2010, version simplifi�
 | Arêtes sémantiques     | **180878**                    |
 | Densité                | **0.1144**                    |
 | Nœuds actifs           | **59** (décroissance τ=60 s) |
-| Hebbian cumulé         | **2.76** (apprentissage) |
+| Hebbian cumulé         | **2.93** (apprentissage) |
 | Zones d'ignorance      | **0** (besoin de ponts) |
 
 ### Composition du graphe
@@ -29,8 +29,8 @@ score d'action **inspiré** d'Active Inference (Friston, 2010, version simplifi�
 
 ## Corps (homeostasis)
 
-- CPU : **27.4%**
-- RAM : **54.7%**
+- CPU : **19.2%**
+- RAM : **55.4%**
 - Disques surveillés : **5**
 - GPU : —
 

@@ -1,0 +1,10 @@
+{"ts": 1777886802.322077, "vfe": 2.8291, "chosen": "explore_graph", "comparison": "better_than_random"}
+{"ts": 1777887016.2308068, "vfe": 2.4587, "chosen": "explore_graph", "comparison": "better_than_random"}
+{"ts": 1777887348.1195946, "vfe": 4.3907, "chosen": "explore_graph", "comparison": "better_than_random"}
+{"ts": 1777887559.7707608, "vfe": 2.5233, "chosen": "explore_graph", "comparison": "better_than_random"}
+{"ts": 1777887763.5976117, "vfe": 2.546, "chosen": "explore_graph", "comparison": "better_than_random"}
+{"ts": 1777887966.252879, "vfe": 3.1533, "chosen": "explore_graph", "comparison": "better_than_random"}
+{"ts": 1777888170.8224869, "vfe": 3.4778, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.0}
+{"ts": 1777888207.6109517, "vfe": 0.1532, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.85}
+{"ts": 1777888303.397117, "vfe": 0.8972, "chosen": "explore_graph", "comparison": "equal_to_random"}
+{"ts": 1777888375.403331, "vfe": 1.9782, "chosen": "explore_graph", "comparison": "better_than_random"}
