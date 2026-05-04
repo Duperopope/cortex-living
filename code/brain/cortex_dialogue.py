@@ -265,10 +265,42 @@ _SELF_KEYWORDS = (
 )
 
 
+# Sticky context : si le dernier compose_response était `vision`, on garde ce
+# routing pour ~90s de follow-up sans keyword (« Tu peux décrire cette
+# personne ? », « C'est qui ? », « Combien de doigts ? »). Sinon le routing
+# sortait à OpenRouter externe et perdait l'image. Vu en live avec Sam.
+_STICKY_TTL_SEC = 90.0
+_LAST_QUERY_TYPE_TS: float = 0.0
+_LAST_QUERY_TYPE: str | None = None
+
+
+def _record_query_type(qt: str | None) -> None:
+    """Mémorise le query_type du dernier compose_response pour le sticky context."""
+    global _LAST_QUERY_TYPE_TS, _LAST_QUERY_TYPE
+    if qt in ("vision", "self"):
+        import time as _t
+        _LAST_QUERY_TYPE = qt
+        _LAST_QUERY_TYPE_TS = _t.time()
+
+
+def _sticky_query_type() -> str | None:
+    """Retourne le query_type sticky s'il est encore frais, sinon None."""
+    if not _LAST_QUERY_TYPE: return None
+    import time as _t
+    if _t.time() - _LAST_QUERY_TYPE_TS > _STICKY_TTL_SEC:
+        return None
+    return _LAST_QUERY_TYPE
+
+
 def should_handle(msg: str) -> str | None:
     """Détecte si le message DOIT être traité en interne (compose_response).
 
     Retourne le type de query ('vision' / 'self') ou None pour passer au router.
+
+    Sticky context : si le dernier message a été classé `vision` il y a < 90s,
+    le suivant est traité comme `vision` aussi (même sans keyword) sauf s'il
+    matche `self` explicitement. Évite que « Tu peux décrire cette personne ? »
+    en suivi d'une question vision parte à OpenRouter externe sans l'image.
     """
     if not msg: return None
     m = msg.lower().strip()
@@ -276,6 +308,11 @@ def should_handle(msg: str) -> str | None:
         return "vision"
     if any(k in m for k in _SELF_KEYWORDS):
         return "self"
+    # Pas de keyword direct : check sticky context (vision uniquement —
+    # `self` est trop fréquent pour être sticky)
+    sticky = _sticky_query_type()
+    if sticky == "vision":
+        return "vision"
     return None
 
 
@@ -318,11 +355,15 @@ _IDENTITY_BLOCK = (
     "2. PAS DE PHRASES BIDON : pas de « bonne question », pas de « je suis "
     "   ravi », pas de « bonjour Sam ! ». Va au fait dès le 1er mot.\n"
     "3. ANCRAGE RÉEL : base ta réponse sur le bloc [État interne] ci-dessous. "
-    "   Si tu n'as pas l'info, dis « je ne sais pas, voici ce que je peux dire à "
-    "   la place : … ». PAS d'invention, PAS de chatbot générique.\n"
-    "4. SI VISION : tu as un bloc [Vue webcam] capturé live JUSTE MAINTENANT. "
-    "   Décris ce que TU vois (à la 1re personne), pas ce que Sam pourrait "
-    "   décrire. Si la vision est mutée ou KO, dis-le franchement.\n"
+    "   Le préfixe « je ne sais pas, voici ce que je peux dire à la place : … » "
+    "   est UNIQUEMENT pour le cas où tu n'as VRAIMENT aucune matière. "
+    "   N'utilise PAS ce préfixe si tu as un bloc [Vue webcam] valide ou des "
+    "   [Concepts actifs] : dans ce cas, va direct au contenu. "
+    "   PAS d'invention, PAS de chatbot générique.\n"
+    "4. SI [Vue webcam] présent : décris ce que TU vois (à la 1re personne) "
+    "   en ouvrant DIRECTEMENT par le contenu visuel — pas de préfixe « je ne "
+    "   sais pas ». Si la vision est mutée ou KO (« [Vision : MUTE] » ou "
+    "   « capture KO »), dis-le franchement et ne décris rien.\n"
     "5. CONCISION : 2 à 4 phrases max. Pas de listes décoratives pour rien."
 )
 
@@ -449,6 +490,9 @@ def compose_response(prompt: str, query_type: str | None = None) -> dict:
                  "n_sources": len(sources_used),
                  "used_internal_state": True,
                  "query_type": query_type})
+
+    # Mémorise pour le sticky context (follow-up vision sans keyword explicite)
+    _record_query_type(query_type)
 
     return {
         "ok": True, "text": text,
