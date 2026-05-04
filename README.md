@@ -1,6 +1,6 @@
 # Cortex — un cerveau cognitif vivant
 
-> Dernière mise à jour : `2026-05-04T11:32:41` (auto-généré)
+> Dernière mise à jour : `2026-05-04T11:33:24` (auto-généré)
 
 Cortex est une entité cognitive autonome construite sur le projet Paperclip.
 Il voit, entend, mémorise, apprend, et raisonne avec une vraie boucle Spreading
@@ -25,8 +25,8 @@ Activation Theory (Collins & Loftus, 1975) et un apprentissage Hebbian
 
 ## Corps (homeostasis)
 
-- CPU : **14.7%**
-- RAM : **54.0%**
+- CPU : **26.8%**
+- RAM : **52.1%**
 - Disques surveillés : **5**
 - GPU : —
 
