@@ -1,9 +1,9 @@
 {
-  "ts": 1777894966.6229591,
-  "iso": "2026-05-04T13:42:46",
+  "ts": 1777895489.895164,
+  "iso": "2026-05-04T13:51:29",
   "brain": {
-    "ts": 1777894966.6337268,
-    "iso": "2026-05-04T13:42:46",
+    "ts": 1777895489.907222,
+    "iso": "2026-05-04T13:51:29",
     "n_nodes": 1782,
     "by_kind": {
       "claude_memory": 23,
@@ -13,105 +13,101 @@
     "n_edges": 182753,
     "n_isolated": 0,
     "density": 0.1152,
-    "n_active": 47,
-    "hebbian_total": 15.39
+    "n_active": 43,
+    "hebbian_total": 15.96
   },
   "activation": {
     "active_nodes": {
-      "node_f372c72e": 0.889,
-      "node_b6cedfa1": 0.889,
-      "node_c8ff194a": 0.889,
-      "node_89174306": 0.492,
-      "node_fd366d20": 0.774,
-      "node_75670dab": 0.889,
-      "node_abdc6a5f": 0.492,
-      "node_ad1eac5e": 0.127,
-      "node_8264f6c6": 0.021,
-      "node_e4e886c2": 0.314,
-      "node_b6a1942d": 0.314,
-      "node_ee91451a": 0.127,
-      "node_9e51ce0e": 0.127,
-      "node_fcc86e06": 0.127,
-      "node_3b1218b4": 0.052,
-      "node_6dddccdc": 0.052,
-      "node_54bf16fe": 0.052,
-      "node_134dd054": 0.052,
-      "node_227040ec": 0.052,
-      "node_7186cc6c": 0.052,
-      "node_f04f00ac": 0.021,
-      "node_441245db": 0.492,
-      "node_d1b1641a": 0.021,
-      "node_77d14836": 0.021,
-      "node_e340957b": 0.492,
-      "node_ffba87d5": 0.492,
-      "node_c6b548ea": 0.492,
-      "node_57b92bff": 0.492,
-      "node_b2800a71": 0.774,
-      "node_826fb7b4": 0.774,
-      "node_4733380f": 0.774,
-      "node_7e712ba4": 0.774,
-      "node_bac4e9b0": 0.774,
-      "node_be17c5a4": 0.314,
-      "node_3223271d": 0.314,
-      "node_2ef85887": 0.314,
-      "node_eb03d2a9": 0.616,
-      "node_af931acf": 0.616,
-      "node_2cb4013e": 0.616,
-      "node_43eb2fda": 0.616,
-      "node_b2eea72e": 0.616,
-      "node_511ce762": 0.616,
-      "node_43564ec4": 0.616,
-      "node_2ea69659": 0.616,
-      "node_4b97b4ca": 0.616,
-      "node_redacted_29834a1d": 0.616,
-      "node_6aafa3b9": 0.616
+      "node_f372c72e": 0.892,
+      "node_b6cedfa1": 0.892,
+      "node_c8ff194a": 0.892,
+      "node_89174306": 0.85,
+      "node_fd366d20": 0.159,
+      "node_75670dab": 0.892,
+      "node_abdc6a5f": 0.892,
+      "node_8264f6c6": 0.102,
+      "node_e4e886c2": 0.365,
+      "node_b6a1942d": 0.365,
+      "node_f04f00ac": 0.102,
+      "node_441245db": 0.892,
+      "node_d1b1641a": 0.102,
+      "node_77d14836": 0.102,
+      "node_e340957b": 0.892,
+      "node_ffba87d5": 0.892,
+      "node_c6b548ea": 0.892,
+      "node_57b92bff": 0.892,
+      "node_b2800a71": 0.159,
+      "node_826fb7b4": 0.159,
+      "node_4733380f": 0.159,
+      "node_7e712ba4": 0.159,
+      "node_bac4e9b0": 0.159,
+      "node_be17c5a4": 0.365,
+      "node_3223271d": 0.365,
+      "node_2ef85887": 0.365,
+      "node_eb03d2a9": 0.034,
+      "node_af931acf": 0.034,
+      "node_2cb4013e": 0.034,
+      "node_43eb2fda": 0.034,
+      "node_b2eea72e": 0.034,
+      "node_511ce762": 0.034,
+      "node_43564ec4": 0.034,
+      "node_2ea69659": 0.034,
+      "node_4b97b4ca": 0.034,
+      "node_redacted_29834a1d": 0.034,
+      "node_6aafa3b9": 0.034,
+      "node_6dddccdc": 0.573,
+      "node_3b1218b4": 0.573,
+      "node_227040ec": 0.573,
+      "node_54bf16fe": 0.573,
+      "node_134dd054": 0.573,
+      "node_7186cc6c": 0.573
     },
-    "n_active": 47,
+    "n_active": 43,
     "top_hebbian_edges": [
       {
         "a": "node_f372c72e",
         "b": "node_b6cedfa1",
-        "strength": 2.22
+        "strength": 2.31
       },
       {
         "a": "node_c8ff194a",
         "b": "node_f372c72e",
-        "strength": 2.22
+        "strength": 2.31
       },
       {
         "a": "node_c8ff194a",
         "b": "node_b6cedfa1",
-        "strength": 2.22
+        "strength": 2.31
       },
       {
         "a": "node_f372c72e",
         "b": "node_89174306",
-        "strength": 1.39
+        "strength": 1.45
       },
       {
         "a": "node_b6cedfa1",
         "b": "node_89174306",
-        "strength": 1.39
+        "strength": 1.45
       },
       {
         "a": "node_c8ff194a",
         "b": "node_89174306",
-        "strength": 1.39
+        "strength": 1.45
       },
       {
         "a": "node_c8ff194a",
         "b": "node_75670dab",
-        "strength": 0.86
+        "strength": 0.9
       },
       {
         "a": "node_f372c72e",
         "b": "node_75670dab",
-        "strength": 0.86
+        "strength": 0.9
       },
       {
         "a": "node_75670dab",
         "b": "node_b6cedfa1",
-        "strength": 0.86
+        "strength": 0.9
       },
       {
         "a": "node_7fc0ae72",
@@ -169,19 +165,19 @@
         "strength": 0.18
       }
     ],
-    "ts": 1777894973.690102,
-    "cum_activations": 795,
-    "cum_pulses": 565,
-    "cum_hebbian_ticks": 1319,
-    "last_activation_ts": 1777894952.4338572,
-    "last_pulse_ts": 1777894952.4124565,
-    "last_hebbian_ts": 1777894927.46831,
-    "last_wander_ts": 1777894952.3755581,
+    "ts": 1777895497.04647,
+    "cum_activations": 911,
+    "cum_pulses": 637,
+    "cum_hebbian_ticks": 1451,
+    "last_activation_ts": 1777895476.5619478,
+    "last_pulse_ts": 1777895476.5211587,
+    "last_hebbian_ts": 1777895476.5201554,
+    "last_wander_ts": 1777895476.4510477,
     "n_edges_total": 2492,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 20.5,
+    "cpu_percent": 70.0,
     "ram_percent": 82.3,
     "n_disks": 5,
     "gpu": []

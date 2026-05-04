@@ -733,14 +733,20 @@ def _smoke_yml() -> str:
 # par `cortex_publishing.update()`. Ce workflow YAML reprendra dès que le
 # quota GitHub Actions sera de nouveau disponible — il est conservé pour
 # que les contributeurs externes voient comment auditer le repo.
+#
+# IMPORTANT : déclencheurs `push` et `pull_request` désactivés volontairement
+# pour ne pas spammer Sam de mails "Run failed" quand son compte GH est bloqué.
+# Quand le billing reviendra, réactiver en remettant les blocs `push:` et
+# `pull_request:` ci-dessous (commentés) ou via "Run workflow" manuel dans
+# l'onglet Actions de GitHub.
 name: smoke
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch: {}
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
 
 jobs:
   strict-core:
