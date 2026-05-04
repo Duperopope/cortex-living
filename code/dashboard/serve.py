@@ -2357,6 +2357,41 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlparse(self.path)
+        # Static : /cosmo-web/* → H:\Code\Universe-web\*
+        if parsed.path.startswith("/cosmo-web/") or parsed.path == "/cosmo-web":
+            from pathlib import Path as _P
+            web_root = _P(r"H:\Code\Universe-web")
+            rel = parsed.path[len("/cosmo-web/"):] if parsed.path.startswith("/cosmo-web/") else "index.html"
+            if not rel: rel = "index.html"
+            # Sécurité : pas de remontée
+            if ".." in rel: self.send_error(403); return
+            target = web_root / rel
+            if not target.exists() or not target.is_file():
+                self.send_error(404, f"not found: {rel}"); return
+            ext = target.suffix.lower()
+            ctype = {
+                ".html": "text/html; charset=utf-8",
+                ".js":   "application/javascript; charset=utf-8",
+                ".mjs":  "application/javascript; charset=utf-8",
+                ".css":  "text/css; charset=utf-8",
+                ".json": "application/json; charset=utf-8",
+                ".glsl": "text/plain; charset=utf-8",
+                ".png":  "image/png",
+                ".jpg":  "image/jpeg",
+                ".svg":  "image/svg+xml",
+            }.get(ext, "application/octet-stream")
+            try:
+                data = target.read_bytes()
+                self.send_response(200)
+                self.send_header("Content-Type", ctype)
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"read err: {e}")
+            return
         if parsed.path == "/api/version":
             try:
                 import subprocess as _spv
@@ -3859,6 +3894,21 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 elif p == "/api/cortex/cosmo/playtest_status":
                     import cortex_cosmogenesis_lab as _co
                     self._send_json(_co.playtest_status()); return
+                elif p == "/api/cortex/cosmo/annotations":
+                    # GET liste annotations (?limit=N)
+                    from pathlib import Path as _P
+                    f = _P(r"<CORTEX_REPO>\examples\session-current\cosmogenesis\annotations.jsonl")
+                    limit = int(qs.get("limit", ["20"])[0])
+                    items = []
+                    if f.exists():
+                        try:
+                            for line in f.read_text(encoding="utf-8").splitlines():
+                                if not line.strip(): continue
+                                try: items.append(json.loads(line))
+                                except Exception: continue
+                        except Exception: pass
+                    items.sort(key=lambda a: a.get("ts", 0), reverse=True)
+                    self._send_json({"ok": True, "annotations": items[:limit]}); return
                 elif p == "/api/cortex/cosmo/screenshot":
                     # Priorité : cosmo_live.png (stream continu écrasé en place).
                     # Fallback : dernier cosmo_*.png horodaté.
@@ -3888,50 +3938,210 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                         self.send_error(500, f"read failed: {_e}")
                     return
                 elif p == "/api/cortex/cosmo/live":
-                    # Page HTML qui auto-refresh le dernier screenshot Cosmogenesis.
+                    # Page playtest annotable type Codex GPT :
+                    # clic+drag = rectangle de sélection
+                    # champ texte = ce qui déconne dans cette zone
+                    # submit → POST /annotate → Cortex matche au code source
                     html = """<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Cosmogenesis live</title>
+<html><head><meta charset="utf-8"><title>Cosmogenesis playtest</title>
 <style>
-  html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;font-family:ui-monospace,monospace;color:#9ec1ff}
-  .wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-  img{max-width:100%;max-height:100%;object-fit:contain;display:block}
-  .hud{position:absolute;top:6px;left:8px;background:rgba(0,0,0,.55);padding:3px 7px;border-radius:4px;font-size:10px;border:1px solid #1f3055}
-  .err{position:absolute;bottom:8px;left:8px;color:#ff8a8a;font-size:10px}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#05060c;height:100%;overflow:hidden;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#cdf}
+  .root{display:grid;grid-template-rows:1fr auto;height:100%}
+  .stage{position:relative;background:#000;overflow:hidden}
+  .stage img{position:absolute;inset:0;margin:auto;max-width:100%;max-height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none}
+  .stage canvas{position:absolute;inset:0;cursor:crosshair}
+  .hud{position:absolute;top:6px;left:8px;background:rgba(0,0,0,.6);padding:3px 8px;border-radius:4px;font-size:10px;border:1px solid #1f3055;z-index:10}
+  .err{position:absolute;bottom:8px;left:8px;color:#ff8a8a;font-size:10px;z-index:10;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:3px}
+  .panel{background:#0a0e1a;border-top:1px solid #1f3055;padding:8px 10px;display:flex;flex-direction:column;gap:6px;max-height:42%;overflow:hidden}
+  .input-row{display:flex;gap:6px;align-items:flex-start}
+  textarea{flex:1;background:#06060e;border:1px solid #2a3555;color:#cdf;padding:6px 8px;border-radius:4px;font-size:11px;font-family:inherit;outline:none;resize:vertical;min-height:48px;max-height:120px}
+  textarea:focus{border-color:#38bdf8}
+  .submit-btn{background:#1b3f5f;border:1px solid #38bdf8;color:#bae6fd;cursor:pointer;font-size:11px;padding:6px 14px;border-radius:4px;font-family:inherit;font-weight:700;align-self:flex-start;white-space:nowrap}
+  .submit-btn:hover{background:#2a5f8f}
+  .submit-btn:disabled{opacity:.4;cursor:not-allowed}
+  .clear-btn{background:#2a2a3a;border:1px solid #444;color:#aab;cursor:pointer;font-size:9px;padding:4px 8px;border-radius:3px;font-family:inherit}
+  .meta{font-size:9px;color:#6f7faf;display:flex;gap:10px;flex-wrap:wrap}
+  .ann-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;font-size:10px;border-top:1px dashed #1f3055;padding-top:6px;margin-top:4px}
+  .ann{display:grid;grid-template-columns:auto 1fr auto;gap:6px;padding:3px 6px;background:#0e1424;border-radius:3px;align-items:center}
+  .ann.pending{border-left:2px solid #fbbf24}
+  .ann.patched{border-left:2px solid #34d399}
+  .ann.skipped{border-left:2px solid #6b7280}
+  .ann-rect{font-family:ui-monospace,monospace;color:#7a8aab;font-size:9px}
+  .ann-text{color:#cdf}
+  .ann-status{font-size:9px;color:#6f7faf}
 </style>
 </head><body>
-<div class="wrap">
-  <img id="shot" alt="cosmogenesis live">
-  <div class="hud" id="hud">live · — fps</div>
-  <div class="err" id="err"></div>
+<div class="root">
+  <div class="stage" id="stage">
+    <img id="shot" alt="cosmogenesis live">
+    <canvas id="canvas"></canvas>
+    <div class="hud" id="hud">— fps screenshots</div>
+    <div class="err" id="err"></div>
+  </div>
+  <div class="panel">
+    <div class="meta">
+      <span>🎯 Playtest annotable Codex-style</span>
+      <span>· clic + drag dans l'image pour cibler une zone</span>
+      <span id="rect-info">· aucune zone sélectionnée</span>
+    </div>
+    <div class="input-row">
+      <textarea id="txt" placeholder="Décris ce qui ne va pas dans cette zone (ex: 'horizon plat alors qu'on est en orbite', 'étoiles trop sombres', 'vignette manquante')..."></textarea>
+      <button class="submit-btn" id="submit-btn" onclick="submitAnnotation()">→ envoyer à Cortex</button>
+    </div>
+    <div class="ann-list" id="ann-list">chargement annotations...</div>
+  </div>
 </div>
 <script>
-let frames = 0, lastTs = performance.now(), fps = 0;
+const stage = document.getElementById('stage');
+const img = document.getElementById('shot');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const hud = document.getElementById('hud');
+const err = document.getElementById('err');
+const txt = document.getElementById('txt');
+const submitBtn = document.getElementById('submit-btn');
+const rectInfo = document.getElementById('rect-info');
+const annList = document.getElementById('ann-list');
+
+let rect = null;  // {x,y,w,h} dans l'image (coords normalisées 0..1)
+let drawing = false, dragStart = null;
+
+function resizeCanvas() {
+  const r = stage.getBoundingClientRect();
+  canvas.width = r.width; canvas.height = r.height;
+  drawRect();
+}
+window.addEventListener('resize', resizeCanvas);
+new ResizeObserver(resizeCanvas).observe(stage);
+
+function imgRectInStage() {
+  // Calcule le rect de l'<img> contenue (object-fit: contain) dans le stage.
+  const stageR = stage.getBoundingClientRect();
+  const iw = img.naturalWidth || 1280, ih = img.naturalHeight || 720;
+  const sw = stageR.width, sh = stageR.height;
+  const sR = sw / sh, iR = iw / ih;
+  let w, h;
+  if (iR > sR) { w = sw; h = sw / iR; } else { h = sh; w = sh * iR; }
+  const x = (sw - w) / 2, y = (sh - h) / 2;
+  return {x, y, w, h};
+}
+
+function drawRect() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!rect) return;
+  const r = imgRectInStage();
+  const x = r.x + rect.x * r.w;
+  const y = r.y + rect.y * r.h;
+  const w = rect.w * r.w;
+  const h = rect.h * r.h;
+  ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]); ctx.strokeRect(x, y, w, h);
+  ctx.setLineDash([]); ctx.fillStyle = 'rgba(56,189,248,0.12)';
+  ctx.fillRect(x, y, w, h);
+}
+
+canvas.addEventListener('mousedown', e => {
+  const r = imgRectInStage();
+  const cx = e.offsetX - r.x, cy = e.offsetY - r.y;
+  if (cx < 0 || cx > r.w || cy < 0 || cy > r.h) return;
+  drawing = true;
+  dragStart = {x: cx / r.w, y: cy / r.h};
+  rect = {x: dragStart.x, y: dragStart.y, w: 0, h: 0};
+});
+canvas.addEventListener('mousemove', e => {
+  if (!drawing) return;
+  const r = imgRectInStage();
+  const cx = Math.max(0, Math.min(r.w, e.offsetX - r.x)) / r.w;
+  const cy = Math.max(0, Math.min(r.h, e.offsetY - r.y)) / r.h;
+  rect.x = Math.min(dragStart.x, cx);
+  rect.y = Math.min(dragStart.y, cy);
+  rect.w = Math.abs(cx - dragStart.x);
+  rect.h = Math.abs(cy - dragStart.y);
+  drawRect();
+});
+canvas.addEventListener('mouseup', e => {
+  drawing = false;
+  if (rect && (rect.w < 0.01 || rect.h < 0.01)) { rect = null; drawRect(); }
+  if (rect) {
+    rectInfo.textContent = `· zone: ${(rect.x*100).toFixed(0)},${(rect.y*100).toFixed(0)} → ${((rect.x+rect.w)*100).toFixed(0)},${((rect.y+rect.h)*100).toFixed(0)} (%)`;
+  } else {
+    rectInfo.textContent = '· aucune zone sélectionnée';
+  }
+});
+
+async function submitAnnotation() {
+  const text = txt.value.trim();
+  if (!text) { txt.focus(); return; }
+  submitBtn.disabled = true; submitBtn.textContent = '→ envoi...';
+  try {
+    const payload = { text, rect: rect, ts: Date.now() };
+    const r = await fetch('/api/cortex/cosmo/annotate', {
+      method: 'POST', cache: 'no-store',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    if (!r.ok || !d.ok) throw new Error(d.error || 'HTTP '+r.status);
+    txt.value = ''; rect = null; drawRect();
+    rectInfo.textContent = '· annotation envoyée (id: '+d.id.slice(0,8)+') — Cortex va analyser';
+    refreshAnnotations();
+  } catch(e) {
+    rectInfo.innerHTML = '<span style="color:#ff8a8a">· erreur: '+e.message+'</span>';
+  } finally {
+    submitBtn.disabled = false; submitBtn.textContent = '→ envoyer à Cortex';
+  }
+}
+
+async function refreshAnnotations() {
+  try {
+    const r = await fetch('/api/cortex/cosmo/annotations?limit=15', {cache:'no-store'});
+    const d = await r.json();
+    if (!d.ok) return;
+    if (!d.annotations || d.annotations.length === 0) {
+      annList.innerHTML = '<div style="color:#557;font-size:9px">aucune annotation pour le moment</div>';
+      return;
+    }
+    annList.innerHTML = d.annotations.map(a => {
+      const cls = 'ann ' + (a.status || 'pending');
+      const rectStr = a.rect ? `[${(a.rect.x*100).toFixed(0)},${(a.rect.y*100).toFixed(0)} ${(a.rect.w*100).toFixed(0)}×${(a.rect.h*100).toFixed(0)}]` : '[full]';
+      const status = a.status || 'pending';
+      const commit = a.commit ? ' · '+a.commit.slice(0,7) : '';
+      return `<div class="${cls}"><span class="ann-rect">${rectStr}</span><span class="ann-text">${(a.text||'').replace(/</g,'&lt;')}</span><span class="ann-status">${status}${commit}</span></div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+let frames = 0, lastTs = performance.now();
 async function tick() {
   try {
     const url = '/api/cortex/cosmo/screenshot?t=' + Date.now();
     const r = await fetch(url, {cache:'no-store'});
     if (r.ok) {
       const blob = await r.blob();
-      const old = document.getElementById('shot').src;
-      document.getElementById('shot').src = URL.createObjectURL(blob);
+      const old = img.src;
+      img.src = URL.createObjectURL(blob);
       if (old.startsWith('blob:')) URL.revokeObjectURL(old);
-      document.getElementById('err').textContent = '';
+      err.textContent = '';
       frames++;
       const now = performance.now();
       if (now - lastTs > 1000) {
-        fps = (frames * 1000 / (now - lastTs)).toFixed(1);
+        const fps = (frames * 1000 / (now - lastTs)).toFixed(1);
         frames = 0; lastTs = now;
-        document.getElementById('hud').textContent = 'live · ' + fps + ' fps screenshots';
+        hud.textContent = fps + ' fps · clic+drag pour annoter';
       }
     } else if (r.status === 404) {
-      document.getElementById('err').textContent = 'aucun screenshot — Cosmogenesis tourne ?';
+      err.textContent = 'pas de screenshot — Cosmogenesis tourne ?';
     }
-  } catch(e) {
-    document.getElementById('err').textContent = 'fetch err: ' + e.message;
-  }
-  setTimeout(tick, 65);  // ~15 Hz pour suivre le moteur
+  } catch(e) { err.textContent = 'fetch err: ' + e.message; }
+  setTimeout(tick, 65);
 }
+
+img.addEventListener('load', resizeCanvas);
+resizeCanvas();
 tick();
+refreshAnnotations();
+setInterval(refreshAnnotations, 5000);
 </script>
 </body></html>"""
                     data = html.encode("utf-8")
@@ -4309,6 +4519,157 @@ tick();
                         branch=str(body.get("branch", "cortex/dev-cosmogenesis")))
                 elif sub == "free_resources":
                     rep = _co.free_resources_for_render()
+                elif sub == "story":
+                    # Génère lore d'un système via LM Studio + persiste en vault.
+                    # Paradigme COSMOGENESIS_ROADMAP §6.4 : LLM cohérence sémantique.
+                    from pathlib import Path as _P
+                    sysid = body.get("system_id")
+                    kelvin = float(body.get("kelvin", 5000))
+                    pos = body.get("pos", [0, 0, 0])
+                    neighbors = body.get("neighbors", [])
+                    if sysid is None:
+                        rep = {"ok": False, "error": "system_id required"}
+                    else:
+                        vault_dir = _P(r"<USER_HOME>\Documents\Obsidian Vault\06 - Star Atlas")
+                        vault_dir.mkdir(parents=True, exist_ok=True)
+                        story_file = vault_dir / f"system_{int(sysid):06d}.md"
+                        if story_file.exists():
+                            try:
+                                content = story_file.read_text(encoding="utf-8")
+                                # Parse front-matter name + body
+                                name = f"Système {sysid}"
+                                lore = content
+                                if content.startswith("---"):
+                                    end = content.find("---", 3)
+                                    if end > 0:
+                                        fm = content[3:end]
+                                        for line in fm.splitlines():
+                                            if line.startswith("name:"):
+                                                name = line.split(":", 1)[1].strip().strip('"')
+                                        lore = content[end+3:].strip()
+                                rep = {"ok": True, "name": name, "lore": lore, "cached": True}
+                            except Exception as e:
+                                rep = {"ok": False, "error": f"read: {e}"}
+                        else:
+                            # Génération via LM Studio
+                            spectral = (
+                                "naine M rouge" if kelvin < 3700 else
+                                "K orange" if kelvin < 5200 else
+                                "G jaune (Soleil-like)" if kelvin < 6000 else
+                                "F blanche-bleue" if kelvin < 7500 else
+                                "A bleue" if kelvin < 10000 else
+                                "B/O géante bleue"
+                            )
+                            neigh_desc = ", ".join(
+                                f"#{n.get('idx')} (Kelvin {int(n.get('kelvin', 0))}K, "
+                                f"distance {float(n.get('dist', 0)):.0f}u)"
+                                for n in (neighbors or [])[:3]
+                            ) or "isolé en bordure de bras spiral"
+                            user_prompt = (
+                                f"Génère un lore court (140 mots max) pour un système stellaire procédural.\n"
+                                f"Données :\n"
+                                f"- ID : {sysid}\n"
+                                f"- Étoile : {spectral} (température {int(kelvin)}K)\n"
+                                f"- Position galactique : ({pos[0]:.0f}, {pos[1]:.0f}, {pos[2]:.0f})\n"
+                                f"- Voisins distinctifs : {neigh_desc}\n\n"
+                                f"Format réponse :\n"
+                                f"NOM: <un nom propre poétique court>\n"
+                                f"LORE: <2-3 phrases sur la nature de ce système, ses habitants potentiels "
+                                f"ou son histoire récente, en cohérence avec sa température stellaire et "
+                                f"ses voisins. Pas de cliché Star Wars/Star Trek.>"
+                            )
+                            try:
+                                import urllib.request as _ur
+                                req = _ur.Request(
+                                    "http://127.0.0.1:1234/v1/chat/completions",
+                                    method="POST",
+                                    headers={"Content-Type": "application/json"},
+                                    data=json.dumps({
+                                        "model": "qwen2.5-vl-7b-instruct",
+                                        "messages": [
+                                            {"role": "system", "content": "Tu es l'historien d'un univers procédural. Génère du lore concis et atmosphérique, sans tropes éculés. Réponds en français."},
+                                            {"role": "user", "content": user_prompt},
+                                        ],
+                                        "temperature": 0.85, "max_tokens": 320,
+                                    }).encode("utf-8")
+                                )
+                                with _ur.urlopen(req, timeout=30) as r:
+                                    data = json.loads(r.read().decode("utf-8"))
+                                txt = data["choices"][0]["message"]["content"].strip()
+                                # Parse NOM: ... LORE: ...
+                                name = f"Étoile-{sysid}"
+                                lore_body = txt
+                                for line in txt.splitlines():
+                                    if line.upper().startswith("NOM:") or line.upper().startswith("NOM :"):
+                                        name = line.split(":", 1)[1].strip().strip('*"').strip()
+                                        break
+                                lore_idx = txt.upper().find("LORE:")
+                                if lore_idx == -1: lore_idx = txt.upper().find("LORE :")
+                                if lore_idx >= 0:
+                                    lore_body = txt[lore_idx:].split(":", 1)[1].strip()
+                                # Persiste en vault
+                                fm = (
+                                    "---\n"
+                                    f'name: "{name}"\n'
+                                    f"system_id: {sysid}\n"
+                                    f"kelvin: {int(kelvin)}\n"
+                                    f"spectral: {spectral}\n"
+                                    f"pos: [{pos[0]:.1f}, {pos[1]:.1f}, {pos[2]:.1f}]\n"
+                                    f"generated_at: {time.strftime('%Y-%m-%dT%H:%M:%S')}\n"
+                                    "engine: cosmogenesis-web\n"
+                                    "---\n\n"
+                                )
+                                story_file.write_text(fm + lore_body + "\n", encoding="utf-8")
+                                # Log épisodique pour mémoire sémantique de Cortex
+                                try:
+                                    import sys as _sys
+                                    if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+                                        _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                                    import cortex_memory as _cm
+                                    _cm.log_episodic(
+                                        f"Cosmogenesis: découverte de {name} (système #{sysid}, "
+                                        f"{spectral}) — {lore_body[:200]}",
+                                        kind="cosmogenesis_discovery"
+                                    )
+                                except Exception: pass
+                                rep = {"ok": True, "name": name, "lore": lore_body, "cached": False}
+                            except Exception as e:
+                                rep = {"ok": False, "error": f"lm_studio: {e}",
+                                         "hint": "LM Studio doit avoir un modèle chargé (qwen2.5-vl ou autre)"}
+                elif sub == "annotate":
+                    # Sauve une annotation playtest (rect+text+image_bytes optionnel)
+                    import uuid as _uu
+                    from pathlib import Path as _P
+                    text = str(body.get("text", "")).strip()
+                    if not text:
+                        rep = {"ok": False, "error": "empty_text"}
+                    else:
+                        ann_id = _uu.uuid4().hex
+                        f = _P(r"<CORTEX_REPO>\examples\session-current\cosmogenesis\annotations.jsonl")
+                        f.parent.mkdir(parents=True, exist_ok=True)
+                        # Capture le screenshot live au moment de l'annotation pour traçabilité
+                        live_png = _P(r"H:\Code\Universe\cosmogenesis_screenshots\cosmo_live.png")
+                        snapshot_copy = None
+                        if live_png.exists():
+                            try:
+                                shots_dir = f.parent / "annotation_shots"
+                                shots_dir.mkdir(parents=True, exist_ok=True)
+                                target = shots_dir / f"ann_{ann_id}.png"
+                                target.write_bytes(live_png.read_bytes())
+                                snapshot_copy = str(target)
+                            except Exception: pass
+                        ann = {
+                            "id": ann_id, "ts": time.time(),
+                            "text": text, "rect": body.get("rect"),
+                            "snapshot": snapshot_copy,
+                            "status": "pending", "branch": "cortex/dev-cosmogenesis",
+                        }
+                        try:
+                            with f.open("a", encoding="utf-8") as fp:
+                                fp.write(json.dumps(ann, ensure_ascii=False) + "\n")
+                            rep = {"ok": True, "id": ann_id, "status": "pending"}
+                        except Exception as e:
+                            rep = {"ok": False, "error": f"write_failed: {e}"}
                 else:
                     self.send_error(404, f"unknown cosmo sub: {sub}")
                     return

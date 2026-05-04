@@ -2942,42 +2942,12 @@ window._playtestExpand = async () => {
   } catch(e) {}
 };
 window._playtestLoadCosmoLive = async () => {
-  const COSMO_URL = 'http://127.0.0.1:8765/api/cortex/cosmo/live';
+  // Cosmogenesis Web : moteur Three.js natif dans iframe (60 fps).
+  // Plus de pygame/screenshot polling — rendu direct dans le navigateur.
+  const COSMO_URL = 'http://127.0.0.1:8765/cosmo-web/index.html';
   const info = document.getElementById('playtest-info');
-  if (info) info.innerHTML = 'Cosmogenesis : vérification du process...';
-  try {
-    const r = await fetch('/api/cortex/cosmo/playtest_status', {cache:'no-store'});
-    const s = await r.json();
-    if (!s.running) {
-      if (info) info.innerHTML = 'Lancement Cosmogenesis (cortex/dev-cosmogenesis)...';
-      const launch = await fetch('/api/cortex/cosmo/launch_playtest', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({branch:'cortex/dev-cosmogenesis', seed:42})
-      });
-      const ld = await launch.json();
-      if (!ld.ok) {
-        if (info) info.innerHTML = '<span style="color:#ff8a8a">Échec launch: '+(ld.error||'?')+'</span>';
-        return;
-      }
-      // Attente que les premiers screenshots arrivent (~5-10s à cause du JIT)
-      if (info) info.innerHTML = 'Cosmogenesis lance... attente du 1er frame (Numba JIT ~10s)';
-      let ready = false;
-      for (let i = 0; i < 30; i++) {
-        await new Promise(r => setTimeout(r, 500));
-        try {
-          const probe = await fetch('/api/cortex/cosmo/screenshot', {method:'HEAD',cache:'no-store'});
-          if (probe.ok) { ready = true; break; }
-        } catch(e) {}
-      }
-      if (!ready) {
-        if (info) info.innerHTML = '<span style="color:#ffcc66">Cosmogenesis lancé mais pas de screenshot après 15s. Charge quand même.</span>';
-      }
-    }
-    window._playtestLoad(COSMO_URL);
-  } catch(e) {
-    if (info) info.innerHTML = '<span style="color:#ff8a8a">Erreur: '+e.message+'</span>';
-  }
+  if (info) info.innerHTML = 'Chargement Cosmogenesis Web (Three.js)...';
+  window._playtestLoad(COSMO_URL);
 };
 
 window._playtestLoad = async (url) => {

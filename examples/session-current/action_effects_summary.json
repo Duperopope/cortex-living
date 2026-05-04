@@ -1,12 +1,12 @@
 {
-  "ts": 1777933088.1715248,
+  "ts": 1777935995.1943903,
   "min_samples": 8,
   "window": 30,
   "n_actions_observed": 3,
   "empirical_predictions_count": 3,
   "heuristic_fallback_count": 0,
   "empirical_ratio": 1.0,
-  "prediction_error_avg_global": 3.19741,
+  "prediction_error_avg_global": 2.92481,
   "actions": {
     "explore_graph": {
       "n_examples": 30,
@@ -51,8 +51,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": 0.83333,
-          "std": 6.18645,
+          "mean": -0.16667,
+          "std": 6.78274,
           "n": 30
         },
         "compression_error": {
@@ -61,18 +61,18 @@
           "n": 30
         },
         "cpu": {
-          "mean": -0.63,
-          "std": 9.53373,
+          "mean": -0.70333,
+          "std": 8.28213,
           "n": 30
         },
         "ram": {
-          "mean": -1.05,
-          "std": 4.05214,
+          "mean": 0.11667,
+          "std": 6.27827,
           "n": 30
         }
       },
-      "prediction_error_avg": 2.33889,
-      "observability": "high"
+      "prediction_error_avg": 2.51111,
+      "observability": "medium"
     },
     "map_knowledge": {
       "n_examples": 30,
@@ -119,8 +119,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": -2.9,
-          "std": 11.50753,
+          "mean": -1.63333,
+          "std": 9.62803,
           "n": 30
         },
         "compression_error": {
@@ -129,17 +129,17 @@
           "n": 30
         },
         "cpu": {
-          "mean": -3.98333,
-          "std": 12.4162,
+          "mean": -5.29667,
+          "std": 11.40905,
           "n": 30
         },
         "ram": {
-          "mean": 0.03333,
-          "std": 2.80824,
+          "mean": 0.38,
+          "std": 1.34397,
           "n": 30
         }
       },
-      "prediction_error_avg": 4.77,
+      "prediction_error_avg": 3.78,
       "observability": "high"
     }
   },
