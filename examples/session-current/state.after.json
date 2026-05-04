@@ -1,60 +1,60 @@
 {
-  "ts": 1777910741.1909866,
-  "n_steps_total": 201,
-  "late_surprise": 0.138,
-  "n_better_than_random": 171,
-  "n_outcome_evaluated": 148,
+  "ts": 1777915418.5463846,
+  "n_steps_total": 236,
+  "late_surprise": 0.5383,
+  "n_better_than_random": 202,
+  "n_outcome_evaluated": 183,
   "vs_baselines": {
     "random": {
-      "wins": 36,
-      "losses": 60,
-      "ties": 52,
-      "outcome_score_sum": 85.1174
+      "wins": 41,
+      "losses": 76,
+      "ties": 66,
+      "outcome_score_sum": 105.12270000000001
     },
     "always_reflect": {
       "wins": 16,
-      "losses": 132,
+      "losses": 167,
       "ties": 0,
-      "outcome_score_sum": 140.64999999999995
+      "outcome_score_sum": 175.3999999999997
     },
     "always_explore": {
-      "wins": 3,
-      "losses": 40,
-      "ties": 105,
-      "outcome_score_sum": 96.00060000000005
+      "wins": 4,
+      "losses": 49,
+      "ties": 130,
+      "outcome_score_sum": 113.70410000000005
     },
     "round_robin": {
-      "wins": 26,
-      "losses": 65,
-      "ties": 57,
-      "outcome_score_sum": 91.57670000000005
+      "wins": 27,
+      "losses": 74,
+      "ties": 82,
+      "outcome_score_sum": 109.28020000000005
     },
     "last_best": {
-      "wins": 5,
-      "losses": 40,
-      "ties": 103,
-      "outcome_score_sum": 94.04070000000004
+      "wins": 9,
+      "losses": 48,
+      "ties": 126,
+      "outcome_score_sum": 109.71070000000005
     }
   },
   "jepa_diagnostic": {
-    "n_train_steps": 4,
-    "last_loss": 0.11546653509140015,
-    "loss_avg_recent": 0.05486795445904136,
-    "online_target_W1_diff_mean": 4.6e-05,
-    "online_target_W2_diff_mean": 6.5e-05,
+    "n_train_steps": 11,
+    "last_loss": 0.023645900189876556,
+    "loss_avg_recent": 0.023645900189876556,
+    "online_target_W1_diff_mean": 0.000159,
+    "online_target_W2_diff_mean": 0.000284,
     "ema_tau": 0.99,
     "anti_collapse_ok": true
   },
   "belief_diagnostic": {
-    "n_observations": 14,
-    "kl_to_prior": 0.4768,
+    "n_observations": 26,
+    "kl_to_prior": 0.6649,
     "last_vfe": null,
     "q_dist": {
-      "silent": 0.053,
-      "exploring": 0.579,
-      "reflecting": 0.263,
-      "planning": 0.053,
-      "perceiving": 0.053
+      "silent": 0.033,
+      "exploring": 0.67,
+      "reflecting": 0.231,
+      "planning": 0.033,
+      "perceiving": 0.033
     }
   }
 }

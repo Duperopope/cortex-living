@@ -1,9 +1,9 @@
 {
-  "ts": 1777909856.3822923,
-  "iso": "2026-05-04T17:50:56",
+  "ts": 1777915345.494562,
+  "iso": "2026-05-04T19:22:25",
   "brain": {
-    "ts": 1777909856.393712,
-    "iso": "2026-05-04T17:50:56",
+    "ts": 1777915345.5077038,
+    "iso": "2026-05-04T19:22:25",
     "n_nodes": 1782,
     "by_kind": {
       "claude_memory": 23,
@@ -13,162 +13,177 @@
     "n_edges": 182753,
     "n_isolated": 0,
     "density": 0.1152,
-    "n_active": 33,
-    "hebbian_total": 40.05
+    "n_active": 48,
+    "hebbian_total": 49.69
   },
   "activation": {
     "active_nodes": {
-      "node_f372c72e": 0.943,
-      "node_b6cedfa1": 0.947,
-      "node_c8ff194a": 0.949,
-      "node_89174306": 0.952,
-      "node_75670dab": 0.254,
-      "node_fd366d20": 0.726,
-      "node_441245db": 0.026,
-      "node_e4e886c2": 0.026,
-      "node_e340957b": 0.011,
-      "node_abdc6a5f": 0.011,
-      "node_ffba87d5": 0.011,
-      "node_c6b548ea": 0.011,
-      "node_57b92bff": 0.011,
-      "node_f04f00ac": 0.026,
-      "node_d1b1641a": 0.026,
-      "node_2a636574": 0.026,
-      "node_8264f6c6": 0.026,
-      "node_6dddccdc": 0.059,
-      "node_3b1218b4": 0.059,
-      "node_227040ec": 0.059,
-      "node_134dd054": 0.059,
-      "node_54bf16fe": 0.059,
-      "node_7186cc6c": 0.059,
-      "node_b2800a71": 0.094,
-      "node_826fb7b4": 0.094,
-      "node_4733380f": 0.094,
-      "node_7e712ba4": 0.094,
-      "node_bac4e9b0": 0.094,
-      "node_0bb05d79": 0.718,
-      "node_f54f878d": 0.72,
-      "node_3bfa2f25": 0.721,
-      "node_5d6ed50a": 0.722,
-      "node_0dfbc603": 0.723
+      "node_f372c72e": 0.957,
+      "node_b6cedfa1": 0.957,
+      "node_c8ff194a": 0.956,
+      "node_89174306": 0.733,
+      "node_75670dab": 0.957,
+      "node_fd366d20": 0.6,
+      "node_e4e886c2": 0.119,
+      "node_b6a1942d": 0.262,
+      "node_0bb05d79": 0.6,
+      "node_f54f878d": 0.6,
+      "node_3bfa2f25": 0.6,
+      "node_5d6ed50a": 0.6,
+      "node_0dfbc603": 0.6,
+      "node_be17c5a4": 0.119,
+      "node_3223271d": 0.119,
+      "node_abdc6a5f": 0.957,
+      "node_2ef85887": 0.119,
+      "node_8fec5ac3": 0.122,
+      "node_1c7bdc5b": 0.122,
+      "node_9f2f3f63": 0.122,
+      "node_1b767b99": 0.122,
+      "node_f367d3ee": 0.122,
+      "node_aaf08f06": 0.122,
+      "node_265e151d": 0.122,
+      "node_ae4c94f2": 0.122,
+      "node_ecb1875b": 0.122,
+      "node_febacdd4": 0.123,
+      "node_a6beec2d": 0.123,
+      "node_016af831": 0.123,
+      "node_511ce762": 0.123,
+      "node_43564ec4": 0.123,
+      "node_2ea69659": 0.123,
+      "node_4b97b4ca": 0.123,
+      "node_redacted_29834a1d": 0.123,
+      "node_5ef7b509": 0.123,
+      "node_badabbd3": 0.123,
+      "node_6e605684": 0.123,
+      "node_de67f530": 0.123,
+      "node_e0b84374": 0.123,
+      "node_ee91451a": 0.262,
+      "node_9e51ce0e": 0.262,
+      "node_ad1eac5e": 0.262,
+      "node_a57e4846": 0.262,
+      "node_441245db": 0.957,
+      "node_e340957b": 0.957,
+      "node_ffba87d5": 0.957,
+      "node_c6b548ea": 0.957,
+      "node_57b92bff": 0.957
     },
-    "n_active": 33,
+    "n_active": 48,
     "top_hebbian_edges": [
       {
         "a": "node_f372c72e",
         "b": "node_b6cedfa1",
-        "strength": 5.94
+        "strength": 7.44
       },
       {
         "a": "node_c8ff194a",
         "b": "node_f372c72e",
-        "strength": 5.94
+        "strength": 7.44
       },
       {
         "a": "node_c8ff194a",
         "b": "node_b6cedfa1",
-        "strength": 5.94
+        "strength": 7.44
       },
       {
         "a": "node_f372c72e",
         "b": "node_89174306",
-        "strength": 3.86
+        "strength": 4.9
       },
       {
         "a": "node_b6cedfa1",
         "b": "node_89174306",
-        "strength": 3.86
+        "strength": 4.9
       },
       {
         "a": "node_c8ff194a",
         "b": "node_89174306",
-        "strength": 3.86
+        "strength": 4.9
       },
       {
         "a": "node_c8ff194a",
         "b": "node_75670dab",
-        "strength": 2.27
+        "strength": 2.77
       },
       {
         "a": "node_f372c72e",
         "b": "node_75670dab",
-        "strength": 2.27
+        "strength": 2.77
       },
       {
         "a": "node_75670dab",
         "b": "node_b6cedfa1",
-        "strength": 2.27
+        "strength": 2.77
       },
       {
         "a": "node_abdc6a5f",
         "b": "node_57b92bff",
-        "strength": 0.44
+        "strength": 0.48
+      },
+      {
+        "a": "node_fd366d20",
+        "b": "node_ad1eac5e",
+        "strength": 0.41
+      },
+      {
+        "a": "node_abdc6a5f",
+        "b": "node_2ef85887",
+        "strength": 0.41
       },
       {
         "a": "node_fd366d20",
         "b": "node_4733380f",
-        "strength": 0.34
+        "strength": 0.4
       },
       {
         "a": "node_e340957b",
         "b": "node_441245db",
-        "strength": 0.34
+        "strength": 0.38
       },
       {
         "a": "node_abdc6a5f",
         "b": "node_441245db",
-        "strength": 0.34
+        "strength": 0.38
       },
       {
         "a": "node_ffba87d5",
         "b": "node_441245db",
-        "strength": 0.34
+        "strength": 0.38
       },
       {
         "a": "node_c6b548ea",
         "b": "node_441245db",
-        "strength": 0.34
+        "strength": 0.38
       },
       {
         "a": "node_57b92bff",
         "b": "node_441245db",
-        "strength": 0.34
+        "strength": 0.38
       },
       {
         "a": "node_e340957b",
         "b": "node_abdc6a5f",
-        "strength": 0.34
+        "strength": 0.38
       },
       {
         "a": "node_e340957b",
         "b": "node_ffba87d5",
-        "strength": 0.34
-      },
-      {
-        "a": "node_e340957b",
-        "b": "node_c6b548ea",
-        "strength": 0.34
-      },
-      {
-        "a": "node_e340957b",
-        "b": "node_57b92bff",
-        "strength": 0.34
+        "strength": 0.38
       }
     ],
-    "ts": 1777909860.7758393,
-    "cum_activations": 4489,
-    "cum_pulses": 3026,
-    "cum_hebbian_ticks": 6062,
-    "last_activation_ts": 1777909851.9841022,
-    "last_pulse_ts": 1777909853.4248872,
-    "last_hebbian_ts": 1777909852.4556499,
-    "last_wander_ts": 1777909846.9729176,
-    "n_edges_total": 3276,
+    "ts": 1777915350.474231,
+    "cum_activations": 5971,
+    "cum_pulses": 4016,
+    "cum_hebbian_ticks": 8127,
+    "last_activation_ts": 1777915342.6518755,
+    "last_pulse_ts": 1777915342.589674,
+    "last_hebbian_ts": 1777915342.5795264,
+    "last_wander_ts": 1777915341.3278728,
+    "n_edges_total": 3729,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 28.5,
-    "ram_percent": 77.2,
+    "cpu_percent": 44.3,
+    "ram_percent": 79.5,
     "n_disks": 5,
     "gpu": []
   }

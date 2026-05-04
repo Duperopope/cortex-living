@@ -32,6 +32,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_jepa_v2` |  |
 | `cortex_kv_quantize` |  |
 | `cortex_learned_skills` |  |
+| `cortex_live_commentary` |  |
 | `cortex_memory` |  |
 | `cortex_memory_audit` |  |
 | `cortex_narrative` |  |

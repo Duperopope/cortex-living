@@ -77,8 +77,8 @@
     }
   },
   "smoke_rest": {
-    "total": 42,
-    "passed": 42,
+    "total": 43,
+    "passed": 43,
     "failed": 0,
     "failures": []
   },

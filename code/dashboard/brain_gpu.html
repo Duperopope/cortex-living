@@ -216,6 +216,169 @@ body > canvas { display:block; position:fixed; inset:0; z-index:0; background:#0
     <div id="m-brain-regs" data-help="brain-regressions" style="margin-top:5px;font-size:9px;color:#ff866a"></div>
   </div>
 
+  <!-- Présence proactive : état + boutons d'action directe.
+       Source : /api/cortex/proactive/{status,summary,propose,now,metrics} -->
+  <div id="cb-presence" style="border:1px solid #3a4a6f;border-left:3px solid #7dd3fc;border-radius:8px;background:linear-gradient(90deg,rgba(125,211,252,0.06),rgba(7,10,20,0.58));padding:10px 12px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="color:#7dd3fc;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">⌬ Présence proactive</span>
+      <span id="cb-presence-status" style="color:#cdf;font-size:10px;font-family:ui-monospace,monospace">—</span>
+    </div>
+    <div id="cb-presence-last" style="color:#aab;font-size:10px;line-height:1.4;margin-bottom:6px;min-height:14px;font-style:italic">—</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+      <button onclick="presenceAction('now')" style="background:#1b2746;border:1px solid #2a3f5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">parle-moi maintenant</button>
+      <button onclick="presenceAction('summary')" style="background:#1b2746;border:1px solid #2a3f5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">résume 10 min</button>
+      <button onclick="presenceAction('propose')" style="background:#1b2746;border:1px solid #2a3f5f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">propose une action</button>
+      <button onclick="presenceAction('metrics')" style="background:#1b2746;border:1px solid #2a3f5f;color:#7a89aa;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">métriques</button>
+    </div>
+    <div id="cb-presence-output" style="margin-top:8px;color:#9bb;font-size:9.5px;line-height:1.4;max-height:120px;overflow-y:auto;font-family:ui-monospace,monospace;display:none"></div>
+  </div>
+  <script>
+  (function(){
+    async function refreshPresence(){
+      try {
+        const r = await fetch('/api/cortex/proactive/status', {cache:'no-store'});
+        if (!r.ok) return;
+        const s = await r.json();
+        const stEl = document.getElementById('cb-presence-status');
+        const lastEl = document.getElementById('cb-presence-last');
+        if (stEl) stEl.textContent = s.status || '—';
+        if (lastEl) {
+          const last = s.last_proactive_msg;
+          if (last && last.message) {
+            const ago = Math.floor((Date.now()/1000 - (last.ts||0)) / 60);
+            lastEl.textContent = 'il y a '+ago+'min · '+last.message.slice(0, 140);
+          } else {
+            lastEl.textContent = 'aucune initiative récente';
+          }
+        }
+      } catch(e){}
+    }
+    window.presenceAction = async function(action){
+      const out = document.getElementById('cb-presence-output');
+      out.style.display = 'block';
+      out.innerHTML = '<span style="color:#557">...</span>';
+      try {
+        const r = await fetch('/api/cortex/proactive/'+action, {cache:'no-store'});
+        const d = await r.json();
+        let html = '';
+        if (action === 'now') {
+          if (d.response || d.message) {
+            html = '<span style="color:#55ff99">▸</span> '+(d.response || d.message);
+          } else if (d.msg) {
+            html = '<span style="color:#7a89aa">'+d.msg+'</span>';
+          }
+        } else if (action === 'summary') {
+          html = '<div style="color:#7dd3fc;margin-bottom:4px">Résumé '+(d.window_min||10)+' min :</div>';
+          (d.items || []).forEach(it => { html += '<div style="color:#cdf">• '+it+'</div>'; });
+        } else if (action === 'propose') {
+          if (d.ok) {
+            html = '<div style="color:#7dd3fc">Proposition :</div>';
+            html += '<div style="color:#cdf">'+(d.rationale||'')+'</div>';
+            html += '<div style="color:#55ff99;margin-top:4px">→ '+(d.proposed_action||'')+'</div>';
+          } else {
+            html = '<span style="color:#7a89aa">'+(d.msg||'pas de proposition')+'</span>';
+          }
+        } else if (action === 'metrics') {
+          html = '<div style="color:#7dd3fc">Métriques proactivité :</div>';
+          html += '<div>events_total: '+(d.proactive_events_total||0)+'</div>';
+          html += '<div>last_hour: '+(d.proactive_events_last_hour||0)+'</div>';
+          html += '<div>useful_rate: '+(d.useful_rate==null?'—':d.useful_rate)+'</div>';
+        }
+        out.innerHTML = html;
+      } catch(e) {
+        out.innerHTML = '<span style="color:#ff7766">erreur: '+e.message+'</span>';
+      }
+    };
+    refreshPresence();
+    setInterval(refreshPresence, 12000);
+  })();
+  </script>
+
+  <!-- Cortex en direct : commentaire live à chaque cycle d'émergence.
+       Donne l'impression de présence (Her-style) sans attendre que Sam
+       pose une question. Source : /api/cortex/live_commentary -->
+  <div id="cb-live" style="border:1px solid #2a3f5f;border-left:3px solid #55ff99;border-radius:8px;background:linear-gradient(90deg,rgba(85,255,153,0.08),rgba(7,10,20,0.58));padding:10px 12px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="color:#55ff99;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">● Cortex en direct</span>
+      <span id="cb-live-meta" style="color:#557;font-size:9px;font-family:ui-monospace,monospace">—</span>
+    </div>
+    <div id="cb-live-current" style="color:#cdf;font-size:11px;line-height:1.4;min-height:18px;font-style:italic">
+      <span style="color:#557">en attente du prochain cycle d'émergence...</span>
+    </div>
+    <div id="cb-live-extras" style="margin-top:5px;font-size:9.5px;font-family:ui-monospace,monospace;display:none">
+      <div id="cb-live-proof" style="color:#7a89aa;margin-bottom:1px"></div>
+      <div id="cb-live-effect" style="color:#a9b8d8;margin-bottom:1px"></div>
+      <div id="cb-live-proposed" style="color:#55ff99;margin-bottom:1px"></div>
+    </div>
+    <div id="cb-live-history" style="display:flex;flex-direction:column;gap:2px;margin-top:6px;font-size:9.5px;max-height:88px;overflow-y:auto;font-family:ui-monospace,monospace"></div>
+  </div>
+  <script>
+  (function(){
+    let lastTs = 0;
+    let lastDisplayedMsg = null;
+    async function refreshLive(){
+      try {
+        const r = await fetch('/api/cortex/live_commentary?limit=8&since=0', {cache:'no-store'});
+        if (!r.ok) return;
+        const d = await r.json();
+        const items = d.items || [];
+        if (items.length === 0) return;
+        // items[0] est le plus récent (sort par ts desc dans recent())
+        const cur = items[0];
+        const curEl = document.getElementById('cb-live-current');
+        const histEl = document.getElementById('cb-live-history');
+        if (curEl && cur.message && cur.message !== lastDisplayedMsg) {
+          // Animation subtile : flash vert au changement
+          curEl.style.transition = 'none';
+          curEl.style.color = '#55ff99';
+          curEl.innerHTML = '<span style="color:#7dd3fc">▸</span> ' +
+                             cur.message.replace(/</g,'&lt;');
+          setTimeout(() => {
+            curEl.style.transition = 'color 1500ms ease';
+            curEl.style.color = '#cdf';
+          }, 200);
+          lastDisplayedMsg = cur.message;
+          // Extras : proof + effect + proposed_action (level 2 expert)
+          const extrasEl = document.getElementById('cb-live-extras');
+          const proofEl = document.getElementById('cb-live-proof');
+          const effectEl = document.getElementById('cb-live-effect');
+          const propEl = document.getElementById('cb-live-proposed');
+          if (extrasEl) {
+            const has = cur.proof || cur.measured_effect || cur.proposed_action;
+            extrasEl.style.display = has ? 'block' : 'none';
+            if (proofEl) proofEl.textContent = cur.proof ? ('preuve : ' + cur.proof) : '';
+            if (effectEl) effectEl.textContent = cur.measured_effect ? ('effet : ' + cur.measured_effect) : '';
+            if (propEl && cur.proposed_action) {
+              propEl.textContent = '→ ' + cur.proposed_action;
+            } else if (propEl) {
+              propEl.textContent = '';
+            }
+          }
+          // Historique : skip le current, afficher les 5 suivants
+          if (histEl) {
+            histEl.innerHTML = '';
+            items.slice(1, 6).forEach(e => {
+              const ago = Math.floor((Date.now()/1000 - (e.ts||0)) / 60);
+              const div = document.createElement('div');
+              div.style.cssText = 'color:#7a89aa;padding:1px 0';
+              div.innerHTML = '<span style="color:#557">il y a '+ago+'min</span> · '
+                            + (e.message||'').slice(0,80).replace(/</g,'&lt;');
+              histEl.appendChild(div);
+            });
+          }
+        }
+        const meta = document.getElementById('cb-live-meta');
+        if (meta){
+          const ago = Math.floor((Date.now()/1000 - (cur.ts||0)) / 60);
+          meta.textContent = 'il y a ' + ago + 'min';
+        }
+      } catch(e){}
+    }
+    refreshLive();
+    setInterval(refreshLive, 8000);  // poll 8s
+  })();
+  </script>
+
   <!-- Topologie système Cortex (modules + badges runtime live).
        Distinct du graphe Obsidian rendu en 3D : ici on voit le système
        cognitif (modules Python + flux d'appel + status runtime).

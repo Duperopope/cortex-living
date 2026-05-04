@@ -1,40 +1,40 @@
 {
-  "ts": 1777909856.0606768,
-  "n_steps_total": 195,
-  "late_surprise": 0.2169,
-  "n_better_than_random": 166,
-  "n_worse_than_random": 1,
-  "n_outcome_evaluated": 142,
+  "ts": 1777915345.0753202,
+  "n_steps_total": 235,
+  "late_surprise": 1.5104,
+  "n_better_than_random": 201,
+  "n_worse_than_random": 3,
+  "n_outcome_evaluated": 182,
   "vs_baselines": {
     "random": {
-      "wins": 35,
-      "losses": 58,
-      "ties": 49,
-      "outcome_score_sum": 79.4807
+      "wins": 41,
+      "losses": 76,
+      "ties": 65,
+      "outcome_score_sum": 103.62270000000001
     },
     "always_reflect": {
       "wins": 16,
-      "losses": 126,
+      "losses": 166,
       "ties": 0,
-      "outcome_score_sum": 132.29999999999998
+      "outcome_score_sum": 173.7999999999997
     },
     "always_explore": {
-      "wins": 3,
-      "losses": 38,
-      "ties": 101,
-      "outcome_score_sum": 90.34390000000005
+      "wins": 4,
+      "losses": 49,
+      "ties": 129,
+      "outcome_score_sum": 112.20410000000005
     },
     "round_robin": {
-      "wins": 26,
-      "losses": 63,
-      "ties": 53,
-      "outcome_score_sum": 85.92000000000004
+      "wins": 27,
+      "losses": 74,
+      "ties": 81,
+      "outcome_score_sum": 107.78020000000005
     },
     "last_best": {
-      "wins": 5,
-      "losses": 38,
-      "ties": 99,
-      "outcome_score_sum": 88.43060000000004
+      "wins": 9,
+      "losses": 48,
+      "ties": 125,
+      "outcome_score_sum": 108.21070000000005
     }
   }
 }

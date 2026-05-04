@@ -727,6 +727,46 @@ def drive_step(execute: bool = False) -> dict:
         # On logue dans pending_eval pour traçabilité
         state["pending_eval"]["execution"] = exec_report
 
+    # 6) LIVE COMMENTARY : Cortex commente en direct ce qu'il vient de faire.
+    # Donne l'impression de présence ("comme dans Her") sans attendre une
+    # question utilisateur. Stream séparé du chat principal.
+    try:
+        lc = _safe_import("cortex_live_commentary")
+        if lc and selection["chosen_action"] != "silent":
+            # Mood depuis personality
+            mood = "alerte"
+            try:
+                pers = _safe_import("cortex_personality")
+                if pers:
+                    mood = pers.state().get("mood_label", "alerte") or "alerte"
+            except Exception: pass
+            # JEPA loss depuis le cycle précédent (eval_report)
+            jl = (eval_report or {}).get("jepa_loss") if isinstance(eval_report, dict) else None
+            # Belief mode dominant
+            belief_mode = None; belief_kl = None
+            try:
+                bs = _get_belief()
+                if bs is not None:
+                    qd = bs.q_dist()
+                    if qd:
+                        idx = qd.index(max(qd))
+                        belief_mode = bs.modes[idx]
+                        belief_kl = bs.kl_to_prior()
+            except Exception: pass
+            lc.publish(
+                action=selection["chosen_action"],
+                exec_ok=(exec_report or {}).get("ok", True) if execute else True,
+                exec_result=(exec_report or {}).get("result") if execute else None,
+                internal_state={
+                    "n_active": current_obs.get("n_active", 0),
+                    "mood_label": mood,
+                    "jepa_loss": jl,
+                    "belief_mode": belief_mode,
+                    "belief_kl": belief_kl,
+                },
+            )
+    except Exception: pass
+
     _save_state(state)
     rep = {
         "ok": True,

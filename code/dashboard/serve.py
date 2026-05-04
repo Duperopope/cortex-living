@@ -3790,6 +3790,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 elif p == "/api/cortex/proactive/state":
                     import cortex_proactive as _pr
                     self._send_json(_pr._load_state()); return
+                elif p == "/api/cortex/proactive/status":
+                    import cortex_proactive as _pr
+                    self._send_json(_pr.current_status()); return
+                elif p == "/api/cortex/proactive/summary":
+                    import cortex_proactive as _pr
+                    min_ago = int(qs.get("min", ["10"])[0])
+                    self._send_json(_pr.summarize_recent(min_ago=min_ago)); return
+                elif p == "/api/cortex/proactive/propose":
+                    import cortex_proactive as _pr
+                    self._send_json(_pr.propose_action()); return
+                elif p == "/api/cortex/proactive/now":
+                    import cortex_proactive as _pr
+                    rep = _pr.speak_now()
+                    self._send_json(rep or {"ok": False, "msg": "rien à dire"}); return
+                elif p == "/api/cortex/proactive/metrics":
+                    import cortex_proactive as _pr
+                    self._send_json(_pr.proactive_metrics()); return
                 elif p == "/api/cortex/memory_audit":
                     import cortex_memory_audit as _ma
                     self._send_json(_ma.audit()); return
@@ -3871,6 +3888,93 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 import traceback as _tb
                 self._send_json({"ok": False, "error": str(e),
                                  "trace": _tb.format_exc()[-400:]}, status=500); return
+
+        if parsed.path.startswith("/api/cortex/proactive/"):
+            # Routes proactive : status, summary, propose, now, metrics
+            sub = parsed.path.split("/api/cortex/proactive/", 1)[-1]
+            try:
+                import sys as _sys
+                if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+                    _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                import cortex_proactive as _cp
+                if sub == "status":
+                    rep = _cp.current_status()
+                elif sub == "summary":
+                    qs = parse_qs(parsed.query)
+                    min_ago = int(qs.get("min", ["10"])[0])
+                    rep = _cp.summarize_recent(min_ago=min_ago)
+                elif sub == "propose":
+                    rep = _cp.propose_action()
+                elif sub == "now":
+                    rep = _cp.speak_now() or {"ok": False, "msg": "rien à dire"}
+                elif sub == "metrics":
+                    rep = _cp.proactive_metrics()
+                else:
+                    self.send_error(404, f"unknown proactive sub: {sub}")
+                    return
+                data = json.dumps(rep, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"proactive {sub} error: {e}")
+            return
+
+        if parsed.path == "/api/cortex/recent_concrete_actions":
+            # Les N dernières actions Cortex avec preuve + effet mesuré
+            try:
+                import sys as _sys
+                if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+                    _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                import cortex_live_commentary as _lc
+                qs = parse_qs(parsed.query)
+                limit = int(qs.get("limit", ["10"])[0])
+                items = _lc.recent(since_ts=0, limit=limit)
+                # Enrichi : ne garde que ceux avec proof ou measured_effect
+                concrete = [it for it in items
+                             if it.get("proof") or it.get("measured_effect")]
+                data = json.dumps({"items": concrete, "ts": time.time()},
+                                   ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"recent_concrete_actions error: {e}")
+            return
+
+        if parsed.path == "/api/cortex/live_commentary":
+            # Cortex en direct : commentaires courts par cycle d'émergence,
+            # pour donner l'impression de présence (comme dans Her).
+            # Différent du chat principal : c'est un stream auto-généré.
+            try:
+                import sys as _sys
+                if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+                    _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                import cortex_live_commentary as _lc
+                qs = parse_qs(parsed.query)
+                since = float(qs.get("since", ["0"])[0])
+                limit = int(qs.get("limit", ["10"])[0])
+                items = _lc.recent(since_ts=since, limit=limit)
+                data = json.dumps({"items": items, "ts": time.time()},
+                                   ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"live_commentary error: {e}")
+            return
 
         if parsed.path == "/api/cortex/system_topology":
             # Topologie SYSTÈME de Cortex (modules, statuts, badges live)
