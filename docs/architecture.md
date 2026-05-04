@@ -11,20 +11,25 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_apply_kv_q4` |  |
 | `cortex_brain_history` |  |
 | `cortex_bridge` |  |
+| `cortex_causal` |  |
 | `cortex_continuous` |  |
 | `cortex_emergence` |  |
 | `cortex_homeostasis` |  |
 | `cortex_identity` |  |
 | `cortex_intent` | Contexte dashboard Cortex: |
+| `cortex_jepa_continual` |  |
 | `cortex_kv_quantize` |  |
 | `cortex_learned_skills` |  |
 | `cortex_memory` |  |
 | `cortex_optimize_all` |  |
+| `cortex_personality` |  |
 | `cortex_pipeline_manager` |  |
+| `cortex_plan` |  |
 | `cortex_publishing` |  |
 | `cortex_quantize` |  |
 | `cortex_research` |  |
 | `cortex_resources` |  |
+| `cortex_rollout` |  |
 | `cortex_sam_model` |  |
 | `cortex_self_dev` |  |
 | `cortex_skills` |  |
