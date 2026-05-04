@@ -1,9 +1,9 @@
 {
-  "ts": 1777877845.8343272,
-  "iso": "2026-05-04T08:57:25",
+  "ts": 1777877950.510033,
+  "iso": "2026-05-04T08:59:10",
   "brain": {
-    "ts": 1777877845.8414247,
-    "iso": "2026-05-04T08:57:25",
+    "ts": 1777877950.518155,
+    "iso": "2026-05-04T08:59:10",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,27 +13,147 @@
     "n_edges": 180530,
     "n_isolated": 0,
     "density": 0.1143,
-    "n_active": 0,
-    "hebbian_total": 0
+    "n_active": 18,
+    "hebbian_total": 0.27
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777877851.1439283,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "active_nodes": {
+      "08 - Semantic\\kaiaa-68\\6ccc3c48a0-QA-Task-Constraint.md": 0.898,
+      "08 - Semantic\\kaiaa-68\\300c63b157-Issue-Status-Update.md": 0.898,
+      "08 - Semantic\\kaiaa-68\\e7f436fa25-QA-Task-Constraints.md": 0.898,
+      "08 - Semantic\\kaiaa-68\\44f4b580cc-Issue-Status.md": 0.898,
+      "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.578,
+      "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.578,
+      "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.578,
+      "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md": 0.578,
+      "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.578,
+      "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md": 0.578,
+      "08 - Semantic\\kaiaa-67\\abaa5df807-Related-Issue.md": 0.802,
+      "08 - Semantic\\qa-workflow\\527b354c44-QA-Agent-Preference.md": 0.802,
+      "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md": 0.898,
+      "07 - Ingested/claude-code/2026-03-04/09-19-14 - Claude_-_analysis_-Let-me-chronologically-analyze-the-conv.md": 0.898,
+      "07 - Ingested/claude-code/2026-04-23/00-42-15 - Claude_-Inbox-empty_-no-assignments.-Atlas-still-has-an-acti.md": 0.898,
+      "07 - Ingested/claude-code/2026-03-17/15-36-06 - Claude_-_analysis_-Let-me-carefully-analyze-all-the-conversa.md": 0.898,
+      "07 - Ingested/claude-code/2026-04-28/06-54-45 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.898,
+      "06 - Agents/model-capabilities/claude-opus-4-7.md": 0.898
+    },
+    "n_active": 18,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\kaiaa-68\\44f4b580cc-Issue-Status.md",
+        "b": "08 - Semantic\\kaiaa-68\\e7f436fa25-QA-Task-Constraints.md",
+        "strength": 0.03
+      },
+      {
+        "a": "08 - Semantic\\kaiaa-68\\300c63b157-Issue-Status-Update.md",
+        "b": "08 - Semantic\\kaiaa-68\\6ccc3c48a0-QA-Task-Constraint.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\kaiaa-68\\6ccc3c48a0-QA-Task-Constraint.md",
+        "b": "08 - Semantic\\kaiaa-68\\e7f436fa25-QA-Task-Constraints.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\kaiaa-68\\44f4b580cc-Issue-Status.md",
+        "b": "08 - Semantic\\kaiaa-68\\6ccc3c48a0-QA-Task-Constraint.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\kaiaa-68\\300c63b157-Issue-Status-Update.md",
+        "b": "08 - Semantic\\kaiaa-68\\e7f436fa25-QA-Task-Constraints.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\kaiaa-68\\300c63b157-Issue-Status-Update.md",
+        "b": "08 - Semantic\\kaiaa-68\\44f4b580cc-Issue-Status.md",
+        "strength": 0.02
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
+        "b": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
+        "b": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
+        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
+        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
+        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
+        "b": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777877950.7371023,
+    "cum_activations": 36,
+    "cum_pulses": 28,
+    "cum_hebbian_ticks": 48,
+    "last_activation_ts": 1777877931.3315551,
+    "last_pulse_ts": 1777877931.341226,
+    "last_hebbian_ts": 1777877931.3402245,
+    "last_wander_ts": 1777877931.2623303,
+    "n_edges_total": 41,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 30.1,
-    "ram_percent": 49.2,
+    "cpu_percent": 12.8,
+    "ram_percent": 48.6,
     "n_disks": 5,
     "gpu": []
   }
