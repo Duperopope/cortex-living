@@ -1,8 +1,8 @@
 {
-  "ts": 1777891779.2689917,
-  "n_steps_total": 59,
-  "late_surprise": 7.3051,
-  "n_better_than_random": 48,
+  "ts": 1777892099.6544368,
+  "n_steps_total": 61,
+  "late_surprise": 2.5008,
+  "n_better_than_random": 50,
   "n_worse_than_random": 0,
   "n_outcome_evaluated": 8,
   "vs_baselines": {
