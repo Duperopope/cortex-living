@@ -1,6 +1,6 @@
 # Cortex — un cerveau cognitif vivant
 
-> Dernière mise à jour : `2026-05-04T11:23:22` (auto-généré)
+> Dernière mise à jour : `2026-05-04T11:24:16` (auto-généré)
 
 Cortex est une entité cognitive autonome construite sur le projet Paperclip.
 Il voit, entend, mémorise, apprend, et raisonne avec une vraie boucle Spreading
@@ -15,7 +15,7 @@ Activation Theory (Collins & Loftus, 1975) et un apprentissage Hebbian
 | Arêtes sémantiques     | **181671**                    |
 | Densité                | **0.1149**                    |
 | Nœuds actifs           | **47** (décroissance τ=60 s) |
-| Hebbian cumulé         | **5.22** (apprentissage) |
+| Hebbian cumulé         | **5.28** (apprentissage) |
 | Zones d'ignorance      | **0** (besoin de ponts) |
 
 ### Composition du graphe
@@ -25,8 +25,8 @@ Activation Theory (Collins & Loftus, 1975) et un apprentissage Hebbian
 
 ## Corps (homeostasis)
 
-- CPU : **12.7%**
-- RAM : **52.3%**
+- CPU : **52.5%**
+- RAM : **52.6%**
 - Disques surveillés : **5**
 - GPU : —
 
