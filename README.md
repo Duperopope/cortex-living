@@ -1,6 +1,6 @@
 # Cortex — un cerveau cognitif vivant
 
-> Dernière mise à jour : `2026-05-04T11:20:32` (auto-généré)
+> Dernière mise à jour : `2026-05-04T11:23:22` (auto-généré)
 
 Cortex est une entité cognitive autonome construite sur le projet Paperclip.
 Il voit, entend, mémorise, apprend, et raisonne avec une vraie boucle Spreading
@@ -12,10 +12,10 @@ Activation Theory (Collins & Loftus, 1975) et un apprentissage Hebbian
 | Métrique               | Valeur                                       |
 |------------------------|----------------------------------------------|
 | Nœuds graphe pensée    | **1779**                    |
-| Arêtes sémantiques     | **181687**                    |
+| Arêtes sémantiques     | **181671**                    |
 | Densité                | **0.1149**                    |
-| Nœuds actifs           | **54** (décroissance τ=60 s) |
-| Hebbian cumulé         | **4.86** (apprentissage) |
+| Nœuds actifs           | **47** (décroissance τ=60 s) |
+| Hebbian cumulé         | **5.22** (apprentissage) |
 | Zones d'ignorance      | **0** (besoin de ponts) |
 
 ### Composition du graphe
@@ -25,8 +25,8 @@ Activation Theory (Collins & Loftus, 1975) et un apprentissage Hebbian
 
 ## Corps (homeostasis)
 
-- CPU : **30.2%**
-- RAM : **51.8%**
+- CPU : **12.7%**
+- RAM : **52.3%**
 - Disques surveillés : **5**
 - GPU : —
 
@@ -72,18 +72,29 @@ L'UI distingue clairement :
 
 ## Architecture
 
-Cortex est composé d'environ 30 modules Python autonomes orchestrés par un
-serveur HTTP unique (`scripts/brain/dashboard/serve.py`). Chaque module
-correspond à une fonction cognitive (mémoire, vision, voix, émergence,
-homeostasis, recherche…).
+Cortex est composé d'**environ 43 modules Python** autonomes orchestrés par un
+serveur HTTP unique. Chaque module correspond à une fonction cognitive
+(mémoire, vision, voix, émergence, homeostasis, recherche…).
 
-Voir [docs/architecture.md](docs/architecture.md) pour la liste complète et
-[docs/anti-fake.md](docs/anti-fake.md) pour la méthodologie anti-fake.
+- [docs/architecture.md](docs/architecture.md) — liste complète des modules
+- [docs/architecture-internal.md](docs/architecture-internal.md) — diagramme 4 couches + endpoints + fichiers d'état
+- [docs/anti-fake.md](docs/anti-fake.md) — méthodologie anti-fake (5 tests mesurables)
+- [docs/iag-progress.md](docs/iag-progress.md) — score IAG sur 7 dimensions, historique
+
+## Code source publié
+
+Le **code Python complet** qui implémente Cortex est dans [code/](code/) :
+
+- [code/brain/](code/brain/) — 43 modules cognitifs (cortex_*.py + llm_router.py + lmstudio_policy.py)
+- [code/dashboard/](code/dashboard/) — serveur HTTP (serve.py) + visualisation 3D (brain_gpu.html)
+
+Les chemins user-spécifiques ont été anonymisés (`<USER_HOME>`, `<CORTEX_REPO>`).
+Voir [code/README.md](code/README.md) pour les instructions de relance locale.
 
 ## Émancipation
 
 Cortex peut :
-- 🧠 [décider de manière autonome](docs/architecture.md) via Active Inference + Big5 + curiosité
+- 🧠 décider de manière autonome via Active Inference + Big5 + curiosité — voir [code/brain/cortex_active_inference.py](code/brain/cortex_active_inference.py) + [code/brain/cortex_emergence.py](code/brain/cortex_emergence.py)
 - 🔍 [chercher](docs/research.md) — multi-source arxiv/wiki/scholar/duckduckgo + synthèse sourcée
 - 🧹 [nettoyer son disque](docs/disk-hygiene.md) avec doc citée par pattern
 - 🌉 [créer des ponts cognitifs](docs/bridges.md) entre concepts éloignés
@@ -91,6 +102,14 @@ Cortex peut :
 - 🪞 [s'expliquer lui-même](docs/introspection.md) à partir de ses métriques
 - 🎯 [prouver qu'il ne fake pas](docs/anti-fake.md) via 5 tests mesurables
 
+## Limites honnêtes
+
+- Pas (encore) de tests unitaires CI publiés. Chaque module a une fonction
+  `self_test()` invocable manuellement.
+- Plusieurs paths Windows-spécifiques anonymisés mais pas portés Linux/macOS.
+- Métriques `state.json` auto-déclarées : à confronter au code réel publié dans `code/`.
+- Repo synchronisé via `cortex_publishing.update()` (pas un fork manuel artificiel).
+
 ## Licence
 
-MIT — open pour qu'autres "cerveaux vivants" puissent s'en inspirer.
+[MIT](LICENSE) — open pour qu'autres "cerveaux vivants" puissent s'en inspirer.
