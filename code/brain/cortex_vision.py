@@ -15,6 +15,7 @@ import io
 import json
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -48,8 +49,33 @@ def capture_screen() -> dict:
         return {"ok": False, "error": str(e)}
 
 
+# Cache du dernier diagnostic pour que serve.py puisse afficher un message
+# explicite à Sam ("charge un modèle VL") plutôt qu'un fallback silencieux.
+LAST_VISION_DIAG: dict = {}
+
+
+def _detect_loaded_model() -> str | None:
+    """Demande à LM Studio ce qui est chargé. Sert au diagnostic."""
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:1234/v1/models",
+                                    timeout=3) as r:
+            d = json.loads(r.read().decode())
+            for m in (d.get("data") or []):
+                mid = m.get("id")
+                if mid: return mid
+    except Exception: pass
+    return None
+
+
 def _try_lm_vision(b64_png: str, prompt: str, model: str = None) -> str | None:
-    """Tentative LM Studio vision (qwen-vl, llava). Retourne None si pas dispo."""
+    """Tentative LM Studio vision (qwen-vl, llava). Retourne None si pas dispo.
+
+    Renseigne LAST_VISION_DIAG avec un diagnostic précis :
+    - lm_down            : LM Studio injoignable
+    - model_not_vision   : modèle chargé text-only (rejette les images)
+    - timeout / other    : autres erreurs
+    Permet à serve.py / UI d'afficher un message actionnable à Sam.
+    """
     payload = {
         "model": model or "qwen2-vl",  # auto-fallback géré côté serveur
         "messages": [{
@@ -68,10 +94,64 @@ def _try_lm_vision(b64_png: str, prompt: str, model: str = None) -> str | None:
                                      headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=60) as r:
             d = json.loads(r.read().decode())
+            LAST_VISION_DIAG.clear()
+            LAST_VISION_DIAG.update({
+                "ok": True,
+                "model_used": d.get("model") or model or "?",
+                "ts": time.time(),
+            })
             return d["choices"][0]["message"]["content"].strip()
+    except urllib.error.HTTPError as he:
+        # LM Studio renvoie 4xx avec un body JSON {"error": "..."}.
+        body = ""
+        try: body = he.read().decode()
+        except Exception: pass
+        loaded = _detect_loaded_model()
+        if "does not support images" in body.lower() or \
+           "does not support image" in body.lower():
+            LAST_VISION_DIAG.clear()
+            LAST_VISION_DIAG.update({
+                "ok": False, "kind": "model_not_vision",
+                "loaded_model": loaded,
+                "hint": ("Le modèle chargé n'accepte pas d'images. "
+                         "Charge un VL (Qwen2.5-VL-7B-Instruct, Qwen2-VL-7B, "
+                         "ou LLaVA-1.6) dans LM Studio."),
+                "raw_error": body[:200], "ts": time.time(),
+            })
+        else:
+            LAST_VISION_DIAG.clear()
+            LAST_VISION_DIAG.update({
+                "ok": False, "kind": "http_error",
+                "loaded_model": loaded,
+                "status": he.code, "raw_error": body[:200], "ts": time.time(),
+            })
+        print(f"[vision] LM Studio HTTP {he.code}: {body[:200]}", flush=True)
+        return None
+    except urllib.error.URLError as ue:
+        LAST_VISION_DIAG.clear()
+        LAST_VISION_DIAG.update({
+            "ok": False, "kind": "lm_down",
+            "hint": "LM Studio injoignable sur localhost:1234",
+            "raw_error": str(ue)[:200], "ts": time.time(),
+        })
+        print(f"[vision] LM Studio down: {ue}", flush=True)
+        return None
     except Exception as e:
+        LAST_VISION_DIAG.clear()
+        LAST_VISION_DIAG.update({
+            "ok": False, "kind": "other", "raw_error": str(e)[:200],
+            "ts": time.time(),
+        })
         print(f"[vision] LM Studio err: {e}", flush=True)
         return None
+
+
+def vision_diagnostic() -> dict:
+    """Retourne le dernier diagnostic vision (utilisé par /api/cortex/see)."""
+    return dict(LAST_VISION_DIAG) if LAST_VISION_DIAG else {
+        "ok": None, "kind": "no_call_yet",
+        "hint": "Aucun appel vision tenté depuis le boot.",
+    }
 
 
 def _try_ocr(png_path: str) -> str | None:
@@ -417,23 +497,35 @@ def see(prompt: str | None = None, source: str = "screen") -> dict:
     desc = _try_lm_vision(cap["bytes_b64"], user_prompt)
     if desc:
         return {"ok": True, "description": desc, "method": "lm_studio_vision",
-                "screenshot": cap["path"], "size_kb": cap["size_kb"]}
+                "screenshot": cap["path"], "size_kb": cap["size_kb"],
+                "diagnostic": vision_diagnostic()}
 
     # 2. Fallback OCR
     text = _try_ocr(cap["path"])
     if text:
         return {"ok": True, "description": f"(OCR fallback)\n{text}",
-                "method": "tesseract_ocr", "screenshot": cap["path"]}
+                "method": "tesseract_ocr", "screenshot": cap["path"],
+                "diagnostic": vision_diagnostic()}
 
-    # 3. Fallback ultime : analyse cv2 basique
+    # 3. Fallback ultime : analyse cv2 basique. Affiche un message actionnable
+    # construit depuis le diagnostic (pas un message générique).
     scene = _basic_scene_analysis(cap["path"])
     if scene:
-        return {"ok": True, "description": scene + "\n\n(Pas de modèle vision dans LM Studio. "
-                "Charge un modèle vision type qwen2-vl-7b ou llava pour avoir une vraie description.)",
-                "method": "cv2_basic", "screenshot": cap["path"]}
+        diag = vision_diagnostic()
+        hint = diag.get("hint") or ("Pas de modèle vision détecté dans LM Studio. "
+                                     "Charge Qwen2.5-VL-7B-Instruct, Qwen2-VL-7B "
+                                     "ou LLaVA-1.6 pour avoir une description sémantique.")
+        loaded = diag.get("loaded_model")
+        if loaded and loaded != "?":
+            hint = f"Modèle chargé : {loaded} (text-only). " + hint
+        return {"ok": True,
+                "description": scene + "\n\n⚠ " + hint,
+                "method": "cv2_basic",
+                "screenshot": cap["path"],
+                "diagnostic": diag}
 
     return {"ok": False, "error": "no vision model, no OCR, cv2 failed",
-            "screenshot": cap["path"]}
+            "screenshot": cap["path"], "diagnostic": vision_diagnostic()}
 
 
 if __name__ == "__main__":

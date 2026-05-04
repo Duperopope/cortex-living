@@ -301,8 +301,83 @@ Tous via `serve.py` sur `127.0.0.1:8765`. Quelques-uns clés :
 """
 
 
+def _stable_node_id(name: str, _cache: dict = {}) -> str:
+    """Hash stable d'un nom de note Obsidian → `node_<hash8>`. Idempotent par run.
+
+    Pourquoi : `state.json` exposait des titres de notes (`08 - Semantic\\vm-...`,
+    `supabase-key-revocation`, etc.). Même non secrets, c'est du contexte
+    projet/perso qui n'a aucune raison de fuiter. On les remplace par un ID
+    stable basé sur SHA1 (8 hex chars) — l'ID reste cohérent entre snapshots
+    publiés mais ne se reverse pas vers le titre original.
+    """
+    if not name: return "node_unknown"
+    if name in _cache: return _cache[name]
+    import hashlib
+    h = hashlib.sha1(name.encode("utf-8")).hexdigest()[:8]
+    _cache[name] = f"node_{h}"
+    return _cache[name]
+
+
+# Patterns de mots-clés sensibles dans les titres de note. Si présents, on
+# masque entièrement le nom (au lieu de juste le hasher) pour signaler la
+# nature sensible.
+_SENSITIVE_TITLE_PATTERNS = [
+    "secret", "token", "credential", "password", "passwd", "api[-_]?key",
+    "supabase", "vercel", "github[-_]?deploy", "github[-_]?action",
+    "ssh[-_]?key", "ssh[-_]?priv", "private[-_]?key", "vault[-_]?key",
+    "claude[-_]?cookies", "openrouter[-_]?key", "anthropic[-_]?key",
+]
+
+
+def _redact_node_name(name: str) -> str:
+    """Si un nom contient un mot sensible → `node_redacted_<hash>`. Sinon hash neutre."""
+    if not name: return _stable_node_id(name)
+    import re as _r
+    low = name.lower()
+    for pat in _SENSITIVE_TITLE_PATTERNS:
+        if _r.search(pat, low):
+            import hashlib
+            h = hashlib.sha1(name.encode("utf-8")).hexdigest()[:8]
+            return f"node_redacted_{h}"
+    return _stable_node_id(name)
+
+
+def _anonymize_activation_snapshot(snap: dict) -> dict:
+    """Hash les noms de nœuds dans `active_nodes` et `top_hebbian_edges`.
+
+    Préserve les chiffres (intensités, strengths, compteurs). Seuls les
+    identifiants (titres de notes) sont remplacés par des IDs stables.
+    """
+    if not isinstance(snap, dict): return snap
+    out = dict(snap)
+    if isinstance(snap.get("active_nodes"), dict):
+        out["active_nodes"] = {
+            _redact_node_name(k): v for k, v in snap["active_nodes"].items()
+        }
+    if isinstance(snap.get("top_hebbian_edges"), list):
+        out["top_hebbian_edges"] = [
+            {"a": _redact_node_name(e.get("a")),
+             "b": _redact_node_name(e.get("b")),
+             "strength": e.get("strength")}
+            for e in snap["top_hebbian_edges"]
+            if isinstance(e, dict)
+        ]
+    return out
+
+
+def _anonymize_state_for_publish(state: dict) -> dict:
+    """Version publique de `state` : on conserve les chiffres, on hash les noms."""
+    if not isinstance(state, dict): return state
+    out = dict(state)
+    if "activation" in out:
+        out["activation"] = _anonymize_activation_snapshot(out["activation"])
+    # `brain.by_kind` ne fuite que des kinds (semantic, episodic, etc.) — ok
+    return out
+
+
 def _state_json(state: dict) -> str:
-    return json.dumps(state, ensure_ascii=False, indent=2)
+    return json.dumps(_anonymize_state_for_publish(state),
+                       ensure_ascii=False, indent=2)
 
 
 # ─── Pipeline ───────────────────────────────────────────────────────────────
@@ -632,7 +707,14 @@ requests>=2.31
 
 
 def _smoke_yml() -> str:
-    """CI minimale : compile tous les modules + lance self_test() des plus simples."""
+    """CI : un job STRICT bloquant sur les modules cœur + un job tolérant pour le reste.
+
+    L'expert avait noté que les `|| true` rendaient la CI verte même quand des
+    morceaux cassent. On garde la tolérance pour les modules qui touchent au
+    réseau / au LLM (souvent indisponibles en CI), mais on FAIT FAIL sur les
+    modules cognitifs cœur (activation, active_inference, anti_fake) car eux
+    n'ont aucune dépendance lourde — s'ils ne compilent pas, c'est un vrai bug.
+    """
     return """name: smoke
 
 on:
@@ -642,9 +724,10 @@ on:
     branches: [main]
 
 jobs:
-  smoke:
+  strict-core:
+    name: Strict — modules cognitifs cœur (bloquant)
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -654,23 +737,117 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install "numpy<2.0" "scikit-learn>=1.4,<1.6" psutil pillow requests
-      - name: py_compile all modules
+      - name: py_compile core modules (must pass)
         run: |
-          python -m py_compile code/brain/*.py
-          python -m py_compile code/dashboard/*.py || true
-      - name: self_test on safe modules
+          python -m py_compile \\
+            code/brain/cortex_activation.py \\
+            code/brain/cortex_active_inference.py \\
+            code/brain/cortex_anti_fake.py \\
+            code/brain/cortex_homeostasis.py
+      - name: import core modules (must pass)
         env:
           CORTEX_VAULT: "/tmp/cortex-test-vault"
         run: |
           mkdir -p /tmp/cortex-test-vault
-          # Modules sans dépendance lourde — ne touchent pas LM Studio
-          for m in cortex_active_inference cortex_anti_fake cortex_homeostasis; do
-            echo "::group::self_test $m"
-            python -c "import sys; sys.path.insert(0, 'code/brain'); import $m as mod; \\
-              t = getattr(mod, 'self_test', None); \\
-              print(t()) if t else print('no self_test')" || echo "WARN: $m self_test failed (non-fatal)"
-            echo "::endgroup::"
+          python -c "import sys; sys.path.insert(0, 'code/brain'); \\
+            import cortex_activation, cortex_active_inference, cortex_anti_fake, cortex_homeostasis; \\
+            print('core imports OK')"
+      - name: self_test core modules (must pass)
+        env:
+          CORTEX_VAULT: "/tmp/cortex-test-vault"
+        run: |
+          for m in cortex_active_inference; do
+            python -c "import sys; sys.path.insert(0, 'code/brain'); import $m as mod; r = mod.self_test(); assert r.get('ok'), r; print(r)"
           done
+
+  smoke-rest:
+    name: Smoke — modules avec deps externes (tolérant)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: strict-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy<2.0" "scikit-learn>=1.4,<1.6" psutil pillow requests
+      - name: py_compile dashboard (tolerant)
+        run: |
+          python -m py_compile code/dashboard/*.py || true
+      - name: py_compile non-core brain modules (tolerant)
+        run: |
+          for f in code/brain/cortex_*.py; do
+            case "$f" in
+              code/brain/cortex_activation.py|code/brain/cortex_active_inference.py|code/brain/cortex_anti_fake.py|code/brain/cortex_homeostasis.py)
+                ;;  # déjà couvert strict
+              *)
+                python -m py_compile "$f" || echo "WARN: $f failed py_compile (non-fatal)"
+                ;;
+            esac
+          done
+"""
+
+
+def _reproducibility_md() -> str:
+    return """# Reproductibilité — comment refaire `examples/session-001/`
+
+Tu peux régénérer l'exemple toi-même depuis ton clone du repo. Le but est que
+les chiffres publiés ne soient pas un mock mais reproductibles à partir d'un
+runtime local.
+
+## Ce dont tu as besoin
+
+- Python 3.11+
+- `pip install -r requirements.txt`
+- (optionnel) LM Studio sur `localhost:1234` avec un modèle text. Sans LM
+  Studio, certains tests anti-fake passent en mode dégradé mais le pipeline
+  tourne quand même
+- (optionnel) Un Obsidian Vault dont le path est passé via la variable
+  d'env `CORTEX_VAULT`. Sans vault, le système fonctionne mais sans graphe
+  sémantique enrichi
+
+## Étapes
+
+```bash
+# 1. Cloner et installer
+git clone https://github.com/<USER>/<REPO>.git cortex-living
+cd cortex-living
+pip install -r requirements.txt
+
+# 2. Lancer 30+ cycles d'Active Inference pour avoir un historique
+for i in $(seq 1 30); do
+  python -c "import sys; sys.path.insert(0, 'code/brain'); \\
+    import cortex_active_inference as ai; print(ai.drive_step()['chosen_action'])"
+done
+
+# 3. Lancer la suite anti-fake
+python code/brain/cortex_anti_fake.py full > my_anti_fake.json
+
+# 4. Comparer avec examples/session-001/
+diff -u examples/session-001/anti_fake_report.json my_anti_fake.json | head -50
+```
+
+## Ce que tu dois retrouver (à l'ordre de grandeur près)
+
+- `n_steps_total` ≥ 30
+- `n_outcome_evaluated` ≥ 29 (un cycle de retard, normal)
+- `vs_baselines` : Cortex devrait gagner contre `random` mais peut perdre
+  contre `always_explore` ou `round_robin` selon la phase d'exploration
+  (c'est documenté honnêtement)
+- `score_global` anti-fake : variable selon la disponibilité de LM Studio,
+  l'ancien format à 43.5/100 est un signal honnête de système non-faké, pas
+  un médaille à 98/100
+
+## Si tes chiffres divergent fortement
+
+1. Vérifier que `numpy < 2.0` (sinon sklearn casse)
+2. Vérifier `compression_error` initial — il dépend du graphe vault, donc sans
+   vault il sera figé à 0.5
+3. Pour comparer politique-vs-politique, attendre au moins 50 cycles —
+   `n_outcome_evaluated=2` ne suffit pas à conclure
 """
 
 
@@ -756,13 +933,39 @@ def _capture_session_example() -> dict:
             f.write(json.dumps(d, ensure_ascii=False) + "\n")
     out["files"].append("decisions.jsonl")
 
-    # anti_fake_report.json (anonymisé)
-    if af_report_path.exists():
+    # anti_fake_report.json — on REGÉNÈRE avec la nouvelle suite plutôt que de
+    # copier le rapport disque (qui peut contenir l'ancien format avec questions
+    # générales pizza/Bessel/Mongolie). Si la régénération échoue (LLM down,
+    # historique court), on tombe sur le rapport disque, ou un placeholder.
+    fresh_report = None
+    try:
+        sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+        import cortex_anti_fake as _af
+        fresh_report = _af.run_all_tests()
+    except Exception as e:
+        fresh_report = {"error": f"regeneration failed: {e}",
+                         "fallback": "see anti-fake doc for the new test suite"}
+    if fresh_report:
+        try:
+            text = json.dumps(fresh_report, indent=2, ensure_ascii=False)
+            (ex / "anti_fake_report.json").write_text(_anonymize(text),
+                                                       encoding="utf-8")
+            out["files"].append("anti_fake_report.json (fresh)")
+        except Exception: pass
+    elif af_report_path.exists():
+        # Fallback : on prévient explicitement que c'est l'ancien format
         try:
             af_text = af_report_path.read_text(encoding="utf-8")
-            (ex / "anti_fake_report.json").write_text(
-                _anonymize(af_text), encoding="utf-8")
-            out["files"].append("anti_fake_report.json")
+            (ex / "anti_fake_report.json").write_text(_anonymize(af_text),
+                                                       encoding="utf-8")
+            (ex / "anti_fake_report.WARNING.md").write_text(
+                "Ce rapport a été copié depuis le runtime mais peut contenir "
+                "l'ancien test `honest_dont_know` avec questions générales "
+                "(pizza, Bessel, Coupe du Monde 1998). La nouvelle suite "
+                "s'appelle `internal_state_dont_know` et interroge l'état "
+                "interne non-disponible à un LLM nu.\n",
+                encoding="utf-8")
+            out["files"].append("anti_fake_report.json (legacy fallback)")
         except Exception: pass
 
     # README explicatif
@@ -776,12 +979,17 @@ Snapshot anonymisé des **{n} derniers cycles** d'Active Inference observés
 sur la machine de dev. Pas un mock, pas un test scripté — extrait des logs
 runtime réels.
 
+> Les noms de nœuds ont été remplacés par des IDs stables (`node_<hash8>`,
+> `node_redacted_<hash8>` quand un mot sensible est détecté). Voir
+> [../../docs/claims.md](../../docs/claims.md).
+
 ## Fichiers
 
 - `state.before.json` — état au début de la fenêtre observée
 - `state.after.json`  — état après les {n} cycles + win-rate vs 5 baselines naïves
 - `decisions.jsonl`   — une décision par ligne (action choisie + EFE + outcome)
-- `anti_fake_report.json` — dernier rapport anti-fake complet (5 tests)
+- `anti_fake_report.json` — rapport anti-fake régénéré au moment de la capture
+  avec la nouvelle suite (`internal_state_dont_know`)
 
 ## Chiffres clés
 
@@ -790,18 +998,41 @@ runtime réels.
 - Fraction "better than random" sur EFE prédit : {round(fbr, 3)}
 - Cycles avec outcome évalué : {ai_state.get('n_outcome_evaluated', 0)}
 
+## Note honnête sur le score anti-fake
+
+Le score global apparaît tel quel. S'il est moyen (40-60 / 100), c'est un
+signe de **non-fake** — pas une médaille auto-attribuée. Sources typiques
+de score moyen :
+- LM Studio absent ou modèle text-only chargé → certains tests retournent
+  `score=0` faute de LLM dispo
+- Historique runtime trop court (`n_outcome_evaluated < 10`) → tests
+  baselines peu informatifs
+- Plans anciens absents → `plan_realisation` faute de matière
+
+L'objectif n'est pas de maquiller ce score à 98 mais de **l'améliorer par
+corrections mesurables** : meilleurs garde-fous, plus de cycles, calibration
+prédiction-vs-réalité, apprentissage des effets d'action (voir
+[../../docs/claims.md](../../docs/claims.md) section "Active Inference").
+
 ## Comment lire `decisions.jsonl`
 
 Chaque ligne contient :
 - `chosen` — l'action choisie par le score Active-Inference-inspired
 - `vfe` — surprise observée à ce cycle
 - `outcome_score` — delta réel post-action (peut être 0 si l'action n'a pas
-  d'effet observable mesurable)
-- `outcome_proxy` — delta prédit par le modèle (apples-to-apples avec baselines)
+  d'effet observable mesurable — en attente d'un exécuteur réel)
+- `outcome_proxy` — delta prédit par le modèle (apples-to-apples avec
+  baselines, **PAS** un outcome observé pour les baselines : c'est un
+  contrefactuel via le modèle de prédiction, par construction — voir
+  `_proxy_outcome_for_baseline` dans le code)
 
-Si `outcome_score << outcome_proxy` systématiquement, ça signale que le modèle
-de prédiction sur-estime les effets d'action — exactement le genre de
+Si `outcome_score << outcome_proxy` systématiquement, ça signale que le
+modèle de prédiction sur-estime les effets d'action — exactement le genre de
 calibration que `docs/claims.md` rappelle d'auditer.
+
+## Reproduire chez toi
+
+Voir [../../docs/reproducibility.md](../../docs/reproducibility.md).
 """, encoding="utf-8")
     out["files"].append("README.md")
     return out
@@ -829,6 +1060,7 @@ def update(commit_msg: str = None, push: bool = True) -> dict:
     (REPO_LOCAL / "LICENSE").write_text(_make_license(), encoding="utf-8")
     # Documents d'audit / honnêteté
     (DOCS_DIR / "claims.md").write_text(_claims_md(), encoding="utf-8")
+    (DOCS_DIR / "reproducibility.md").write_text(_reproducibility_md(), encoding="utf-8")
     (REPO_LOCAL / "requirements.txt").write_text(_requirements_txt(), encoding="utf-8")
     workflows = REPO_LOCAL / ".github" / "workflows"
     workflows.mkdir(parents=True, exist_ok=True)

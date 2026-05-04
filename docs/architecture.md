@@ -7,6 +7,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 
 | Module | Rôle |
 |--------|------|
+| `cortex_action_effects` |  |
 | `cortex_activation` |  |
 | `cortex_active_inference` |  |
 | `cortex_anti_fake` |  |

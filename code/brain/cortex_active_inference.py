@@ -153,13 +153,11 @@ def _observe_state() -> dict:
     return obs
 
 
-def _predict_state(action: str | None = None) -> dict:
-    """Prédiction du prochain état si on prend `action`.
-
-    Pas du LLM. Modèle linéaire : pour chaque action, on a des effets attendus
-    encodés explicitement (apprentissage des effets via cortex_causal possible).
+def _heuristic_predict(action: str | None, obs: dict) -> dict:
+    """Effets hard-codés legacy. Utilisés en fallback quand pas assez de
+    données apprises pour l'action. Préserve la sémantique d'origine pour ne
+    pas casser les tests. À remplacer progressivement par l'apprentissage.
     """
-    obs = _observe_state()
     pred = dict(obs)
     if action == "audit_ui":
         pred["cpu"] = max(0, obs.get("cpu", 0) + 2)
@@ -181,7 +179,48 @@ def _predict_state(action: str | None = None) -> dict:
         pred["n_active"] = obs.get("n_active", 0) + 1
     elif action == "silent":
         pass  # rien ne change
+    return pred
+
+
+def _predict_state(action: str | None = None) -> dict:
+    """Prédiction du prochain état si on prend `action`.
+
+    Stratégie :
+    1. Tente d'utiliser les effets EMPIRIQUEMENT appris via
+       `cortex_action_effects.predict_effect(action)`. Si on a au moins
+       MIN_SAMPLES exemples, on applique le delta moyen observé par champ.
+    2. Sinon (cold start ou action peu pratiquée) → fallback sur les
+       heuristiques hard-codées historiques (`_heuristic_predict`).
+
+    Le résultat enregistre dans `prediction_source` quel mode a servi, ce qui
+    permet de tracer la transition heuristique → empirique au fil du runtime.
+    """
+    obs = _observe_state()
+    learned = None
+    try:
+        ae = _safe_import("cortex_action_effects")
+        if ae:
+            learned = ae.predict_effect(action) if action else None
+    except Exception:
+        learned = None
+    if learned:
+        # Applique le delta moyen appris pour chaque champ. Pour les champs
+        # absents du modèle appris, on conserve la valeur observée (pas de
+        # changement prédit).
+        pred = dict(obs)
+        for field, stats in learned.items():
+            if isinstance(obs.get(field), (int, float)) and \
+               isinstance(stats.get("mean"), (int, float)):
+                pred[field] = obs[field] + stats["mean"]
+        pred["action_taken"] = action
+        pred["prediction_source"] = "empirical"
+        # Pour audit : combien d'exemples ont servi (champ avec le plus d'exemples)
+        n_max = max((s.get("n", 0) for s in learned.values()), default=0)
+        pred["prediction_n_samples"] = n_max
+        return pred
+    pred = _heuristic_predict(action, obs)
     pred["action_taken"] = action
+    pred["prediction_source"] = "heuristic_fallback"
     return pred
 
 
@@ -249,8 +288,23 @@ def expected_free_energy(action: str) -> float:
             if action in ("audit_ui", "propose_goal"):
                 pragmatic += (big5.get("conscientiousness", 0.5) - 0.5) * 0.1
         except Exception: pass
-    # EFE : on minimise donc -epistemic - pragmatic = on choisit l'action qui maximise les deux
-    efe = -epistemic - pragmatic
+    # Anti-répétition : si Cortex vient de prendre cette action plusieurs fois
+    # d'affilée, malus pour diversifier. Sinon le scoring hardcodé piège la
+    # politique sur l'action qui réduit le plus `compression_error` (toujours
+    # `explore_graph` dans les effets actuels) — l'expert l'avait noté.
+    repetition_penalty = 0.0
+    try:
+        s = _load_state()
+        recent = (s.get("history_actions") or [])[-5:]
+        n_recent_same = sum(1 for a in recent if a == action)
+        if n_recent_same >= 3:
+            # 3 occurrences/5 = malus 0.10 ; 4/5 = 0.20 ; 5/5 = 0.30
+            repetition_penalty = 0.10 * (n_recent_same - 2)
+    except Exception: pass
+
+    # EFE : on minimise donc -epistemic - pragmatic + repetition_penalty
+    # (penalty positive monte EFE → action moins favorisée)
+    efe = -epistemic - pragmatic + repetition_penalty
     return round(efe, 5)
 
 
@@ -426,6 +480,15 @@ def drive_step() -> dict:
                 abs(cortex_outcome_proxy - cortex_outcome_observed), 4),
             "baselines": per_baseline,
         }
+        # APPRENTISSAGE : enregistrer (pre, action, post) pour que cortex_action_effects
+        # puisse construire un modèle empirique des effets. Au bout de
+        # MIN_SAMPLES exemples par action, _predict_state utilisera ces effets
+        # appris à la place des heuristiques hard-codées.
+        try:
+            ae = _safe_import("cortex_action_effects")
+            if ae and cortex_action:
+                ae.record_observation(cortex_action, pre_obs, current_obs)
+        except Exception: pass
 
     # 2) Nouvelle sélection d'action
     selection = select_action()

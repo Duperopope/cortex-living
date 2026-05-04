@@ -1,187 +1,208 @@
 {
-  "ts": 1777888395.3268857,
-  "iso": "2026-05-04T11:53:15",
+  "ts": 1777889665.5114322,
+  "iso": "2026-05-04T12:14:25",
   "brain": {
-    "ts": 1777888395.3348935,
-    "iso": "2026-05-04T11:53:15",
-    "n_nodes": 1779,
+    "ts": 1777889665.5197434,
+    "iso": "2026-05-04T12:14:25",
+    "n_nodes": 1780,
     "by_kind": {
-      "claude_memory": 20,
+      "claude_memory": 21,
       "semantic": 1659,
       "episodic": 100
     },
-    "n_edges": 180878,
+    "n_edges": 181615,
     "n_isolated": 0,
-    "density": 0.1144,
-    "n_active": 59,
-    "hebbian_total": 2.93
+    "density": 0.1147,
+    "n_active": 80,
+    "hebbian_total": 5.31
   },
   "activation": {
     "active_nodes": {
-      "08 - Semantic\\vm-connectivity\\982f357c6b-VM-lacks-internet-despite-script-updates.md": 0.847,
-      "08 - Semantic\\vm-network-switch\\060f1cc3c6-WakfuSteam-VM-must-use-Default-Switch-for-internet-access.md": 0.845,
-      "08 - Semantic\\ics-configuration\\7a0f029ac1-Manual-ICS-setup-preferred-over-COM-automation-due-to-reliab.md": 0.847,
-      "08 - Semantic\\vm-network-switch\\0a7483518a-WakfuSteam-VM-requires-Default-Switch-for-internet.md": 0.845,
-      "06 - Agents/model-capabilities/claude-opus-4-7.md": 0.115,
-      "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.676,
-      "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.676,
-      "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.676,
-      "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.676,
-      "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md": 0.676,
-      "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md": 0.676,
-      "08 - Semantic\\vm-network-ics\\2dc511d995-Manual-ICS-configuration-preferred-over-COM-automation.md": 0.544,
-      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md": 0.031,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md": 0.031,
-      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md": 0.031,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-failed-_0-s_.md": 0.031,
-      "07 - Ingested/paperclip/2026-04-29/03-20-47 - DevOps-heartbeat_-succeeded-_0-s_.md": 0.031,
-      "07 - Ingested/claude-code/2026-04-28/08-04-27 - Claude_-Perfect_-Now-I-have-enough-information.-Let-me-compi.md": 0.115,
-      "07 - Ingested/claude-code/2026-04-28/08-21-22 - Claude_-Perfect_-Now-I-have-a-complete-picture.-Let-me-compi.md": 0.115,
-      "07 - Ingested/claude-code/2026-03-17/18-53-57 - Claude_-The-__professions_-folder-doesn_t-exist-_404-error_..md": 0.115,
-      "06 - Agents/model-capabilities/gpt-5-5-codex.md": 0.115,
-      "07 - Ingested/claude-code/2026-03-04/21-14-54 - Claude_-Le-téléchargement-a-échoué.-Télécharge-le-manuelleme.md": 0.115,
-      "07 - Ingested/claude-code/2026-04-24/14-20-12 - Claude_-Perfect_-Now-I-have-a-comprehensive-understanding.-L.md": 0.013,
-      "07 - Ingested/claude-code/2026-04-25/09-11-19 - Claude_-Perfect_-I-found-everything-you-need.-Here_s-my-repo.md": 0.013,
-      "07 - Ingested/claude-code/2026-03-04/16-01-48 - Claude_-C_est-prêt.-Voici-ce-que-le-script-fait-automatiquem.md": 0.013,
-      "07 - Ingested/claude-code/2026-03-04/16-23-21 - Claude_-Gen-1-n_a-pas-TPM_Secure-Boot-donc-Win11-refuse.-L.md": 0.013,
-      "07 - Ingested/claude-code/2026-04-26/14-34-36 - Claude_-Perfect_-Now-I-have-a-comprehensive-understanding.-L.md": 0.013,
-      "07 - Ingested/claude-code/2026-03-16/03-28-47 - Claude_-Le-dashboard-est-ouvert-dans-ton-navigateur-sur-__ht.md": 0.013,
-      "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md": 0.02,
-      "07 - Ingested/claude-code/2026-04-22/14-12-43 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.02,
-      "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-__Impossible-à-faire-tourner-chez-toi.__-Voilà-pourq.md": 0.02,
-      "07 - Ingested/claude-code/2026-03-17/15-36-06 - Claude_-_analysis_-Let-me-carefully-analyze-all-the-conversa.md": 0.02,
-      "07 - Ingested/claude-code/2026-04-24/06-37-52 - Claude_-KAIAA-113-is-resolved.-Here_s-the-final-model-strate.md": 0.02,
-      "08 - Semantic\\ssh-server-config\\c9d4f79643-Active-SSH-target-and-key-path-for-ubuntu-79-72-24-208.md": 0.068,
-      "08 - Semantic\\ssh-key-permissions\\9aa83fc48a-Restrict-SSH-key-permissions-via-PowerShell-icacls.md": 0.068,
-      "08 - Semantic\\ssh-windows-tunnel\\f227517de5-SSH--f-flag-unstable-on-Windows.md": 0.068,
-      "08 - Semantic\\windows-11-snap\\e950e5f80d-Use-Win-Arrows-for-Windows-11-Snap-Layouts.md": 0.068,
-      "08 - Semantic\\wakfu-vm-os\\310b7f7cc6-Windows-10-selected-for-Wakfu-Steam-VM.md": 0.068,
-      "08 - Semantic\\wakfu-vm\\aeb5a13254-PowerShell-commands-to-start-and-connect-to-WakfuSteam-VM.md": 0.068,
-      "08 - Semantic\\bios-entry\\f9d420c37d-Reboot-directly-into-BIOS-via-PowerShell-shutdown-command.md": 0.068,
-      "08 - Semantic\\code-refactor\\3fbd23bf45-OptionsTab-refactored-to-populate-CollapsibleCard-bodies.md": 0.068,
-      "08 - Semantic\\ui-layout\\8eb6ce7934-OptionsTab-card-spacing-reduced-for-compactness.md": 0.068,
-      "08 - Semantic\\ui-layout\\c00f5cfd21-UI-layout-uses-9-independent-draggable-elements.md": 0.068,
-      "08 - Semantic\\ui-xp-bar\\8f5af5aa34-XP-Bar-UI-Assets-and-Clipping-Logic.md": 0.068,
-      "08 - Semantic\\options-xp-calibration\\71f55e0fd0-XP-calibration-card-saves-level-and-XP-data-to-config-json.md": 0.068,
-      "08 - Semantic\\wakfu-assistant-ui-combat\\513582cb10-Created-CombatTab-UI-component-with-four-panels-and-event-AP.md": 0.068,
-      "08 - Semantic\\wakfu-professions-tab\\6a2c5aff60-Professions-tab-implementation-replaces-placeholder.md": 0.068,
-      "08 - Semantic\\wakfuass-ui-inventory-tab\\3bb2b50b0f-New-InventaireTab-UI-created-for-inventory-display-and-filte.md": 0.068,
-      "08 - Semantic\\wakfuassistant-ui\\197dc633bd-Inventaire-tab-UI-module-created-with-search-and-filtering.md": 0.068,
-      "08 - Semantic\\wakfuassistant-metrics-ui\\950b5ed56a-Metrics-section-location-and-grid-layout.md": 0.068,
-      "08 - Semantic\\page_structure\\e465d37a85-Page-Structure-of-Artisans-Comores-Website.md": 0.068,
-      "08 - Semantic\\page-routes\\64b3463de8-Page-Routes-Structure.md": 0.068,
-      "08 - Semantic\\github-pages-deployment\\bfa31b4739-GitHub-Pages-Deployment-Configuration.md": 0.068,
-      "08 - Semantic\\github-deployment\\980b3f5be9-Simultaneous-GitHub-deployment-issue.md": 0.068,
-      "08 - Semantic\\github-deployment-fix\\c63449f26a-Fix-for-simultaneous-deployment-issue.md": 0.068,
-      "08 - Semantic\\kairos-forge-boilerplate\\9f86dcb99d-Fix-for-github-pages-yml-conflict.md": 0.068,
-      "08 - Semantic\\kairos-forge-boilerplate\\89f67d5470-Delivery-details-KAIAA-97.md": 0.068,
-      "08 - Semantic\\kairos-forge-boilerplate\\9848663426-Supabase-key-revocation.md": 0.068,
-      "08 - Semantic\\issue-resolution\\302645029f-Issue-resolution-constraint.md": 0.068
+      "node_f372c72e": 0.89,
+      "node_b6cedfa1": 0.89,
+      "node_c8ff194a": 0.89,
+      "node_89174306": 0.689,
+      "node_fd366d20": 0.689,
+      "node_75670dab": 0.89,
+      "node_4733380f": 0.689,
+      "node_abdc6a5f": 0.02,
+      "node_43564ec4": 0.583,
+      "node_2ea69659": 0.583,
+      "node_fd47b3c6": 0.286,
+      "node_9e7c3216": 0.286,
+      "node_d2b32def": 0.286,
+      "node_10b25767": 0.286,
+      "node_8655715d": 0.02,
+      "node_68b6c0dd": 0.02,
+      "node_cd936738": 0.02,
+      "node_57b92bff": 0.02,
+      "node_9206aa46": 0.02,
+      "node_5beadf2b": 0.015,
+      "node_7f35cf55": 0.015,
+      "node_a75bbf2f": 0.015,
+      "node_273581a8": 0.015,
+      "node_3e3e20ca": 0.015,
+      "node_ffed4e80": 0.015,
+      "node_bac0cda1": 0.583,
+      "node_ae4f61e7": 0.583,
+      "node_30e10ed1": 0.583,
+      "node_54b1e2e7": 0.583,
+      "node_b266c56a": 0.583,
+      "node_031d2cd0": 0.583,
+      "node_5e18fb3c": 0.583,
+      "node_e59b867a": 0.583,
+      "node_4a8e05f4": 0.583,
+      "node_af931acf": 0.583,
+      "node_2cb4013e": 0.583,
+      "node_43eb2fda": 0.583,
+      "node_b2eea72e": 0.583,
+      "node_511ce762": 0.583,
+      "node_a9b5e4f8": 0.583,
+      "node_3dae595d": 0.583,
+      "node_4b6bf76e": 0.583,
+      "node_06c7def4": 0.583,
+      "node_65e0afec": 0.583,
+      "node_e575c1be": 0.583,
+      "node_8e39ad9d": 0.015,
+      "node_96ad7448": 0.015,
+      "node_af245951": 0.015,
+      "node_5378b57d": 0.015,
+      "node_a7a5577e": 0.015,
+      "node_b8d37bb6": 0.015,
+      "node_c602adea": 0.015,
+      "node_7c1807bf": 0.015,
+      "node_35fc2165": 0.689,
+      "node_d4414dbb": 0.689,
+      "node_e7b77f9b": 0.689,
+      "node_ffba87d5": 0.689,
+      "node_075e37ad": 0.443,
+      "node_4049155b": 0.443,
+      "node_a18f5acc": 0.444,
+      "node_52097a1c": 0.444,
+      "node_62a280b1": 0.444,
+      "node_7186cc6c": 0.444,
+      "node_62227c76": 0.286,
+      "node_a57e4846": 0.184,
+      "node_3b1218b4": 0.184,
+      "node_91b3b958": 0.184,
+      "node_ad1eac5e": 0.184,
+      "node_abd479d8": 0.184,
+      "node_b1f3b4d5": 0.583,
+      "node_553accba": 0.583,
+      "node_5db5242b": 0.583,
+      "node_7a161f8b": 0.583,
+      "node_3535c6e3": 0.583,
+      "node_redacted_7dff0316": 0.583,
+      "node_d5321705": 0.583,
+      "node_73ed9ea6": 0.583,
+      "node_redacted_16ae37e0": 0.583,
+      "node_343bcfda": 0.584,
+      "node_657f8d8e": 0.584
     },
-    "n_active": 59,
+    "n_active": 80,
     "top_hebbian_edges": [
       {
-        "a": "08 - Semantic\\vm-connectivity\\982f357c6b-VM-lacks-internet-despite-script-updates.md",
-        "b": "08 - Semantic\\vm-network-switch\\060f1cc3c6-WakfuSteam-VM-must-use-Default-Switch-for-internet-access.md",
-        "strength": 0.36
+        "a": "node_f372c72e",
+        "b": "node_b6cedfa1",
+        "strength": 0.72
       },
       {
-        "a": "08 - Semantic\\ics-configuration\\7a0f029ac1-Manual-ICS-setup-preferred-over-COM-automation-due-to-reliab.md",
-        "b": "08 - Semantic\\vm-connectivity\\982f357c6b-VM-lacks-internet-despite-script-updates.md",
-        "strength": 0.36
+        "a": "node_c8ff194a",
+        "b": "node_f372c72e",
+        "strength": 0.72
       },
       {
-        "a": "08 - Semantic\\ics-configuration\\7a0f029ac1-Manual-ICS-setup-preferred-over-COM-automation-due-to-reliab.md",
-        "b": "08 - Semantic\\vm-network-switch\\060f1cc3c6-WakfuSteam-VM-must-use-Default-Switch-for-internet-access.md",
-        "strength": 0.36
+        "a": "node_c8ff194a",
+        "b": "node_b6cedfa1",
+        "strength": 0.72
       },
       {
-        "a": "08 - Semantic\\vm-connectivity\\982f357c6b-VM-lacks-internet-despite-script-updates.md",
-        "b": "08 - Semantic\\vm-network-switch\\0a7483518a-WakfuSteam-VM-requires-Default-Switch-for-internet.md",
-        "strength": 0.2
+        "a": "node_f372c72e",
+        "b": "node_89174306",
+        "strength": 0.42
       },
       {
-        "a": "08 - Semantic\\vm-network-switch\\060f1cc3c6-WakfuSteam-VM-must-use-Default-Switch-for-internet-access.md",
-        "b": "08 - Semantic\\vm-network-switch\\0a7483518a-WakfuSteam-VM-requires-Default-Switch-for-internet.md",
-        "strength": 0.2
+        "a": "node_b6cedfa1",
+        "b": "node_89174306",
+        "strength": 0.42
       },
       {
-        "a": "08 - Semantic\\ics-configuration\\7a0f029ac1-Manual-ICS-setup-preferred-over-COM-automation-due-to-reliab.md",
-        "b": "08 - Semantic\\vm-network-switch\\0a7483518a-WakfuSteam-VM-requires-Default-Switch-for-internet.md",
-        "strength": 0.2
+        "a": "node_c8ff194a",
+        "b": "node_89174306",
+        "strength": 0.42
       },
       {
-        "a": "08 - Semantic\\ics-configuration\\7a0f029ac1-Manual-ICS-setup-preferred-over-COM-automation-due-to-reliab.md",
-        "b": "08 - Semantic\\vm-network-ics\\2dc511d995-Manual-ICS-configuration-preferred-over-COM-automation.md",
-        "strength": 0.16
+        "a": "node_c8ff194a",
+        "b": "node_75670dab",
+        "strength": 0.3
       },
       {
-        "a": "08 - Semantic\\vm-connectivity\\982f357c6b-VM-lacks-internet-despite-script-updates.md",
-        "b": "08 - Semantic\\vm-network-ics\\2dc511d995-Manual-ICS-configuration-preferred-over-COM-automation.md",
-        "strength": 0.16
+        "a": "node_f372c72e",
+        "b": "node_75670dab",
+        "strength": 0.3
       },
       {
-        "a": "08 - Semantic\\vm-network-ics\\2dc511d995-Manual-ICS-configuration-preferred-over-COM-automation.md",
-        "b": "08 - Semantic\\vm-network-switch\\060f1cc3c6-WakfuSteam-VM-must-use-Default-Switch-for-internet-access.md",
-        "strength": 0.16
+        "a": "node_75670dab",
+        "b": "node_b6cedfa1",
+        "strength": 0.3
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_7fc0ae72",
+        "b": "node_ba20a320",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_ba20a320",
+        "b": "node_7103ad54",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_ba20a320",
+        "b": "node_f7ba2826",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
-        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_eb156ff9",
+        "b": "node_ba20a320",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
-        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_8264f6c6",
+        "b": "node_ba20a320",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_7fc0ae72",
+        "b": "node_7103ad54",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_7fc0ae72",
+        "b": "node_f7ba2826",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
-        "b": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_eb156ff9",
+        "b": "node_7fc0ae72",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
-        "b": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_8264f6c6",
+        "b": "node_7fc0ae72",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_7103ad54",
+        "b": "node_f7ba2826",
+        "strength": 0.09
       },
       {
-        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
-        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.07
+        "a": "node_eb156ff9",
+        "b": "node_7103ad54",
+        "strength": 0.09
       }
     ],
-    "ts": 1777888397.9398363,
+    "ts": 1777889668.4621222,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -189,12 +210,12 @@
     "last_pulse_ts": 0.0,
     "last_hebbian_ts": 0.0,
     "last_wander_ts": 0.0,
-    "n_edges_total": 430,
+    "n_edges_total": 1395,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 19.2,
-    "ram_percent": 55.4,
+    "cpu_percent": 18.6,
+    "ram_percent": 72.7,
     "n_disks": 5,
     "gpu": []
   }

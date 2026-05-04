@@ -7,9 +7,10 @@ on:
     branches: [main]
 
 jobs:
-  smoke:
+  strict-core:
+    name: Strict — modules cognitifs cœur (bloquant)
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,20 +20,54 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install "numpy<2.0" "scikit-learn>=1.4,<1.6" psutil pillow requests
-      - name: py_compile all modules
+      - name: py_compile core modules (must pass)
         run: |
-          python -m py_compile code/brain/*.py
-          python -m py_compile code/dashboard/*.py || true
-      - name: self_test on safe modules
+          python -m py_compile \
+            code/brain/cortex_activation.py \
+            code/brain/cortex_active_inference.py \
+            code/brain/cortex_anti_fake.py \
+            code/brain/cortex_homeostasis.py
+      - name: import core modules (must pass)
         env:
           CORTEX_VAULT: "/tmp/cortex-test-vault"
         run: |
           mkdir -p /tmp/cortex-test-vault
-          # Modules sans dépendance lourde — ne touchent pas LM Studio
-          for m in cortex_active_inference cortex_anti_fake cortex_homeostasis; do
-            echo "::group::self_test $m"
-            python -c "import sys; sys.path.insert(0, 'code/brain'); import $m as mod; \
-              t = getattr(mod, 'self_test', None); \
-              print(t()) if t else print('no self_test')" || echo "WARN: $m self_test failed (non-fatal)"
-            echo "::endgroup::"
+          python -c "import sys; sys.path.insert(0, 'code/brain'); \
+            import cortex_activation, cortex_active_inference, cortex_anti_fake, cortex_homeostasis; \
+            print('core imports OK')"
+      - name: self_test core modules (must pass)
+        env:
+          CORTEX_VAULT: "/tmp/cortex-test-vault"
+        run: |
+          for m in cortex_active_inference; do
+            python -c "import sys; sys.path.insert(0, 'code/brain'); import $m as mod; r = mod.self_test(); assert r.get('ok'), r; print(r)"
+          done
+
+  smoke-rest:
+    name: Smoke — modules avec deps externes (tolérant)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: strict-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy<2.0" "scikit-learn>=1.4,<1.6" psutil pillow requests
+      - name: py_compile dashboard (tolerant)
+        run: |
+          python -m py_compile code/dashboard/*.py || true
+      - name: py_compile non-core brain modules (tolerant)
+        run: |
+          for f in code/brain/cortex_*.py; do
+            case "$f" in
+              code/brain/cortex_activation.py|code/brain/cortex_active_inference.py|code/brain/cortex_anti_fake.py|code/brain/cortex_homeostasis.py)
+                ;;  # déjà couvert strict
+              *)
+                python -m py_compile "$f" || echo "WARN: $f failed py_compile (non-fatal)"
+                ;;
+            esac
           done

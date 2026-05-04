@@ -79,6 +79,10 @@ class ActivationState:
         self.last_hebbian_ts    = 0.0  # dernier renforcement d'arête
         self.last_wander_ts     = 0.0
         self.created_at         = time.time()
+        # Charge l'état persisté au démarrage (compteurs long-terme + edges
+        # appris). Sans ça, le UI affichait 0 jusqu'au premier snapshot/activate.
+        try: self.load_from_disk()
+        except Exception: pass
 
     def _decay_one(self, node_id: str) -> float:
         """Calcule l'activation actuelle après décroissance exponentielle."""
@@ -103,11 +107,31 @@ class ActivationState:
         except Exception: pass
 
     def persist_inline(self):
-        """Persiste l'état immédiatement (sans le snapshot/decay)."""
+        """Persiste l'état immédiatement (sans le snapshot/decay).
+
+        IMPORTANT — quoi est persisté :
+        - `activations` : niveaux d'activation par nœud (récupéré au reboot)
+        - `edge_strengths` : poids Hebbian appris (vraie connaissance)
+        - `counters` : cumuls long-terme cum_* (survit aux restart serveur)
+
+        Le tooltip UI mentionnait à tort "Hebbian volatile RAM" — en réalité les
+        edge_strengths étaient déjà persistés. Seuls les COMPTEURS d'événements
+        repartaient à zéro. Maintenant ils sont persistés aussi.
+        """
         try:
             data = {
                 "activations": {k: list(v) for k, v in self.activations.items()},
                 "edge_strengths": {f"{a}|||{b}": s for (a,b), s in self.edge_strengths.items()},
+                "counters": {
+                    "cum_activations":    self.cum_activations,
+                    "cum_pulses":         self.cum_pulses,
+                    "cum_hebbian_ticks":  self.cum_hebbian_ticks,
+                    "last_activation_ts": self.last_activation_ts,
+                    "last_pulse_ts":      self.last_pulse_ts,
+                    "last_hebbian_ts":    self.last_hebbian_ts,
+                    "last_wander_ts":     self.last_wander_ts,
+                    "created_at":         self.created_at,
+                },
                 "ts": time.time(),
             }
             STATE_FILE.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
@@ -133,6 +157,24 @@ class ActivationState:
                         key = (a, b)
                         if key not in self.edge_strengths or self.edge_strengths[key] < s:
                             self.edge_strengths[key] = s
+                # Restaure les compteurs cumulés long-terme. On prend le MAX
+                # disque/RAM pour ne jamais reculer (un autre process a pu écrire
+                # plus pendant qu'on tournait).
+                disk_counters = data.get("counters") or {}
+                self.cum_activations    = max(self.cum_activations,
+                                              disk_counters.get("cum_activations", 0))
+                self.cum_pulses         = max(self.cum_pulses,
+                                              disk_counters.get("cum_pulses", 0))
+                self.cum_hebbian_ticks  = max(self.cum_hebbian_ticks,
+                                              disk_counters.get("cum_hebbian_ticks", 0))
+                self.last_activation_ts = max(self.last_activation_ts,
+                                              disk_counters.get("last_activation_ts", 0.0))
+                self.last_pulse_ts      = max(self.last_pulse_ts,
+                                              disk_counters.get("last_pulse_ts", 0.0))
+                self.last_hebbian_ts    = max(self.last_hebbian_ts,
+                                              disk_counters.get("last_hebbian_ts", 0.0))
+                self.last_wander_ts     = max(self.last_wander_ts,
+                                              disk_counters.get("last_wander_ts", 0.0))
         except Exception: pass
 
     def co_activate(self, node_ids: list[str]):
