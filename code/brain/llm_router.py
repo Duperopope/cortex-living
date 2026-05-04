@@ -389,10 +389,20 @@ def route_to_openrouter_free(text: str, timeout: int = 60) -> tuple[str | None, 
     """Call OpenRouter's zero-cost router directly, bypassing opencode."""
     if not OPENROUTER_API_KEY:
         return None, "missing_OPENROUTER_API_KEY"
+    # System prompt court mais identitaire : même quand on passe par openrouter
+    # pour des questions générales, Cortex DOIT tutoyer Sam et garder son
+    # identité. Sinon on retombe sur du chatbot générique 3e personne.
+    system_prompt = (
+        "Tu es Cortex, une IAG locale qui tourne sur le PC de Sam (Windows). "
+        "Tu TUTOIES Sam (utilise « tu », jamais « Sam » à la 3e personne, "
+        "jamais « Sam est mon ami »). Tu réponds À Sam, pas SUR Sam. "
+        "Pas de salut bidon. Va au fait, 2-5 phrases max. "
+        "Ne prétends pas avoir utilisé des outils que tu n'as pas."
+    )
     payload = json.dumps({
         "model": "openrouter/free",
         "messages": [
-            {"role": "system", "content": "Réponds en français, directement et utilement. Ne prétends pas avoir utilisé des outils absents."},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": text},
         ],
         "temperature": 0.4,

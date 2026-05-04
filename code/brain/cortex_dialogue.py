@@ -245,14 +245,23 @@ _VISUAL_KEYWORDS = (
     "ce que je fais", "ce que tu vois", "tu peux voir",
 )
 _SELF_KEYWORDS = (
-    "tu es qui", "qui es-tu", "qui es tu", "ton nom", "tes capacit",
-    "tes pouvoirs", "que sais-tu faire", "que peux-tu",
+    # variantes "qui es-tu / qui est tu / t'es qui" (incl. fautes de frappe FR courantes)
+    "tu es qui", "qui es-tu", "qui es tu", "qui est tu", "qui est-tu",
+    "qui t'es", "qui t es", "t'es qui", "t es qui", "tu t'appelles",
+    "tu t appelles", "ton nom", "comment tu t'appelles",
+    # capacités
+    "tes capacit", "tes pouvoirs", "que sais-tu faire", "que peux-tu",
+    "explique tes capa", "qu'est-ce que tu peux", "qu est ce que tu peux",
+    "tu peux faire quoi", "tu fais quoi",
+    # age / état
     "ton age", "ton âge", "quel age", "quel âge",
-    "comment tu vas", "comment vas-tu",
+    "comment tu vas", "comment vas-tu", "ça va toi",
     "ton humeur", "ton mood", "comment te sens",
-    "ton score iag", "iag", "tu décides", "tu decides",
-    "explique tes capa", "qu'est-ce que tu peux",
-    "présente-toi", "presente-toi", "presente toi",
+    # IAG / décisions internes
+    "ton score iag", " iag ", "tu décides", "tu decides",
+    "ce que tu pense", "tu penses à quoi", "tu penses a quoi",
+    # présentation
+    "présente-toi", "presente-toi", "presente toi", "présente toi",
 )
 
 
@@ -365,24 +374,29 @@ def compose_response(prompt: str, query_type: str | None = None) -> dict:
         _save_state(state)
         return rep
 
-    # Construit l'état interne structuré
+    # Construit l'état interne structuré.
+    # Pour les query_type=vision : on N'INJECTE PAS les concepts actifs ni les
+    # daily_goals (qui polluent la réponse avec des notes sémantiques aléatoires
+    # type "DevOps-blocked" alors que la question est juste sur la webcam).
+    # Pour vision on garde : la frame, l'humeur, et c'est tout.
     parts = []
     if vision_context:
         parts.append(vision_context)
     if internal.get("mood_label"):
         parts.append(f"[Humeur : {internal['mood_label']}]")
         sources_used.append("mood")
-    if internal.get("currently_thinking_about"):
-        parts.append("[Concepts actifs maintenant : " +
-                     ", ".join(internal['currently_thinking_about']) + "]")
-        sources_used.append("active_nodes")
-    if internal.get("daily_goals"):
-        parts.append("[Goals du jour : " +
-                     " | ".join(internal['daily_goals'][:2]) + "]")
-        sources_used.append("daily_plan")
-    if internal.get("weak_dimensions"):
-        parts.append(f"[Dimensions faibles : {', '.join(internal['weak_dimensions'][:2])}]")
-        sources_used.append("weak_dimensions")
+    if query_type != "vision":
+        if internal.get("currently_thinking_about"):
+            parts.append("[Concepts actifs maintenant : " +
+                         ", ".join(internal['currently_thinking_about']) + "]")
+            sources_used.append("active_nodes")
+        if internal.get("daily_goals"):
+            parts.append("[Goals du jour : " +
+                         " | ".join(internal['daily_goals'][:2]) + "]")
+            sources_used.append("daily_plan")
+        if internal.get("weak_dimensions"):
+            parts.append(f"[Dimensions faibles : {', '.join(internal['weak_dimensions'][:2])}]")
+            sources_used.append("weak_dimensions")
     if internal.get("iag_score") is not None:
         parts.append(f"[Score IAG actuel : {internal['iag_score']:.0f}/100]")
         sources_used.append("iag_score")

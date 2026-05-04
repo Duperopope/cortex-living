@@ -1,175 +1,26 @@
 {
-  "ts": 1777886656.5231605,
-  "iso": "2026-05-04T11:24:16",
+  "ts": 1777887161.1912203,
+  "iso": "2026-05-04T11:32:41",
   "brain": {
-    "ts": 1777886656.5305188,
-    "iso": "2026-05-04T11:24:16",
+    "ts": 1777887161.1993527,
+    "iso": "2026-05-04T11:32:41",
     "n_nodes": 1779,
     "by_kind": {
       "claude_memory": 20,
       "semantic": 1659,
       "episodic": 100
     },
-    "n_edges": 181671,
+    "n_edges": 180878,
     "n_isolated": 0,
-    "density": 0.1149,
-    "n_active": 47,
-    "hebbian_total": 5.28
+    "density": 0.1144,
+    "n_active": 0,
+    "hebbian_total": 0
   },
   "activation": {
-    "active_nodes": {
-      "08 - Semantic\\board-access\\95457e242e-Board-granted-full-Docker-access.md": 0.893,
-      "08 - Semantic\\heartbeat-status\\7bc526a77b-Heartbeat-completed-for-R-D-tasks.md": 0.893,
-      "08 - Semantic\\devops-tasks\\f183520b92-DevOps-tasks-blocked-by-other-issues.md": 0.893,
-      "08 - Semantic\\heartbeat-logs\\61069aad4d-Heartbeat-log-file-reference.md": 0.893,
-      "06 - Agents/model-capabilities/claude-opus-4-7.md": 0.45,
-      "07 - Ingested/claude-code/2026-04-28/08-04-27 - Claude_-Perfect_-Now-I-have-enough-information.-Let-me-compi.md": 0.698,
-      "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md": 0.698,
-      "07 - Ingested/claude-code/2026-01-04/21-03-05 - Claude_-Perfect_-Now-I-have-all-the-information-I-need.-Let-.md": 0.041,
-      "07 - Ingested/claude-code/2026-03-17/02-10-59 - Claude_-19_19.-Table-complète-et-validée-avec-les-vrais-sort.md": 0.041,
-      "07 - Ingested/claude-code/2026-04-23/14-23-57 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.041,
-      "07 - Ingested/claude-code/2026-04-23/14-41-18 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.041,
-      "07 - Ingested/claude-code/2026-04-23/19-25-17 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.041,
-      "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md": 0.45,
-      "07 - Ingested/claude-code/2026-03-04/09-19-14 - Claude_-_analysis_-Let-me-chronologically-analyze-the-conv.md": 0.45,
-      "07 - Ingested/claude-code/2026-04-25/18-44-10 - User_-In-the-repo-at-_c_Users_Smedj_AppData_Local_Temp_kairo.md": 0.45,
-      "07 - Ingested/claude-code/2026-04-23/00-42-15 - Claude_-Inbox-empty_-no-assignments.-Atlas-still-has-an-acti.md": 0.45,
-      "05 - Daily Log/2026-04-29.md": 0.45,
-      "07 - Ingested/claude-code/2026-04-22/14-12-43 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.698,
-      "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-__Impossible-à-faire-tourner-chez-toi.__-Voilà-pourq.md": 0.698,
-      "07 - Ingested/claude-code/2026-03-17/15-36-06 - Claude_-_analysis_-Let-me-carefully-analyze-all-the-conversa.md": 0.698,
-      "07 - Ingested/claude-code/2026-04-24/06-37-52 - Claude_-KAIAA-113-is-resolved.-Here_s-the-final-model-strate.md": 0.698,
-      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md": 0.289,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md": 0.289,
-      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md": 0.29,
-      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-failed-_0-s_.md": 0.29,
-      "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.011,
-      "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.011,
-      "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.011,
-      "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.011,
-      "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md": 0.011,
-      "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md": 0.011,
-      "08 - Semantic\\qa-audit\\ba6cc98f84-KAIAA-68-blocked-by-two-bugs.md": 0.013,
-      "08 - Semantic\\typo-correction\\d3178feeb8-Typo-in-gallery-fixed.md": 0.013,
-      "08 - Semantic\\kairos-forge-audit\\d5f4ecffcf-Problèmes-persistants.md": 0.013,
-      "08 - Semantic\\kairos-forge-audit\\4f688ad3fa-Audit-horaire-Kairos-Forge.md": 0.013,
-      "08 - Semantic\\kairos-forge-boilerplate\\3a37c5091d-Mobile-Menu-Links-Compliance.md": 0.013,
-      "08 - Semantic\\git_log\\34cca69c4d-Recent-Commits-in-Artisans-Comores-Repository.md": 0.013,
-      "08 - Semantic\\missing-item-types\\4414567805-Uncovered-Item-Categories-in-CDN-Data.md": 0.013,
-      "08 - Semantic\\wakfu-assets\\6fde6f86bd-Wakfu-item-icon-URL-structure.md": 0.013,
-      "08 - Semantic\\wakfu-data-source\\93e9f4c43a-Wakfu-item-definitions-stored-in-rnd-data-cdn_items-json.md": 0.013,
-      "08 - Semantic\\wakfu-item-data-architecture\\6c0de0279b-Locate-item-data-fetching-and-rendering-logic.md": 0.013,
-      "08 - Semantic\\item-icons\\6d23117814-Item-icons-are-fetched-via-async-CDN-service-with-disk-cachi.md": 0.013,
-      "08 - Semantic\\wip-widget\\da4ae0012b-All-WIP-sections-use-a-reusable-animated-GIF-widget-instead-.md": 0.013,
-      "08 - Semantic\\options-ui-pattern\\9934309c62-Options-Tab-Uses-Custom-CollapsibleCard-Accordion-Widget.md": 0.013,
-      "08 - Semantic\\ui-reset-flow\\7662296199-Data-reset-UI-replaces-placeholder-with-confirmation-flow.md": 0.013,
-      "08 - Semantic\\onboarding-trigger\\3422c453f1-Resetting-onboarding_done-forces-automatic-onboarding-dialog.md": 0.013,
-      "07 - Ingested/paperclip/2026-04-29/03-20-47 - DevOps-heartbeat_-succeeded-_0-s_.md": 0.29
-    },
-    "n_active": 47,
-    "top_hebbian_edges": [
-      {
-        "a": "08 - Semantic\\board-access\\95457e242e-Board-granted-full-Docker-access.md",
-        "b": "08 - Semantic\\heartbeat-status\\7bc526a77b-Heartbeat-completed-for-R-D-tasks.md",
-        "strength": 0.74
-      },
-      {
-        "a": "08 - Semantic\\board-access\\95457e242e-Board-granted-full-Docker-access.md",
-        "b": "08 - Semantic\\devops-tasks\\f183520b92-DevOps-tasks-blocked-by-other-issues.md",
-        "strength": 0.74
-      },
-      {
-        "a": "08 - Semantic\\board-access\\95457e242e-Board-granted-full-Docker-access.md",
-        "b": "08 - Semantic\\heartbeat-logs\\61069aad4d-Heartbeat-log-file-reference.md",
-        "strength": 0.74
-      },
-      {
-        "a": "08 - Semantic\\devops-tasks\\f183520b92-DevOps-tasks-blocked-by-other-issues.md",
-        "b": "08 - Semantic\\heartbeat-status\\7bc526a77b-Heartbeat-completed-for-R-D-tasks.md",
-        "strength": 0.74
-      },
-      {
-        "a": "08 - Semantic\\heartbeat-logs\\61069aad4d-Heartbeat-log-file-reference.md",
-        "b": "08 - Semantic\\heartbeat-status\\7bc526a77b-Heartbeat-completed-for-R-D-tasks.md",
-        "strength": 0.74
-      },
-      {
-        "a": "08 - Semantic\\devops-tasks\\f183520b92-DevOps-tasks-blocked-by-other-issues.md",
-        "b": "08 - Semantic\\heartbeat-logs\\61069aad4d-Heartbeat-log-file-reference.md",
-        "strength": 0.74
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
-        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
-        "b": "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
-        "b": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
-        "b": "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
-        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
-        "b": "07 - Ingested/claude-code/2026-04-24/23-01-10 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md",
-        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      },
-      {
-        "a": "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md",
-        "b": "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md",
-        "strength": 0.06
-      }
-    ],
-    "ts": 1777886661.5571246,
+    "active_nodes": {},
+    "n_active": 0,
+    "top_hebbian_edges": [],
+    "ts": 1777887163.8261018,
     "cum_activations": 0,
     "cum_pulses": 0,
     "cum_hebbian_ticks": 0,
@@ -177,12 +28,12 @@
     "last_pulse_ts": 0.0,
     "last_hebbian_ts": 0.0,
     "last_wander_ts": 0.0,
-    "n_edges_total": 836,
+    "n_edges_total": 0,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 52.5,
-    "ram_percent": 52.6,
+    "cpu_percent": 14.7,
+    "ram_percent": 54.0,
     "n_disks": 5,
     "gpu": []
   }
