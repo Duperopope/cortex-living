@@ -8,13 +8,17 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | Module | Rôle |
 |--------|------|
 | `cortex_activation` |  |
+| `cortex_active_inference` |  |
+| `cortex_anti_fake` |  |
 | `cortex_apply_kv_q4` |  |
 | `cortex_brain_history` |  |
 | `cortex_bridge` |  |
 | `cortex_causal` |  |
 | `cortex_continuous` |  |
 | `cortex_curiosity` |  |
+| `cortex_dialogue` |  |
 | `cortex_emergence` |  |
+| `cortex_hjepa` |  |
 | `cortex_homeostasis` |  |
 | `cortex_iag_test` |  |
 | `cortex_identity` |  |
@@ -34,6 +38,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_publishing` |  |
 | `cortex_quantize` |  |
 | `cortex_research` |  |
+| `cortex_research_auto` |  |
 | `cortex_resources` |  |
 | `cortex_rollout` |  |
 | `cortex_sam_model` |  |
