@@ -1,9 +1,9 @@
 {
-  "ts": 1777882784.5201461,
-  "iso": "2026-05-04T10:19:44",
+  "ts": 1777882834.3382225,
+  "iso": "2026-05-04T10:20:34",
   "brain": {
-    "ts": 1777882784.5300117,
-    "iso": "2026-05-04T10:19:44",
+    "ts": 1777882834.3447745,
+    "iso": "2026-05-04T10:20:34",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,27 +13,139 @@
     "n_edges": 180530,
     "n_isolated": 0,
     "density": 0.1143,
-    "n_active": 0,
-    "hebbian_total": 0
+    "n_active": 10,
+    "hebbian_total": 0.26
   },
   "activation": {
-    "active_nodes": {},
-    "n_active": 0,
-    "top_hebbian_edges": [],
-    "ts": 1777882790.026086,
-    "cum_activations": 0,
-    "cum_pulses": 0,
-    "cum_hebbian_ticks": 0,
-    "last_activation_ts": 0.0,
-    "last_pulse_ts": 0.0,
-    "last_hebbian_ts": 0.0,
-    "last_wander_ts": 0.0,
-    "n_edges_total": 0,
+    "active_nodes": {
+      "08 - Semantic\\oracle-cloud-tier\\c0a4a042ad-Oracle-Cloud-Free-Tier-Instance-Limits.md": 0.844,
+      "08 - Semantic\\wakfu-goals\\056cd817c6-Plan-for-Simultaneous-Wakfu-Accounts.md": 0.844,
+      "08 - Semantic\\cloud-providers\\be2fb86da7-Oracle-Cloud-free-tier-offers-2-lifetime-VMs.md": 0.844,
+      "08 - Semantic\\vm-access-config\\7f8e69ce20-SSH-Access-Configuration-for-Primary-VM.md": 0.844,
+      "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md": 0.784,
+      "07 - Ingested/claude-code/2026-01-04/21-03-05 - Claude_-Perfect_-Now-I-have-all-the-information-I-need.-Let-.md": 0.784,
+      "07 - Ingested/claude-code/2026-03-17/02-10-59 - Claude_-19_19.-Table-complète-et-validée-avec-les-vrais-sort.md": 0.784,
+      "07 - Ingested/claude-code/2026-04-23/14-23-57 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.784,
+      "07 - Ingested/claude-code/2026-04-23/14-41-18 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.784,
+      "07 - Ingested/claude-code/2026-04-23/19-25-17 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.784
+    },
+    "n_active": 10,
+    "top_hebbian_edges": [
+      {
+        "a": "08 - Semantic\\oracle-cloud-tier\\c0a4a042ad-Oracle-Cloud-Free-Tier-Instance-Limits.md",
+        "b": "08 - Semantic\\wakfu-goals\\056cd817c6-Plan-for-Simultaneous-Wakfu-Accounts.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\cloud-providers\\be2fb86da7-Oracle-Cloud-free-tier-offers-2-lifetime-VMs.md",
+        "b": "08 - Semantic\\oracle-cloud-tier\\c0a4a042ad-Oracle-Cloud-Free-Tier-Instance-Limits.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\oracle-cloud-tier\\c0a4a042ad-Oracle-Cloud-Free-Tier-Instance-Limits.md",
+        "b": "08 - Semantic\\vm-access-config\\7f8e69ce20-SSH-Access-Configuration-for-Primary-VM.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\cloud-providers\\be2fb86da7-Oracle-Cloud-free-tier-offers-2-lifetime-VMs.md",
+        "b": "08 - Semantic\\wakfu-goals\\056cd817c6-Plan-for-Simultaneous-Wakfu-Accounts.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\vm-access-config\\7f8e69ce20-SSH-Access-Configuration-for-Primary-VM.md",
+        "b": "08 - Semantic\\wakfu-goals\\056cd817c6-Plan-for-Simultaneous-Wakfu-Accounts.md",
+        "strength": 0.02
+      },
+      {
+        "a": "08 - Semantic\\cloud-providers\\be2fb86da7-Oracle-Cloud-free-tier-offers-2-lifetime-VMs.md",
+        "b": "08 - Semantic\\vm-access-config\\7f8e69ce20-SSH-Access-Configuration-for-Primary-VM.md",
+        "strength": 0.02
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/21-03-05 - Claude_-Perfect_-Now-I-have-all-the-information-I-need.-Let-.md",
+        "b": "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-03-17/02-10-59 - Claude_-19_19.-Table-complète-et-validée-avec-les-vrais-sort.md",
+        "b": "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/14-23-57 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/14-41-18 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/19-25-17 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/21-03-05 - Claude_-Perfect_-Now-I-have-all-the-information-I-need.-Let-.md",
+        "b": "07 - Ingested/claude-code/2026-03-17/02-10-59 - Claude_-19_19.-Table-complète-et-validée-avec-les-vrais-sort.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/21-03-05 - Claude_-Perfect_-Now-I-have-all-the-information-I-need.-Let-.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/14-23-57 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/21-03-05 - Claude_-Perfect_-Now-I-have-all-the-information-I-need.-Let-.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/14-41-18 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-01-04/21-03-05 - Claude_-Perfect_-Now-I-have-all-the-information-I-need.-Let-.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/19-25-17 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-03-17/02-10-59 - Claude_-19_19.-Table-complète-et-validée-avec-les-vrais-sort.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/14-23-57 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-03-17/02-10-59 - Claude_-19_19.-Table-complète-et-validée-avec-les-vrais-sort.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/14-41-18 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-03-17/02-10-59 - Claude_-19_19.-Table-complète-et-validée-avec-les-vrais-sort.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/19-25-17 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-23/14-23-57 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/14-41-18 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      },
+      {
+        "a": "07 - Ingested/claude-code/2026-04-23/14-23-57 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "b": "07 - Ingested/claude-code/2026-04-23/19-25-17 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md",
+        "strength": 0.01
+      }
+    ],
+    "ts": 1777882834.7218103,
+    "cum_activations": 22,
+    "cum_pulses": 17,
+    "cum_hebbian_ticks": 27,
+    "last_activation_ts": 1777882804.2019713,
+    "last_pulse_ts": 1777882804.202984,
+    "last_hebbian_ts": 1777882804.202984,
+    "last_wander_ts": 1777882804.1691904,
+    "n_edges_total": 21,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 18.7,
-    "ram_percent": 49.7,
+    "cpu_percent": 10.7,
+    "ram_percent": 50.9,
     "n_disks": 5,
     "gpu": []
   }
