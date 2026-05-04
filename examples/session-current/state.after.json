@@ -1,47 +1,47 @@
 {
-  "ts": 1777915418.5463846,
-  "n_steps_total": 236,
-  "late_surprise": 0.5383,
-  "n_better_than_random": 202,
-  "n_outcome_evaluated": 183,
+  "ts": 1777915906.050771,
+  "n_steps_total": 239,
+  "late_surprise": 2.0768,
+  "n_better_than_random": 204,
+  "n_outcome_evaluated": 186,
   "vs_baselines": {
     "random": {
-      "wins": 41,
+      "wins": 42,
       "losses": 76,
-      "ties": 66,
-      "outcome_score_sum": 105.12270000000001
+      "ties": 68,
+      "outcome_score_sum": 106.976
     },
     "always_reflect": {
       "wins": 16,
-      "losses": 167,
+      "losses": 170,
       "ties": 0,
-      "outcome_score_sum": 175.3999999999997
+      "outcome_score_sum": 178.29999999999967
     },
     "always_explore": {
       "wins": 4,
       "losses": 49,
-      "ties": 130,
-      "outcome_score_sum": 113.70410000000005
+      "ties": 133,
+      "outcome_score_sum": 115.61740000000005
     },
     "round_robin": {
       "wins": 27,
       "losses": 74,
-      "ties": 82,
-      "outcome_score_sum": 109.28020000000005
+      "ties": 85,
+      "outcome_score_sum": 111.19350000000004
     },
     "last_best": {
-      "wins": 9,
+      "wins": 10,
       "losses": 48,
-      "ties": 126,
-      "outcome_score_sum": 109.71070000000005
+      "ties": 128,
+      "outcome_score_sum": 111.51070000000004
     }
   },
   "jepa_diagnostic": {
     "n_train_steps": 11,
-    "last_loss": 0.023645900189876556,
-    "loss_avg_recent": 0.023645900189876556,
-    "online_target_W1_diff_mean": 0.000159,
-    "online_target_W2_diff_mean": 0.000284,
+    "last_loss": 0.01717250980436802,
+    "loss_avg_recent": 0.01717250980436802,
+    "online_target_W1_diff_mean": 0.000157,
+    "online_target_W2_diff_mean": 0.000273,
     "ema_tau": 0.99,
     "anti_collapse_ok": true
   },

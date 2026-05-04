@@ -1,12 +1,12 @@
 {
-  "ts": 1777915514.1223571,
+  "ts": 1777915951.7985938,
   "min_samples": 8,
   "window": 30,
   "n_actions_observed": 3,
   "empirical_predictions_count": 3,
   "heuristic_fallback_count": 0,
   "empirical_ratio": 1.0,
-  "prediction_error_avg_global": 2.27148,
+  "prediction_error_avg_global": 2.41148,
   "actions": {
     "explore_graph": {
       "n_examples": 30,
@@ -51,8 +51,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": 0.3,
-          "std": 5.62228,
+          "mean": 0.26667,
+          "std": 5.59722,
           "n": 30
         },
         "compression_error": {
@@ -61,17 +61,17 @@
           "n": 30
         },
         "cpu": {
-          "mean": 3.59,
-          "std": 10.57571,
+          "mean": 4.09333,
+          "std": 11.54755,
           "n": 30
         },
         "ram": {
-          "mean": 0.18667,
-          "std": 1.30989,
+          "mean": 0.08,
+          "std": 1.33801,
           "n": 30
         }
       },
-      "prediction_error_avg": 1.82,
+      "prediction_error_avg": 1.79556,
       "observability": "medium"
     },
     "map_knowledge": {
@@ -119,8 +119,8 @@
       ],
       "means": {
         "n_active": {
-          "mean": -0.26667,
-          "std": 8.2257,
+          "mean": -0.93333,
+          "std": 9.31999,
           "n": 30
         },
         "compression_error": {
@@ -129,18 +129,18 @@
           "n": 30
         },
         "cpu": {
-          "mean": 1.32,
-          "std": 12.64923,
+          "mean": 0.34,
+          "std": 12.9274,
           "n": 30
         },
         "ram": {
-          "mean": 0.47667,
-          "std": 0.94927,
+          "mean": 0.48333,
+          "std": 0.96128,
           "n": 30
         }
       },
-      "prediction_error_avg": 2.51111,
-      "observability": "medium"
+      "prediction_error_avg": 2.95556,
+      "observability": "high"
     }
   },
   "top_overoptimistic_actions": [
