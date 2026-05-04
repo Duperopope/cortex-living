@@ -13,16 +13,19 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_bridge` |  |
 | `cortex_causal` |  |
 | `cortex_continuous` |  |
+| `cortex_curiosity` |  |
 | `cortex_emergence` |  |
 | `cortex_homeostasis` |  |
 | `cortex_iag_test` |  |
 | `cortex_identity` |  |
 | `cortex_intent` | Contexte dashboard Cortex: |
+| `cortex_introspection` |  |
 | `cortex_jepa_continual` |  |
 | `cortex_kv_quantize` |  |
 | `cortex_learned_skills` |  |
 | `cortex_memory` |  |
 | `cortex_memory_audit` |  |
+| `cortex_narrative` |  |
 | `cortex_optimize_all` |  |
 | `cortex_personality` |  |
 | `cortex_pipeline_manager` |  |
