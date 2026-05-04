@@ -1,18 +1,18 @@
 {
-  "ts": 1777925991.435115,
+  "ts": 1777928590.9294245,
   "severity": "WARNING",
   "critical_disk": {
     "mount": "C:\\",
     "percent": 81.4,
-    "free_gb": 58.5,
-    "used_gb": 255.2,
+    "free_gb": 58.3,
+    "used_gb": 255.5,
     "total_gb": 313.7
   },
   "all_disks": [
     {
       "mount": "C:\\",
       "percent": 81.4,
-      "free_gb": 58.5,
+      "free_gb": 58.3,
       "is_critical": false,
       "is_warning": true
     },

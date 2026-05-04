@@ -18,6 +18,7 @@ HTTP unique. Chacun gère une fonction cognitive ou métabolique.
 | `cortex_causal` |  |
 | `cortex_claude_code` |  |
 | `cortex_continuous` |  |
+| `cortex_cosmogenesis_lab` |  |
 | `cortex_curiosity` |  |
 | `cortex_dialogue` |  |
 | `cortex_emergence` |  |

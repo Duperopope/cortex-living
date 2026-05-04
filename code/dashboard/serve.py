@@ -3750,7 +3750,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
            parsed.path.startswith("/api/cortex/iag") or \
            parsed.path.startswith("/api/cortex/x4") or \
            parsed.path.startswith("/api/cortex/web") or \
-           parsed.path.startswith("/api/cortex/game"):
+           parsed.path.startswith("/api/cortex/game") or \
+           parsed.path.startswith("/api/cortex/cosmo"):
             try:
                 import sys as _sys
                 if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
@@ -3846,6 +3847,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 elif p == "/api/cortex/game/next_task":
                     import cortex_game_autonomy_lab as _gl
                     self._send_json(_gl.propose_next_game_task()); return
+                elif p == "/api/cortex/cosmo/status":
+                    import cortex_cosmogenesis_lab as _co
+                    self._send_json(_co.status()); return
+                elif p == "/api/cortex/cosmo/detect":
+                    import cortex_cosmogenesis_lab as _co
+                    self._send_json(_co.detect_cosmogenesis()); return
+                elif p == "/api/cortex/cosmo/gap":
+                    import cortex_cosmogenesis_lab as _co
+                    self._send_json(_co.inspect_seamless_gap()); return
                 elif p == "/api/cortex/memory_audit":
                     import cortex_memory_audit as _ma
                     self._send_json(_ma.audit()); return
@@ -4169,6 +4179,47 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(500, f"web {sub} POST error: {e}")
             return
 
+        # Routes POST Cosmogenesis Lab (Cortex code/teste son propre jeu)
+        if parsed.path.startswith("/api/cortex/cosmo/"):
+            sub = parsed.path.split("/api/cortex/cosmo/", 1)[-1]
+            try:
+                import sys as _sys
+                if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
+                    _sys.path.insert(0, r"<CORTEX_REPO>\scripts\brain")
+                import cortex_cosmogenesis_lab as _co
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length).decode("utf-8-sig")) if length else {}
+                if sub == "smoke":
+                    rep = _co.smoke_test(frames=int(body.get("frames", 30)),
+                                          seed=int(body.get("seed", 42)),
+                                          timeout_s=int(body.get("timeout_s", 60)))
+                elif sub == "baseline":
+                    rep = _co.capture_baseline()
+                elif sub == "propose":
+                    rep = _co.propose_patch()
+                elif sub == "apply":
+                    rep = _co.apply_patch_in_branch()
+                elif sub == "rollback":
+                    rep = _co.rollback_last_patch()
+                elif sub == "cycle":
+                    rep = _co.run_autonomous_cycle(
+                        max_iter=int(body.get("max_iter", 2)),
+                        baseline_frames=int(body.get("frames", 30)))
+                else:
+                    self.send_error(404, f"unknown cosmo sub: {sub}")
+                    return
+                data = json.dumps(rep, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"cosmo {sub} POST error: {e}")
+            return
+
         # Routes POST Game IAG Lab
         if parsed.path.startswith("/api/cortex/game/"):
             sub = parsed.path.split("/api/cortex/game/", 1)[-1]
@@ -4392,7 +4443,8 @@ except Exception:
            parsed.path.startswith("/api/cortex/iag") or \
            parsed.path.startswith("/api/cortex/x4") or \
            parsed.path.startswith("/api/cortex/web") or \
-           parsed.path.startswith("/api/cortex/game"):
+           parsed.path.startswith("/api/cortex/game") or \
+           parsed.path.startswith("/api/cortex/cosmo"):
             try:
                 import sys as _sys
                 if r"<CORTEX_REPO>\scripts\brain" not in _sys.path:
@@ -6055,6 +6107,36 @@ def main():
                             _bh.speak_if_critical()
                     except Exception: pass
                     _t.sleep(3600)  # 1h entre les diagnostics (scan disk lent)
+            def _cosmo_autonomy_loop():
+                """Cortex code/teste son propre jeu (Cosmogenesis) en autonomie.
+
+                Cycle toutes les 20 min : capture baseline → propose patch
+                seamless → apply sur branche cortex/dev-cosmogenesis → smoke
+                test → keep|rollback. Respecte le pause flag (RAM/CPU haut).
+                """
+                _t.sleep(900)  # warmup 15 min (laisse les autres loops se stabiliser)
+                try: import cortex_cosmogenesis_lab as _co
+                except Exception: return
+                while True:
+                    try:
+                        # Skip si le système est saturé
+                        pause_flag = REPO / ".cortex-pause.flag"
+                        if pause_flag.exists():
+                            _t.sleep(300); continue
+                        # Vérification rapide : projet détecté + python deps OK ?
+                        d = _co.detect_cosmogenesis()
+                        if not d.get("ok"):
+                            _t.sleep(1800); continue
+                        # Cycle autonome avec 1 itération (frugal)
+                        rep = _co.run_autonomous_cycle(max_iter=1, baseline_frames=20)
+                        if rep.get("verdict"):
+                            print(f"[cosmo-autonomy] {rep['verdict']} "
+                                    f"kept={rep.get('n_kept', 0)} "
+                                    f"rolled={rep.get('n_rolled_back', 0)}",
+                                    flush=True)
+                    except Exception as _e:
+                        print(f"[cosmo-autonomy] err: {_e}", flush=True)
+                    _t.sleep(1200)  # 20 min entre cycles
             _th.Thread(target=_proactive_loop,         name="iag-proactive",  daemon=True).start()
             _th.Thread(target=_continual_loop,         name="iag-continual",  daemon=True).start()
             _th.Thread(target=_audit_loop,             name="iag-audit",      daemon=True).start()
@@ -6064,43 +6146,18 @@ def main():
             _th.Thread(target=_hjepa_loop,             name="iag-hjepa",      daemon=True).start()
             _th.Thread(target=_dialogue_initiative_loop, name="iag-dialogue", daemon=True).start()
             _th.Thread(target=_body_health_loop,         name="iag-body-health", daemon=True).start()
+            _th.Thread(target=_cosmo_autonomy_loop,      name="iag-cosmo",       daemon=True).start()
         except Exception as _ie:
             print(f"[serve] IAG loops err: {_ie}", flush=True)
         print("[serve] all bg loops started", flush=True)
     except Exception as e:
         print(f"[serve] cortex bg init err: {e}", flush=True)
-    # DEBUG : signal handler pour identifier qui kill le process
-    import signal as _sig, traceback as _tb_sig, threading as _th_sig
-    def _sig_handler(signum, frame):
-        msg = f"\n[serve] !!!! SIGNAL {signum} ({_sig.Signals(signum).name}) RECEIVED !!!!"
-        msg += f"\n[serve] thread: {_th_sig.current_thread().name}"
-        msg += f"\n[serve] frame:\n{''.join(_tb_sig.format_stack(frame))}"
-        print(msg, flush=True)
-        try:
-            with open(r"<CORTEX_REPO>\scripts\brain\dashboard\state\serve_signal_trace.log", "a", encoding="utf-8") as fp:
-                import time as _t
-                fp.write(f"\n=== {_t.strftime('%Y-%m-%d %H:%M:%S')} ===\n{msg}\n")
-        except Exception: pass
-    for _s in (_sig.SIGINT, _sig.SIGTERM, _sig.SIGBREAK):
-        try: _sig.signal(_s, _sig_handler)
-        except Exception: pass
-
     print(f"[serve] binding port {PORT}", flush=True)
-    try:
-        with socketserver.ThreadingTCPServer(("127.0.0.1", PORT), Handler) as srv:
-            print(f"[serve] BIND OK, serve_forever starting...", flush=True)
-            try:
-                srv.serve_forever()
-            except KeyboardInterrupt:
-                srv.shutdown()
-            print(f"[serve] serve_forever returned normally", flush=True)
-    except SystemExit as e:
-        print(f"[serve] !!!! SystemExit code={e.code} caught at main bind level !!!!", flush=True)
-        raise
-    except BaseException as e:
-        print(f"[serve] !!!! {type(e).__name__}: {e}", flush=True)
-        print(_tb_sig.format_exc(), flush=True)
-        raise
+    with socketserver.ThreadingTCPServer(("127.0.0.1", PORT), Handler) as srv:
+        try:
+            srv.serve_forever()
+        except KeyboardInterrupt:
+            srv.shutdown()
 
 
 if __name__ == "__main__":

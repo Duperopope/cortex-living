@@ -1,60 +1,60 @@
 {
-  "ts": 1777925861.957238,
-  "n_steps_total": 273,
-  "late_surprise": 2.4096,
-  "n_better_than_random": 238,
-  "n_outcome_evaluated": 220,
+  "ts": 1777928431.7441332,
+  "n_steps_total": 288,
+  "late_surprise": 2.3618,
+  "n_better_than_random": 252,
+  "n_outcome_evaluated": 235,
   "vs_baselines": {
     "random": {
-      "wins": 51,
-      "losses": 92,
-      "ties": 77,
-      "outcome_score_sum": 127.436
+      "wins": 58,
+      "losses": 97,
+      "ties": 80,
+      "outcome_score_sum": 137.08939999999998
     },
     "always_reflect": {
       "wins": 16,
-      "losses": 204,
+      "losses": 219,
       "ties": 0,
-      "outcome_score_sum": 210.6499999999995
+      "outcome_score_sum": 226.5999999999994
     },
     "always_explore": {
       "wins": 4,
-      "losses": 56,
-      "ties": 160,
-      "outcome_score_sum": 141.12740000000005
+      "losses": 59,
+      "ties": 172,
+      "outcome_score_sum": 155.00410000000002
     },
     "round_robin": {
       "wins": 28,
-      "losses": 82,
-      "ties": 110,
-      "outcome_score_sum": 135.87020000000007
+      "losses": 85,
+      "ties": 122,
+      "outcome_score_sum": 149.74690000000004
     },
     "last_best": {
       "wins": 11,
-      "losses": 56,
-      "ties": 153,
-      "outcome_score_sum": 136.19410000000005
+      "losses": 60,
+      "ties": 164,
+      "outcome_score_sum": 150.11080000000004
     }
   },
   "jepa_diagnostic": {
-    "n_train_steps": 27,
-    "last_loss": 0.021321281790733337,
-    "loss_avg_recent": 0.03621420370680945,
-    "online_target_W1_diff_mean": 0.000342,
-    "online_target_W2_diff_mean": 0.000635,
+    "n_train_steps": 35,
+    "last_loss": 0.02564038150012493,
+    "loss_avg_recent": 0.037920757010579106,
+    "online_target_W1_diff_mean": 0.000405,
+    "online_target_W2_diff_mean": 0.00071,
     "ema_tau": 0.99,
     "anti_collapse_ok": true
   },
   "belief_diagnostic": {
-    "n_observations": 62,
-    "kl_to_prior": 0.7788,
+    "n_observations": 71,
+    "kl_to_prior": 0.8043,
     "last_vfe": null,
     "q_dist": {
-      "silent": 0.016,
-      "exploring": 0.657,
-      "reflecting": 0.296,
-      "planning": 0.016,
-      "perceiving": 0.016
+      "silent": 0.014,
+      "exploring": 0.669,
+      "reflecting": 0.29,
+      "planning": 0.014,
+      "perceiving": 0.014
     }
   }
 }

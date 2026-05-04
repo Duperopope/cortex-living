@@ -776,6 +776,107 @@ body > canvas { display:block; position:fixed; inset:0; z-index:0; background:#0
   })();
   </script>
 
+  <!-- Cosmogenesis Lab : Cortex code/teste son propre jeu (seamless ground→universe) -->
+  <details id="cb-cosmo-details" style="border:1px solid #1b3f5f;border-left:3px solid #38bdf8;border-radius:8px;background:linear-gradient(90deg,rgba(56,189,248,0.06),rgba(7,10,20,0.58));padding:8px 10px;margin-bottom:10px">
+    <summary style="cursor:pointer;color:#bae6fd;font-size:10px;font-weight:700;letter-spacing:.4px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <span>◉ Cosmogenesis Lab</span>
+      <span id="cb-cosmo-meta" style="color:#3a6f8d;font-size:9px;font-weight:400">Cortex code son jeu · seamless ground→universe</span>
+    </summary>
+    <div style="padding-top:8px;font-size:10px">
+      <div id="cb-cosmo-status" style="font-family:ui-monospace,monospace;font-size:9.5px;color:#cdf;margin-bottom:8px">—</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <button onclick="cosmoAction('detect','GET')" style="background:#1b2f3f;border:1px solid #2a4f6f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">détecter projet</button>
+        <button onclick="cosmoAction('gap','GET')" style="background:#1b2f3f;border:1px solid #2a4f6f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">analyser gap seamless</button>
+        <button onclick="cosmoAction('smoke','POST',{frames:15})" style="background:#1b2f3f;border:1px solid #2a4f6f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">smoke test 15f</button>
+        <button onclick="cosmoAction('baseline','POST')" style="background:#1b2f3f;border:1px solid #2a4f6f;color:#cdf;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit">capture baseline</button>
+        <button onclick="cosmoAction('propose','POST')" style="background:#1b3f3f;border:1px solid #2a5f5f;color:#bef;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">proposer patch (1 indicateur)</button>
+        <button onclick="if(confirm('Cortex va appliquer un patch sur la branche cortex/dev-cosmogenesis. Le worktree cosmogenesis doit être clean (commit/stash avant).')) cosmoAction('apply','POST')" style="background:#3f2f1b;border:1px solid #5f4a2a;color:#fc9;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">appliquer patch (branche)</button>
+        <button onclick="if(confirm('Cycle autonome : baseline → propose → apply → smoke → keep|rollback ×N. Ça touche le repo Universe sur branche dédiée.')) cosmoAction('cycle','POST',{max_iter:2,frames:20})" style="background:#1b3f2a;border:1px solid #2a5f3f;color:#cfc;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">cycle autonome ×2</button>
+        <button onclick="if(confirm('Rollback du dernier commit Cortex ? (git reset --hard HEAD~1 sur cortex/dev-cosmogenesis)')) cosmoAction('rollback','POST')" style="background:#3f1b2a;border:1px solid #5f2a3f;color:#fcc;cursor:pointer;padding:5px;border-radius:3px;font-size:9.5px;font-family:inherit;grid-column:1/-1">rollback dernier patch</button>
+      </div>
+      <div id="cb-cosmo-output" style="margin-top:8px;color:#9bb;font-size:9.5px;line-height:1.4;max-height:200px;overflow-y:auto;font-family:ui-monospace,monospace;display:none;background:#0a0e14;padding:6px;border-radius:3px"></div>
+    </div>
+  </details>
+  <script>
+  (function(){
+    async function refreshCosmoStatus(){
+      try {
+        const r = await fetch('/api/cortex/cosmo/status', {cache:'no-store'});
+        if (!r.ok) return;
+        const s = await r.json();
+        const el = document.getElementById('cb-cosmo-status');
+        if (!el) return;
+        let html = '';
+        html += '<div>projet: <span style="color:'+(s.detected?'#55ff99':'#ff7766')+'">'+(s.detected?'détecté':'absent')+'</span>'
+              + (s.cosmo_root?(' · '+s.cosmo_root.split('\\').slice(-2).join('\\')) :'') + '</div>';
+        html += '<div>python deps: <span style="color:'+(s.deps_ok?'#55ff99':'#ff7766')+'">'+(s.deps_ok?'OK':'manquant')+'</span></div>';
+        html += '<div>git: '+(s.git_repo?'<span style="color:#55ff99">✓</span> branche '+s.current_branch:'<span style="color:#ff7766">absent</span>')+'</div>';
+        html += '<div>n_actions historique: '+(s.n_history||0)+'</div>';
+        el.innerHTML = html;
+      } catch(e){}
+    }
+    window.cosmoAction = async function(sub, method, body){
+      const out = document.getElementById('cb-cosmo-output');
+      out.style.display = 'block';
+      out.innerHTML = '<span style="color:#557">⏳ '+sub+' en cours...</span>';
+      try {
+        const opts = {method: method || 'GET', cache:'no-store'};
+        if (method === 'POST') {
+          opts.headers = {'Content-Type': 'application/json'};
+          opts.body = JSON.stringify(body || {});
+        }
+        const r = await fetch('/api/cortex/cosmo/'+sub, opts);
+        const txt = await r.text();
+        let d;
+        try { d = JSON.parse(txt); }
+        catch(e) {
+          out.innerHTML = '<span style="color:#ff7766">HTTP '+r.status+' '+r.statusText+'</span>'
+                        + '<div style="color:#aab;font-size:9px;margin-top:4px">Route absente : relance serve.py pour charger /api/cortex/cosmo/*.</div>';
+          return;
+        }
+        if (!r.ok) { out.innerHTML = '<span style="color:#ff7766">HTTP '+r.status+'</span><div>'+(d.error||'erreur')+'</div>'; return; }
+        let html = '<div style="color:#38bdf8">'+sub+': '+(d.ok?'<span style="color:#55ff99">OK</span>':'<span style="color:#ff7766">FAIL</span>')+'</div>';
+        if (sub === 'gap' && d.indicators_found !== undefined) {
+          html += '<div>seamless coverage: '+(d.n_found||0)+'/'+(d.n_total||0)+' ('+Math.round((d.coverage||0)*100)+'%)</div>';
+          if (d.indicators_found) for (const k in d.indicators_found) html += '<div>· <span style="color:#55ff99">'+k+'</span></div>';
+          if (d.missing && d.missing.length) html += '<div style="color:#ffcc66">manquants: '+d.missing.join(', ')+'</div>';
+        }
+        if (sub === 'smoke') {
+          html += '<div>verdict: <span style="color:'+(d.verdict==='rendered_target'?'#55ff99':'#ffcc66')+'">'+d.verdict+'</span></div>';
+          html += '<div>frames: '+(d.frames_rendered||0)+'/'+d.frames_requested+' · '+(d.duration_s||0)+'s</div>';
+          if (d.crashed) html += '<div style="color:#ff7766">crash: '+(d.traceback||'').slice(0,200).replace(/</g,'&lt;')+'</div>';
+        }
+        if (sub === 'propose' && d.target_indicator) {
+          html += '<div>indicator: <span style="color:#55ff99">'+d.target_indicator+'</span></div>';
+          html += '<div>file: '+(d.target_file||'').split('\\\\').pop()+'</div>';
+          html += '<div style="color:#aab">'+(d.rationale||'')+'</div>';
+        }
+        if (sub === 'apply') {
+          html += '<div>branch: '+(d.branch||'?')+'</div>';
+          html += '<div>commit: '+(d.commit||'?').slice(0,8)+'</div>';
+          html += '<div>added: <span style="color:#55ff99">'+(d.indicator_added||'?')+'</span></div>';
+        }
+        if (sub === 'cycle') {
+          html += '<div>verdict: <span style="color:#55ff99">'+(d.verdict||'?')+'</span></div>';
+          html += '<div>kept: '+(d.n_kept||0)+' · rolled_back: '+(d.n_rolled_back||0)+'</div>';
+          if (d.iterations) for (const it of d.iterations) {
+            html += '<div>· iter '+it.i+': '+(it.decision||it.skipped||'?')+(it.proposed&&it.proposed.target_indicator?' ('+it.proposed.target_indicator+')':'')+'</div>';
+          }
+        }
+        if (d.error) html += '<div style="color:#ff7766">'+d.error+'</div>';
+        if (d.msg)   html += '<div style="color:#ffcc66">'+d.msg+'</div>';
+        out.innerHTML = html;
+        refreshCosmoStatus();
+      } catch(e) {
+        out.innerHTML = '<span style="color:#ff7766">erreur: '+e.message+'</span>';
+      }
+    };
+    const det = document.getElementById('cb-cosmo-details');
+    if (det){ det.addEventListener('toggle', () => { if (det.open) refreshCosmoStatus(); }); }
+    refreshCosmoStatus();
+  })();
+  </script>
+
   <details id="cb-expert-details" style="border:1px solid #1b2746;border-radius:8px;background:rgba(7,10,20,.58);padding:8px 10px;margin-bottom:10px">
     <summary style="cursor:pointer;color:#a9b8d8;font-size:10px;font-weight:700;letter-spacing:.4px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px">
       <span>Mesures expertes</span>
@@ -1929,18 +2030,46 @@ function updatePositions() {
   const nsize  = nodeMesh.geometry.attributes.size.array;
   const lpos   = linkLines.geometry.attributes.position.array;
 
+  // ── Cerveau qui respire : flash explosif sur transition inactif→actif,
+  // trace mémoire qui fade sur ~6s, halo permanent sur top-N actifs.
+  const _now_ts = performance.now();
   nodes.forEach((n, i) => {
     npos[i*3]   = n.x||0; npos[i*3+1] = n.y||0; npos[i*3+2] = n.z||0;
     const isActive = n.active;
     const cAct = n._cortex_active || 0;
+    // Détection edge inactif→actif → flash 280ms à intensité 8x
+    if (cAct > 0.05 && !(n._was_active)) {
+      n._flash_until = _now_ts + 280;
+      n._last_seen_active = _now_ts;
+      n._was_active = true;
+    } else if (cAct <= 0.05) {
+      n._was_active = false;
+    }
+    if (cAct > 0.05) n._last_seen_active = _now_ts;
+    // Trace mémoire : fade 6s après dernière activation
+    const trace = n._last_seen_active
+      ? Math.max(0, 1 - (_now_ts - n._last_seen_active) / 6000)
+      : 0;
+    const flashing = n._flash_until && _now_ts < n._flash_until;
+    const flashFactor = flashing
+      ? 1 + 7 * (n._flash_until - _now_ts) / 280
+      : 1;
     let sz = Math.max(8, (n.centrality||0)*800+8);
-    if (cAct > 0)        sz *= (1 + cAct * 4);   // 1x → 5x avec activation
-    else if (isActive)   sz *= 3.5;              // legacy random firing
+    if (cAct > 0)        sz *= (1 + cAct * 4) * flashFactor;
+    else if (trace > 0)  sz *= 1 + trace * 0.8;     // halo qui fade
+    else if (isActive)   sz *= 3.5;
     nsize[i] = sz;
     let r, g, b;
     if (cAct > 0) {
       const t = Math.min(1, cAct);
       r = 0.35 + 0.55*t; g = 0.95 + 0.35*t; b = 0.45 + 0.45*t;
+      if (flashing) { r += flashFactor*0.3; g += flashFactor*0.4; b += flashFactor*0.3; }
+    } else if (trace > 0) {
+      // Couleur de trace : mélange folder + cyan-vert qui fade
+      const c = folderColor(n.folder);
+      r = c.r * (1-trace*0.5) + 0.4*trace;
+      g = c.g * (1-trace*0.3) + 0.95*trace;
+      b = c.b * (1-trace*0.5) + 0.6*trace;
     } else if (isActive) {
       r = 1.0; g = 1.0; b = 0.55;
     } else {
@@ -2658,8 +2787,36 @@ function applyForces() {
 }
 
 // ─── Render loop ──────────────────────────────────────────────────────────────
+// Orbite caméra ambient : 40s par tour, désactivée dès que l'utilisateur
+// touche aux controls (clic/drag/wheel) → on respecte son intention.
+let _autoOrbitEnabled = true;
+let _autoOrbitAngle = 0;
+let _autoOrbitRadius = 0;
+let _autoOrbitInitialized = false;
+['mousedown','wheel','touchstart','keydown'].forEach(ev => {
+  window.addEventListener(ev, () => { _autoOrbitEnabled = false; }, {passive:true, once:false});
+});
+function applyAutoOrbit() {
+  if (!_autoOrbitEnabled || !controls) return;
+  if (!_autoOrbitInitialized) {
+    const dx = camera.position.x - controls.target.x;
+    const dz = camera.position.z - controls.target.z;
+    _autoOrbitRadius = Math.sqrt(dx*dx + dz*dz) || 600;
+    _autoOrbitAngle = Math.atan2(dz, dx);
+    _autoOrbitInitialized = true;
+  }
+  // 40s pour un tour complet (lent, perceptible)
+  _autoOrbitAngle += (2 * Math.PI) / (40 * 60);
+  const cx = controls.target.x;
+  const cz = controls.target.z;
+  camera.position.x = cx + _autoOrbitRadius * Math.cos(_autoOrbitAngle);
+  camera.position.z = cz + _autoOrbitRadius * Math.sin(_autoOrbitAngle);
+  camera.lookAt(controls.target);
+}
+
 function animate() {
   requestAnimationFrame(animate);
+  applyAutoOrbit();
   controls.update();
   if (_forcesEnabled && nodes.length > 0) {
     if (!_velocities) initForces();
