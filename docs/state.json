@@ -1,9 +1,9 @@
 {
-  "ts": 1777874556.353131,
-  "iso": "2026-05-04T08:02:36",
+  "ts": 1777875193.8973053,
+  "iso": "2026-05-04T08:13:13",
   "brain": {
-    "ts": 1777874556.3602464,
-    "iso": "2026-05-04T08:02:36",
+    "ts": 1777875193.9049337,
+    "iso": "2026-05-04T08:13:13",
     "n_nodes": 1778,
     "by_kind": {
       "claude_memory": 20,
@@ -13,47 +13,76 @@
     "n_edges": 180530,
     "n_isolated": 0,
     "density": 0.1143,
-    "n_active": 4,
-    "hebbian_total": 84.14
+    "n_active": 33,
+    "hebbian_total": 85.43
   },
   "activation": {
     "active_nodes": {
-      "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md": 0.952,
-      "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md": 0.952,
-      "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md": 0.952,
-      "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md": 0.952
+      "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md": 0.832,
+      "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md": 0.832,
+      "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md": 0.832,
+      "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md": 0.831,
+      "07 - Ingested/claude-code/2026-04-23/01-22-40 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.77,
+      "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-YouTube-ne-me-laisse-pas-lire-le-contenu-des-vidéos-.md": 0.77,
+      "07 - Ingested/claude-code/2026-04-22/16-53-17 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.77,
+      "07 - Ingested/claude-code/2026-04-27/17-38-37 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.77,
+      "07 - Ingested/claude-code/2026-04-24/19-15-21 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.77,
+      "07 - Ingested/claude-code/2026-04-18/20-11-58 - Claude_-Je-n_ai-rien-touché-depuis-ton-message.-État-sur-dis.md": 0.77,
+      "07 - Ingested/claude-code/2026-04-26/15-36-54 - Claude_-__-Summary-I_ve-successfully-read-all-16-files-from.md": 0.811,
+      "07 - Ingested/claude-code/2026-04-26/15-06-48 - Claude_-Perfect_-Now-I-have-all-the-information-I-need.-Let-.md": 0.811,
+      "07 - Ingested/claude-code/2026-03-17/03-42-53 - Claude_-_analysis_-Let-me-analyze-the-conversation-chronolog.md": 0.811,
+      "07 - Ingested/claude-code/2026-04-23/14-23-57 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.811,
+      "07 - Ingested/claude-code/2026-04-23/14-41-18 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.811,
+      "07 - Ingested/claude-code/2026-04-23/19-25-17 - User_-Explore-the-repository-at-C__c_Users_Smedj_.paperclip_.md": 0.811,
+      "world_model": 0.824,
+      "jepa": 0.824,
+      "Teste si le world model peut aider Cortex a s autocorriger sans fake": 0.824,
+      "07 - Ingested/claude-code/2026-01-04/09-39-54 - Claude_-_analysis_-Let-me-go-through-the-conversation-chro.md": 0.831,
+      "07 - Ingested/claude-code/2026-04-28/06-54-45 - User_---__-Paperclip-Wake-Payload-Treat-this-wake-payload-a.md": 0.824,
+      "07 - Ingested/claude-code/2026-04-22/11-47-36 - Claude_-__-Résultats-empiriques-_-ta-machine-_-Métrique-_-V.md": 0.824,
+      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-failed-_0-s_.md": 0.831,
+      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-succeeded-_0-s_.md": 0.831,
+      "07 - Ingested/paperclip/2026-04-29/03-20-47 - CEO-heartbeat_-succeeded-_0-s_.md": 0.831,
+      "07 - Ingested/paperclip/2026-04-29/03-20-46 - Atlas-heartbeat_-cancelled-_0-s_.md": 0.831,
+      "06 - Agents/model-capabilities/claude-opus-4-7.md": 0.831,
+      "07 - Ingested/claude-code/2026-03-04/21-13-16 - Claude_-Pour-de-__vrais-moniteurs-virtuels__-gratuits_-il-y-.md": 0.832,
+      "07 - Ingested/claude-code/2026-03-17/02-10-59 - Claude_-19_19.-Table-complète-et-validée-avec-les-vrais-sort.md": 0.832,
+      "07 - Ingested/claude-code/2026-04-18/20-24-14 - Claude_-Tout-est-en-place.-Récap-de-la-livraison-v1.0.-__Dé.md": 0.832,
+      "07 - Ingested/claude-code/2026-04-22/11-47-36 - Claude_-Puter-expose-de-vrais-modèles-uncensored.-__Il-suffi.md": 0.832,
+      "07 - Ingested/claude-code/2026-04-22/13-10-20 - Claude_-Puter-expose-de-vrais-modèles-uncensored.-__Il-suffi.md": 0.832,
+      "07 - Ingested/claude-code/2026-04-24/11-20-07 - Claude_-__Livraison-_-zéro-action-board-requise.__-La-page-.md": 0.832
     },
-    "n_active": 4,
+    "n_active": 33,
     "top_hebbian_edges": [
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 12.81
+        "strength": 13.02
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
-        "strength": 12.81
+        "strength": 13.02
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\22f7ea8c75-Handle-highest-priority-wake-payload-first.md",
-        "strength": 12.81
+        "strength": 13.02
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 12.81
+        "strength": 13.02
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\fc49be15ce-Do-not-refetch-issue-thread.md",
-        "strength": 12.81
+        "strength": 13.02
       },
       {
         "a": "08 - Semantic\\paperclip-issue-handling\\036bd8efb8-Issue-already-claimed.md",
         "b": "08 - Semantic\\paperclip-issue-handling\\85895a8c1d-Current-issue-status.md",
-        "strength": 12.81
+        "strength": 13.02
       },
       {
         "a": "08 - Semantic\\paperclip-workflow\\3d8ea807cb-Handle-Paperclip-Wake-Payload-First.md",
@@ -103,7 +132,7 @@
       {
         "a": "jepa",
         "b": "world_model",
-        "strength": 0.43
+        "strength": 0.44
       },
       {
         "a": "08 - Semantic\\paperclip-heartbeat-priority\\f764989b30-Wake-Payload-Priority.md",
@@ -118,28 +147,28 @@
       {
         "a": "Teste si le world model peut aider Cortex a s autocorriger sans fake",
         "b": "world_model",
-        "strength": 0.17
+        "strength": 0.18
       },
       {
         "a": "Teste si le world model peut aider Cortex a s autocorriger sans fake",
         "b": "jepa",
-        "strength": 0.17
+        "strength": 0.18
       }
     ],
-    "ts": 1777874556.5896697,
-    "cum_activations": 3575,
-    "cum_pulses": 2710,
-    "cum_hebbian_ticks": 2871,
-    "last_activation_ts": 1777874547.7476943,
-    "last_pulse_ts": 1777874547.748775,
-    "last_hebbian_ts": 1777874547.748775,
-    "last_wander_ts": 1777874547.7079575,
-    "n_edges_total": 159,
+    "ts": 1777875200.7820272,
+    "cum_activations": 0,
+    "cum_pulses": 0,
+    "cum_hebbian_ticks": 0,
+    "last_activation_ts": 0.0,
+    "last_pulse_ts": 0.0,
+    "last_hebbian_ts": 0.0,
+    "last_wander_ts": 0.0,
+    "n_edges_total": 204,
     "wander_interval": 45.0
   },
   "body": {
-    "cpu_percent": 13.0,
-    "ram_percent": 41.1,
+    "cpu_percent": 23.5,
+    "ram_percent": 45.6,
     "n_disks": 5,
     "gpu": []
   }
