@@ -1,6 +1,6 @@
 {
-  "ts": 1777893510.8338623,
-  "n_steps_at_start": 72,
-  "early_surprise": 2.3683,
+  "ts": 1777893724.0691442,
+  "n_steps_at_start": 76,
+  "early_surprise": 0.1387,
   "active_inference_version": "active-inference-1"
 }

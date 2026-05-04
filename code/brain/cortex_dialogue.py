@@ -388,13 +388,80 @@ def compose_response(prompt: str, query_type: str | None = None) -> dict:
 
     vision_context = ""
     vision_screenshot = None
+    vision_description = ""  # contenu propre, sans wrapper [Vue webcam]
+    vision_method = ""
+    vision_ok = False
     if query_type == "vision":
         vision_context, vision_screenshot = _capture_vision_context(prompt)
         sources_used.append("vision_live")
+        # Détecte si la capture a réussi (vision réelle) vs MUTE / KO
+        if vision_context.startswith("[Vue webcam"):
+            vision_ok = True
+            # Extrait : "[Vue webcam (capturée live, méthode=lm_studio_vision) : <desc>]"
+            try:
+                inner = vision_context[1:-1]  # retire les []
+                if " : " in inner:
+                    head, vision_description = inner.split(" : ", 1)
+                    vision_description = vision_description.strip()
+                    if "méthode=" in head:
+                        vision_method = head.split("méthode=", 1)[1].rstrip(")")
+            except Exception:
+                vision_description = vision_context
 
     confidence = _confidence_on(prompt)
     sources_used.append(f"confidence:{confidence.get('label')}")
     internal = _gather_internal_state()
+
+    # COURT-CIRCUIT VISION : pour query_type=vision avec une description vision
+    # réelle issue du modèle VL, on RENVOIE DIRECTEMENT la description plutôt
+    # que de la passer dans un brain LLM text-only qui la censure et répond
+    # « Je ne vois rien » (vu en live avec Sam — qwen vision a parfaitement
+    # décrit la scène, puis le brain LLM downstream a ignoré [Vue webcam]).
+    # Le brain LLM ne sert à rien sur une question purement visuelle : la vraie
+    # info est déjà dans la description du modèle vision.
+    if query_type == "vision" and vision_ok and vision_description \
+       and vision_method == "lm_studio_vision":
+        # On préfixe avec un mini ancrage identité + humeur si dispo, et c'est tout.
+        head = ""
+        if internal.get("mood_label"):
+            head = f"({internal['mood_label']}) "
+        rep = {
+            "ok": True, "text": head + vision_description,
+            "sources_used": sources_used + ["vision_shortcut",
+                                             f"vision_method:{vision_method}"],
+            "used_internal_state": True,
+            "vision_screenshot": vision_screenshot,
+            "query_type": query_type,
+        }
+        _log_event({"type": "compose_response", "prompt": prompt[:120],
+                     "vision_shortcut": True, "query_type": query_type})
+        state = _load_state()
+        state["n_responses"] = state.get("n_responses", 0) + 1
+        state["last_response_ts"] = _now()
+        _save_state(state)
+        _record_query_type(query_type)
+        return rep
+
+    # Vision MUTE ou capture KO : on dit franchement, sans inventer
+    if query_type == "vision" and not vision_ok:
+        # vision_context contient déjà le diagnostic ([Vision : MUTE], etc.)
+        diag = vision_context.strip("[]") if vision_context else "vision indisponible"
+        rep = {
+            "ok": True,
+            "text": f"Ma vision est cassée pour ce tour : {diag}. "
+                    f"Recharge un modèle VL ou réactive la webcam, je te dirai ce que je vois.",
+            "sources_used": sources_used + ["vision_unavailable"],
+            "used_internal_state": True,
+            "query_type": query_type,
+        }
+        _log_event({"type": "compose_response", "prompt": prompt[:120],
+                     "vision_unavailable": True, "query_type": query_type})
+        state = _load_state()
+        state["n_responses"] = state.get("n_responses", 0) + 1
+        state["last_response_ts"] = _now()
+        _save_state(state)
+        _record_query_type(query_type)
+        return rep
 
     # Honest don't-know UNIQUEMENT pour query_type=general (vision/self ont leur
     # propre matière concrète à fournir, on ne baille pas un don't-know générique).

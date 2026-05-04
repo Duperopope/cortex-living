@@ -67,17 +67,54 @@ def _detect_loaded_model() -> str | None:
     return None
 
 
+def _detect_vision_model() -> str | None:
+    """Cherche un modèle VL chargé dans LM Studio (vl, llava, vision, etc.).
+
+    Sans ça, on hardcodait `qwen2-vl` mais LM Studio peut avoir
+    `unsloth/qwen2.5-vl-7b-instruct` chargé sous un nom différent → mismatch
+    silencieux → fallback OpenCV. Vu en live avec Sam.
+    """
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:1234/v1/models",
+                                    timeout=3) as r:
+            d = json.loads(r.read().decode())
+            for m in (d.get("data") or []):
+                mid = (m.get("id") or "").lower()
+                # Heuristique : tout modèle avec "vl", "vision", "llava" dans
+                # son ID est candidat. Le nom EXACT (avec casse) est renvoyé.
+                if any(tag in mid for tag in ("vl-", "-vl", "vision", "llava")):
+                    return m["id"]
+    except Exception: pass
+    return None
+
+
 def _try_lm_vision(b64_png: str, prompt: str, model: str = None) -> str | None:
     """Tentative LM Studio vision (qwen-vl, llava). Retourne None si pas dispo.
+
+    Auto-detection du modèle vision chargé : si `model` n'est pas fourni, on
+    interroge `/v1/models` pour trouver un VL/llava chargé. Évite le mismatch
+    « le code envoie 'qwen2-vl' mais LM Studio a 'unsloth/qwen2.5-vl-7b-instruct'
+    chargé ».
 
     Renseigne LAST_VISION_DIAG avec un diagnostic précis :
     - lm_down            : LM Studio injoignable
     - model_not_vision   : modèle chargé text-only (rejette les images)
+    - no_vision_model    : aucun VL détecté dans /v1/models
     - timeout / other    : autres erreurs
-    Permet à serve.py / UI d'afficher un message actionnable à Sam.
     """
+    if not model:
+        model = _detect_vision_model()
+    if not model:
+        LAST_VISION_DIAG.clear()
+        LAST_VISION_DIAG.update({
+            "ok": False, "kind": "no_vision_model",
+            "loaded_model": _detect_loaded_model(),
+            "hint": "Aucun modèle vision détecté dans LM Studio. Charge "
+                     "qwen2.5-vl-7b-instruct ou llava.", "ts": time.time(),
+        })
+        return None
     payload = {
-        "model": model or "qwen2-vl",  # auto-fallback géré côté serveur
+        "model": model,
         "messages": [{
             "role": "user",
             "content": [

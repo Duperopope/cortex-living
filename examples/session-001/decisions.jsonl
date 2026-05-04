@@ -1,10 +1,10 @@
-{"ts": 1777893510.8338623, "vfe": 2.3683, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": -0.5, "outcome_proxy": 0.0}
-{"ts": 1777893570.9524546, "vfe": 0.2605, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 1.5, "outcome_proxy": 1.5}
-{"ts": 1777893624.655249, "vfe": 0.5891, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.9, "outcome_proxy": 1.5}
-{"ts": 1777893690.7271354, "vfe": 0.5756, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 0.3, "outcome_proxy": 0.0}
 {"ts": 1777893724.0691442, "vfe": 0.1387, "chosen": "map_knowledge", "comparison": "equal_to_random", "outcome_score": 0.3, "outcome_proxy": 0.0}
 {"ts": 1777893849.201796, "vfe": 0.9139, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 1.5, "outcome_proxy": 1.5}
 {"ts": 1777893919.4347715, "vfe": 0.8249, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
 {"ts": 1777894185.7348764, "vfe": 2.9156, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.3, "outcome_proxy": 0.8529}
 {"ts": 1777894264.077926, "vfe": 0.6306, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
-{"ts": 1777894511.692085, "vfe": 2.8647, "chosen": "map_knowledge", "comparison": "equal_to_random"}
+{"ts": 1777894517.8803086, "vfe": 2.8997, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 1.5, "outcome_proxy": 0.7909}
+{"ts": 1777894591.8943224, "vfe": 0.6344, "chosen": "map_knowledge", "comparison": "better_than_random", "outcome_score": 0.0, "outcome_proxy": 0.0}
+{"ts": 1777894825.490115, "vfe": 2.5506, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 0.35, "outcome_proxy": 0.5}
+{"ts": 1777894890.7636514, "vfe": 0.4984, "chosen": "explore_graph", "comparison": "better_than_random", "outcome_score": 1.5, "outcome_proxy": 1.5}
+{"ts": 1777894966.198048, "vfe": 0.542, "chosen": "explore_graph", "comparison": "better_than_random"}
