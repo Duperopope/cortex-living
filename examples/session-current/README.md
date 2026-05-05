@@ -1,6 +1,6 @@
 # Session current — preuves multi-rapports
 
-> Snapshot live : `2026-05-05T02:28:28`
+> Snapshot live : `2026-05-05T03:51:21`
 
 Ce dossier rassemble **tous les rapports croisés** produits par les modules
 de Cortex à un instant T. Différent de `session-001/` (qui est une fenêtre
@@ -56,4 +56,4 @@ python code/brain/cortex_iag_test.py
 ```
 
 Si tes chiffres divergent de ce qui est dans les .json ici, c'est attendu —
-ce snapshot est figé à `2026-05-05T02:28:28`. Lance les commandes pour voir l'état actuel.
+ce snapshot est figé à `2026-05-05T03:51:21`. Lance les commandes pour voir l'état actuel.
