@@ -1,5 +1,5 @@
 {
-  "ts": 1777950215.8980575,
+  "ts": 1777954740.7837143,
   "severity": "WARNING",
   "critical_disk": {
     "mount": "C:\\",
@@ -32,8 +32,8 @@
     },
     {
       "mount": "E:\\",
-      "percent": 24.2,
-      "free_gb": 364.0,
+      "percent": 28.2,
+      "free_gb": 344.8,
       "is_critical": false,
       "is_warning": false
     },

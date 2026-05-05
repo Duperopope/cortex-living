@@ -1,60 +1,60 @@
 {
-  "ts": 1777950039.0393465,
-  "n_steps_total": 407,
-  "late_surprise": 2.446,
-  "n_better_than_random": 359,
-  "n_outcome_evaluated": 354,
+  "ts": 1777954527.71024,
+  "n_steps_total": 431,
+  "late_surprise": 2.3904,
+  "n_better_than_random": 380,
+  "n_outcome_evaluated": 378,
   "vs_baselines": {
     "random": {
-      "wins": 72,
-      "losses": 157,
-      "ties": 125,
-      "outcome_score_sum": 214.06269999999995
+      "wins": 75,
+      "losses": 172,
+      "ties": 131,
+      "outcome_score_sum": 231.43269999999995
     },
     "always_reflect": {
       "wins": 18,
-      "losses": 336,
+      "losses": 360,
       "ties": 0,
-      "outcome_score_sum": 345.9999999999994
+      "outcome_score_sum": 371.59999999999945
     },
     "always_explore": {
       "wins": 8,
-      "losses": 83,
-      "ties": 263,
-      "outcome_score_sum": 228.19739999999996
+      "losses": 90,
+      "ties": 280,
+      "outcome_score_sum": 245.47059999999996
     },
     "round_robin": {
       "wins": 33,
-      "losses": 112,
-      "ties": 209,
-      "outcome_score_sum": 223.90029999999996
+      "losses": 119,
+      "ties": 226,
+      "outcome_score_sum": 241.17349999999996
     },
     "last_best": {
       "wins": 25,
-      "losses": 85,
-      "ties": 244,
-      "outcome_score_sum": 218.2542
+      "losses": 92,
+      "ties": 261,
+      "outcome_score_sum": 235.5274
     }
   },
   "jepa_diagnostic": {
-    "n_train_steps": 112,
-    "last_loss": 0.056478336453437805,
-    "loss_avg_recent": 0.04892023652791977,
-    "online_target_W1_diff_mean": 0.000952,
-    "online_target_W2_diff_mean": 0.001422,
+    "n_train_steps": 131,
+    "last_loss": 0.055009279400110245,
+    "loss_avg_recent": 0.055009279400110245,
+    "online_target_W1_diff_mean": 0.001099,
+    "online_target_W2_diff_mean": 0.001664,
     "ema_tau": 0.99,
     "anti_collapse_ok": true
   },
   "belief_diagnostic": {
-    "n_observations": 152,
-    "kl_to_prior": 0.8471,
+    "n_observations": 171,
+    "kl_to_prior": 0.8603,
     "last_vfe": null,
     "q_dist": {
-      "silent": 0.007,
-      "exploring": 0.626,
-      "reflecting": 0.353,
-      "planning": 0.007,
-      "perceiving": 0.007
+      "silent": 0.006,
+      "exploring": 0.633,
+      "reflecting": 0.349,
+      "planning": 0.006,
+      "perceiving": 0.006
     }
   }
 }
